@@ -63,8 +63,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue="home" className="w-full justify-center items-center">
-          <TabsList className="grid w-5/6 grid-cols-7 mb-8 bg-card/50 backdrop-blur-sm border-none justify-center items-center rounded-lg px-4 py-2 gap-4">
+        <Tabs defaultValue="home" className="w-full">
+          <TabsList className="grid w-5/6 grid-cols-7 mb-8 bg-card/50 backdrop-blur-sm border-none">
             <TabsTrigger value="home" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Home</TabsTrigger>
             <TabsTrigger value="server" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Server</TabsTrigger>
             <TabsTrigger value="players" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Players</TabsTrigger>
@@ -72,10 +72,6 @@ export default function Dashboard() {
             <TabsTrigger value="config" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Config</TabsTrigger>
             <TabsTrigger value="plugins" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Plugins</TabsTrigger>
             <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Settings</TabsTrigger>
-            <BorderTrail
-              className={`hover:scale-105 bg-linear-to-l from-blue-200 via-cyan-500 to-blue-200 dark:from-blue-400 dark:via-cyan-500 dark:to-blue-700`}
-              size={120}
-            />
           </TabsList>
 
           <TabsContents className="space-y-6">
