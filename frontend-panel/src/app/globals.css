@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base { 
+
+  .dark {
+    --background: rgb(18, 18, 18);
+    --foreground: rgb(230, 230, 230);
+    --card: rgb(30, 30, 30);
+    --card-foreground: rgb(230, 230, 230);
+    --popover: rgb(30, 30, 30);
+    --popover-foreground: rgb(230, 230, 230);
+    --primary: rgb(0, 0, 0);
+    --primary-foreground: rgb(230, 230, 230);
+    --secondary: rgb(230, 230, 230);
+    --secondary-foreground: rgb(0, 0, 0);
+    --muted: rgb(30, 30, 30);
+    --muted-foreground: rgb(160, 160, 160);
+    --accent: rgb(30, 30, 30);
+    --accent-foreground: rgb(230, 230, 230);
+    --destructive: rgb(255, 69, 58);
+    --destructive-foreground: rgb(230, 230, 230);
+    --border: rgb(60, 60, 60);
+    --input: rgb(60, 60, 60);
+    --ring: rgb(255, 69, 58);
+    --radius: 0.5rem;
+    --chart-1: 220 70% 60%;
+    --chart-2: 160 60% 65%;
+    --chart-3: 30 80% 65%;
+    --chart-4: 280 65% 70%;
+    --chart-5: 340 75% 65%;
+    --zinc-50: 255 255 255;
+    --zinc-100: 245 245 245;
+    --zinc-200: 225 225 225;
+    --zinc-300: 200 200 200;
+    --zinc-400: 160 160 160;
+    --zinc-500: 130 130 130;
+    --zinc-600: 100 100 100;
+    --zinc-700: 70 70 70;
+    --zinc-800: 50 50 50;
+    --zinc-900: 30 30 30;
+    --zinc-950: 10 10 10;
+  }
+
+  .light {
+    --background: rgb(255, 255, 255);
+    --foreground: rgb(0, 0, 0);
+    --card: rgb(255, 255, 255);
+    --card-foreground: rgb(0, 0, 0);
+  }
+}
+
+@layer base {
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

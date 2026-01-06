@@ -1,0 +1,20 @@
+# WebX Dashboard Configuration
+# Port for the web server
+port: 8080
+
+# API key for authentication (change this!)
+api-key: "secret-change-me"
+
+# Redis configuration for session management
+Redis:
+  Host: localhost
+  Port: 6379
+  Password: "" 
+
+# Database configuration for PostgreSQL
+PostgreSQL:
+  Host: localhost
+  Port: 5432
+  Database: minecraft_data
+  User: your_db_user 
+  Password: your_db_password 

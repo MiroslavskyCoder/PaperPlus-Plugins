@@ -1,0 +1,45 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-fullstack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Build Frontend
+        working-directory: ./frontend-panel
+        run: |
+          bun install
+          bun run build
+
+      - name: Copy Frontend Assets
+        run: |
+          mkdir -p backend-plugin/src/main/resources/web
+          cp -r frontend-panel/out/* backend-plugin/src/main/resources/web/
+
+      - name: Build Backend Plugin
+        working-directory: ./backend-plugin
+        run: chmod +x gradlew && ./gradlew shadowJar
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyPolyglotPlugin
+          path: backend-plugin/build/libs/*.jar
