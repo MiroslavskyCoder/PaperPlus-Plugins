@@ -3,9 +3,7 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary"
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin" 
 import { ClearEditorPlugin } from "@lexical/react/LexicalClearEditorPlugin"
 import { ContentEditable } from "@/components/editor/editor-ui/content-editable" 
-import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin" 
-import { HeadingNode, QuoteNode } from "@lexical/rich-text"
-import { ParagraphNode, TextNode } from "lexical"
+import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin"  
 import { ActionsPlugin } from "@/components/editor/plugins/actions/actions-plugin"
 import { ClearEditorActionPlugin } from "@/components/editor/plugins/actions/clear-editor-plugin" 
 import { ContextMenuPlugin } from "@/components/editor/plugins/context-menu-plugin"
@@ -14,6 +12,7 @@ import { CodeActionMenuPlugin } from "@/components/editor/plugins/code-action-me
 import { CodeHighlightPlugin } from "@/components/editor/plugins/code-highlight-plugin" 
 import { CodeLanguageToolbarPlugin } from "@/components/editor/plugins/toolbar/code-language-toolbar-plugin"
 import { HistoryToolbarPlugin } from "@/components/editor/plugins/toolbar/history-toolbar-plugin"
+import { CounterCharacterPlugin } from "@/components/editor/plugins/actions/counter-character-plugin"
 
 const placeholder = "Start typing...";
 
@@ -60,7 +59,9 @@ export function Plugins() {
           <div className="flex flex-1 justify-start">
             {/* left side action buttons */}
           </div>
-          <div>{/* center action buttons */}</div>
+          <div>
+            <CounterCharacterPlugin charset="UTF-16" />
+          </div>
           <div className="flex flex-1 justify-end">
             {/* right side action buttons */}
             <>
