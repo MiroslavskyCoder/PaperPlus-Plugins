@@ -15,6 +15,7 @@ import { PlayersTab } from '@/components/dashboard/players-tab';
 import { MapTab } from '@/components/dashboard/map-tab';
 import { ConfigTab } from '@/components/dashboard/config-tab';
 import { PluginsTab } from '@/components/dashboard/plugins-tab';
+import { SettingsTab } from '@/components/dashboard/settings-tab';
 
 interface Stats {
   cpu: number;
@@ -62,14 +63,15 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue="home" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-8 bg-card/50 backdrop-blur-sm border-none">
+        <Tabs defaultValue="home" className="w-full justify-center items-center">
+          <TabsList className="grid w-5/6 grid-cols-7 mb-8 bg-card/50 backdrop-blur-sm border-none justify-center items-center rounded-lg px-4 py-2 gap-4">
             <TabsTrigger value="home" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Home</TabsTrigger>
             <TabsTrigger value="server" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Server</TabsTrigger>
             <TabsTrigger value="players" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Players</TabsTrigger>
             <TabsTrigger value="map" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Map</TabsTrigger>
             <TabsTrigger value="config" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Config</TabsTrigger>
             <TabsTrigger value="plugins" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Plugins</TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Settings</TabsTrigger>
             <BorderTrail
               className={`hover:scale-105 bg-linear-to-l from-blue-200 via-cyan-500 to-blue-200 dark:from-blue-400 dark:via-cyan-500 dark:to-blue-700`}
               size={120}
@@ -99,6 +101,10 @@ export default function Dashboard() {
 
             <TabsContent value="plugins" className="space-y-6 animate-fade-in">
               <PluginsTab plugins={plugins} />
+            </TabsContent>
+
+            <TabsContent value="settings" className="space-y-6 animate-fade-in">
+              <SettingsTab/>
             </TabsContent>
           </TabsContents>
         </Tabs>

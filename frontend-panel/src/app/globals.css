@@ -5,7 +5,7 @@
 @layer base { 
 
   .dark {
-    --background: rgb(18, 18, 18);
+    --background: rgb(0, 0, 0);
     --foreground: rgb(230, 230, 230);
     --card: rgb(30, 30, 30);
     --card-foreground: rgb(230, 230, 230);
