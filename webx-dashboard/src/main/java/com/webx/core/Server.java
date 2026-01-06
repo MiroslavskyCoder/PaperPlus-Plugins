@@ -5,6 +5,8 @@ import io.javalin.websocket.WsContext;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.webx.api.API;
+
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.Set;
 
@@ -56,6 +58,12 @@ public class Server {
                 plugin.getLogger().info("WebSocket client disconnected: " + ctx.sessionId());
             });
             ws.onError(ctx -> plugin.getLogger().warning("WebSocket error: " + ctx.error()));
+        });
+
+        app.get(API.getFullPath("players"), handler -> {
+            handler.json(plugin.getServer().getOnlinePlayers().stream().map(player -> {
+                return new com.webx.player.PlayerProfile(player);
+            }).toArray());
         });
  
         new BukkitRunnable() {

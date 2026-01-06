@@ -82,7 +82,7 @@ public class PlayerProfile {
         if (dbService == null) { 
             return; 
         }
-         
+        
         if (isOnline()) {
             org.bukkit.entity.Player bukkitPlayer = org.bukkit.Bukkit.getPlayer(uuid);
             if (bukkitPlayer != null) {
