@@ -13,6 +13,7 @@ import { ToolbarPlugin } from "@/components/editor/plugins/toolbar/toolbar-plugi
 import { CodeActionMenuPlugin } from "@/components/editor/plugins/code-action-menu-plugin"
 import { CodeHighlightPlugin } from "@/components/editor/plugins/code-highlight-plugin" 
 import { CodeLanguageToolbarPlugin } from "@/components/editor/plugins/toolbar/code-language-toolbar-plugin"
+import { HistoryToolbarPlugin } from "@/components/editor/plugins/toolbar/history-toolbar-plugin"
 
 const placeholder = "Start typing...";
 
@@ -31,6 +32,7 @@ export function Plugins() {
       <ToolbarPlugin>
         {({ blockType }) => (
           <div className="vertical-align-middle sticky top-0 z-10 flex gap-2 overflow-auto border-b border-zinc-800 p-1"> 
+            <HistoryToolbarPlugin />
             {blockType === "code" ? <CodeLanguageToolbarPlugin /> : <></>}
           </div>
         )}
