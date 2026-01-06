@@ -3,6 +3,7 @@ package com.webx.api;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -23,7 +24,7 @@ public class RouterProvider {
     public RouterProvider(JavaPlugin plugin) {
         
         this.startWebServer();
-        
+
         app.ws("/metrics", ws -> {
             plugin.getLogger().info("WebSocket /metrics endpoint initialized"); 
             ws.onConnect(ctx -> {
@@ -42,7 +43,41 @@ public class RouterProvider {
                 return new com.webx.player.PlayerProfile(player);
             }).toArray());
         });
- 
+
+        app.get(API.getFullPath("plugins"), handler -> {
+            Plugin[] plugins = plugin.getServer().getPluginManager().getPlugins(); 
+
+            Object[] pluginProfiles = new Object[plugins.length];
+            for (int i = 0; i < plugins.length; i++) {
+                Plugin p = plugins[i];
+                pluginProfiles[i] = new Object() {
+                    public String name = p.getName();
+                    public String version = p.getDescription().getVersion();
+                    public boolean isEnabled = p.isEnabled();
+                    public String description = p.getDescription().getDescription();
+                    public String author = p.getDescription().getAuthors().get(0);
+                    public String website = p.getDescription().getWebsite();  
+                };
+                
+            }
+            handler.json(pluginProfiles);
+        });
+
+        app.post(API.getFullPath("setconfig"), handler -> {
+            String pluginId = handler.formParam("pluginId");
+            String key = handler.formParam("key");
+            String value = handler.formParam("value"); 
+
+            Plugin targetPlugin = plugin.getServer().getPluginManager().getPlugin(pluginId);
+
+            if (targetPlugin != null) {
+                targetPlugin.getConfig().set(key, value);
+                targetPlugin.saveConfig(); 
+                handler.result("Configuration updated successfully.");
+            } else {
+                handler.status(404).result("Plugin not found.");
+            }
+        });
     }
 
     private void collectAndSendMetrics() {

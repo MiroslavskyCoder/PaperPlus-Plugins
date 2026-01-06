@@ -13,6 +13,7 @@ import { CodeHighlightPlugin } from "@/components/editor/plugins/code-highlight-
 import { CodeLanguageToolbarPlugin } from "@/components/editor/plugins/toolbar/code-language-toolbar-plugin"
 import { HistoryToolbarPlugin } from "@/components/editor/plugins/toolbar/history-toolbar-plugin"
 import { CounterCharacterPlugin } from "@/components/editor/plugins/actions/counter-character-plugin"
+import { ImportExportPlugin } from "@/components/editor/plugins/actions/import-export-plugin"
 
 const placeholder = "Start typing...";
 
@@ -67,6 +68,7 @@ export function Plugins() {
             <>
               <ClearEditorActionPlugin />
               <ClearEditorPlugin />
+              <ImportExportPlugin />
             </>
           </div>
         </div>
