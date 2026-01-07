@@ -44,7 +44,7 @@ public final class PolyglotPlugin extends JavaPlugin implements Listener {
         
         dbManager = new DatabaseManager(this, dbHost, dbPort, dbName, dbUser, dbPass);
         
-        authManager = new AuthManager(redisManager);
+        authManager = new AuthManager(redisManager, dbManager);
         
         getServer().getPluginManager().registerEvents(this, this);
 
