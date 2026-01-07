@@ -217,7 +217,14 @@ public class RouterProvider {
 
     private void startWebServer() {
         app = Javalin.create(config -> {
-            config.staticFiles.add("/web");  // Serve static files from /web
+            // Serve static files from /web directory in resources
+            config.staticFiles.add(staticFiles -> {
+                staticFiles.hostedPath = "/";
+                staticFiles.directory = "/web";
+                staticFiles.location = io.javalin.http.staticfiles.Location.CLASSPATH;
+                staticFiles.precompress = false;
+                staticFiles.aliasCheck = null;
+            });
             
             // Enable CORS for all origins
             config.bundledPlugins.enableCors(cors -> {
@@ -248,7 +255,7 @@ public class RouterProvider {
                 );
             });
             
-        }).start(9092); // Changed to 9092 to match frontend
+        }).start(9092);
 
         plugin.getLogger().info("====================================");
         plugin.getLogger().info("Javalin WebSocket server started!");
