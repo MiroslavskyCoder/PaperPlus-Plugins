@@ -85,7 +85,7 @@ public class RouterProvider {
                 
                 org.bukkit.entity.Player player = plugin.getServer().getPlayer(java.util.UUID.fromString(playerUuid));
                 if (player != null && player.isOnline()) {
-                    player.kick(net.md_5.bungee.api.chat.TextComponent.fromLegacyText(reason));
+                    player.kickPlayer(reason);
                     plugin.getLogger().info("👢 Kicked player: " + player.getName() + " Reason: " + reason);
                     handler.json(new Object() { public boolean success = true; public String message = "Player kicked"; });
                 } else {
@@ -107,7 +107,7 @@ public class RouterProvider {
                 if (player != null) {
                     org.bukkit.BanEntry ban = plugin.getServer().getBanList(org.bukkit.BanList.Type.NAME).addBan(player.getName(), reason, null, "Admin");
                     if (player.isOnline()) {
-                        player.kick(net.md_5.bungee.api.chat.TextComponent.fromLegacyText("You have been banned: " + reason));
+                        player.kickPlayer("You have been banned: " + reason);
                     }
                     plugin.getLogger().info("🚫 Banned player: " + player.getName() + " Reason: " + reason);
                     handler.json(new Object() { public boolean success = true; public String message = "Player banned"; });
