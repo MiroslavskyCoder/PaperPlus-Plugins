@@ -12,7 +12,7 @@ function setRef<T>(ref: PossibleRef<T>, value: T) {
   }
 
   if (ref !== null && ref !== undefined) {
-    ref.current = value;
+    (ref as React.MutableRefObject<T>).current = value;
   }
 }
 
