@@ -15,6 +15,7 @@ import { PlayersTab } from '@/components/dashboard/players-tab';
 import { MapTab } from '@/components/dashboard/map-tab';
 import { ConfigTab } from '@/components/dashboard/config-tab';
 import { PluginsTab } from '@/components/dashboard/plugins-tab';
+import { SettingsTab } from '@/components/dashboard/settings-tab';
 
 interface Stats {
   cpu: number;
@@ -43,7 +44,7 @@ interface Entity {
 }
 
 export default function Dashboard() {
-  const { stats, statsHistory, players, entities, plugins, socket, mapImage, chartData, fetchPlayers, fetchMap, fetchChartData, runCommand } = useDashboard();
+  const { stats, statsHistory, players, entities, plugins, mapImage, chartData, fetchPlayers, fetchMap, fetchChartData, runCommand } = useDashboard();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 text-foreground">
@@ -63,17 +64,14 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="home" className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-8 bg-card/50 backdrop-blur-sm border-none">
+          <TabsList className="grid w-5/6 grid-cols-7 mb-8 bg-card/50 backdrop-blur-sm border-none">
             <TabsTrigger value="home" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Home</TabsTrigger>
             <TabsTrigger value="server" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Server</TabsTrigger>
             <TabsTrigger value="players" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Players</TabsTrigger>
             <TabsTrigger value="map" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Map</TabsTrigger>
             <TabsTrigger value="config" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Config</TabsTrigger>
             <TabsTrigger value="plugins" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Plugins</TabsTrigger>
-            <BorderTrail
-              className={`hover:scale-105 bg-linear-to-l from-blue-200 via-cyan-500 to-blue-200 dark:from-blue-400 dark:via-cyan-500 dark:to-blue-700`}
-              size={120}
-            />
+            <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContents className="space-y-6">
@@ -99,6 +97,10 @@ export default function Dashboard() {
 
             <TabsContent value="plugins" className="space-y-6 animate-fade-in">
               <PluginsTab plugins={plugins} />
+            </TabsContent>
+
+            <TabsContent value="settings" className="space-y-6 animate-fade-in">
+              <SettingsTab/>
             </TabsContent>
           </TabsContents>
         </Tabs>

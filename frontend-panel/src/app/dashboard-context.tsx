@@ -1,7 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface Stats {
   cpu: number;
@@ -16,9 +15,17 @@ interface Player {
   name: string;
   uuid: string;
   health: number;
+  maxHealth: number;
   x: number;
   y: number;
   z: number;
+  world: string;
+  level: number;
+  experience: number;
+  foodLevel: number;
+  ping: number;
+  online: boolean;
+  timestamp: number;
 }
 
 interface Entity {
@@ -37,14 +44,30 @@ interface Plugin {
   status: 'enabled' | 'disabled';
 }
 
+interface ServerStatus {
+  name: string;
+  version: string;
+  onlinePlayers: number;
+  maxPlayers: number;
+  cpuUsage: number;
+  memoryUsed: number;
+  memoryMax: number;
+  motd: string;
+  online: boolean;
+  uptime: number;
+  gameMode: string;
+  difficulty: number;
+  pvp: boolean;
+}
+
 interface DashboardContextType {
   stats: Stats | null;
   statsHistory: Stats[];
   players: Player[];
   entities: Entity[];
   plugins: Plugin[];
-  socket: Socket | null;
   mapImage: string;
+  serverStatus: ServerStatus | null;
   chartData: {
     cpu: number[];
     memory: number[];
@@ -55,6 +78,7 @@ interface DashboardContextType {
   fetchPlayers: () => Promise<void>;
   fetchMap: () => Promise<void>;
   fetchChartData: () => Promise<void>;
+  fetchServerStatus: () => Promise<void>;
   runCommand: (cmd: string) => Promise<void>;
 }
 
@@ -74,8 +98,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [players, setPlayers] = useState<Player[]>([]);
   const [entities, setEntities] = useState<Entity[]>([]);
   const [plugins, setPlugins] = useState<Plugin[]>([]);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [mapImage, setMapImage] = useState<string>('');
+  const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null);
   const [chartData, setChartData] = useState({
     cpu: [25, 30, 45, 50, 35, 40, 55, 60, 45, 50],
     memory: [60, 65, 70, 75, 80, 85, 90, 95, 85, 80],
@@ -85,63 +109,125 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   });
 
   useEffect(() => {
-    // Connect to Socket.IO
-    const newSocket = io('http://localhost:9092');
-    setSocket(newSocket);
-
-    newSocket.on('connect', () => console.log('Connected to server'));
-    newSocket.on('disconnect', () => console.log('Disconnected'));
-
-    // Listen for metrics updates
-    newSocket.on('metrics', (data) => {
-      setStats({
-        cpu: data.cpuUsage,
-        memUsed: data.memoryUsage * 100, // assuming percentage
-        memMax: 100,
-        diskUsed: 50, // placeholder
-        diskTotal: 100,
-        players: data.onlinePlayers,
-      });
-      // Update history
-      setStatsHistory(prev => [...prev.slice(-9), {
-        cpu: data.cpuUsage,
-        memUsed: data.memoryUsage * 100,
-        memMax: 100,
-        diskUsed: 50,
-        diskTotal: 100,
-        players: data.onlinePlayers,
-      }]);
-    }); 
-
-    // Listen for map updates
-    newSocket.on('map', (data: string) => {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.type === 'map') {
-          setMapImage(parsed.image);
+    // Connect to WebSocket for real-time metrics
+    // Dynamically determine the WebSocket URL based on the current location
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/metrics`;
+    
+    console.log('🔌 Connecting to WebSocket:', wsUrl);
+    
+    try {
+      const ws = new WebSocket(wsUrl);
+      
+      ws.onopen = () => {
+        console.log('✅ Connected to metrics WebSocket');
+      };
+      
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('📥 Metrics received:', data);
+          
+          // Update current stats
+          setStats({
+            cpu: data.cpuUsage || 0,
+            memUsed: data.memUsed || 0,
+            memMax: data.memMax || 0,
+            diskUsed: data.diskUsed || 0,
+            diskTotal: data.diskTotal || 0,
+            players: data.onlinePlayers || 0,
+          });
+          
+          // Update stats history for charts (keep last 30 data points = 60 seconds)
+          setStatsHistory(prev => {
+            const updated = [...prev, {
+              cpu: data.cpuUsage || 0,
+              memUsed: data.memUsed || 0,
+              memMax: data.memMax || 0,
+              diskUsed: data.diskUsed || 0,
+              diskTotal: data.diskTotal || 0,
+              players: data.onlinePlayers || 0,
+            }];
+            return updated.slice(-30); // Keep last 30 points
+          });
+          
+          // Update chart data
+          setChartData(prev => {
+            const newCpu = [...prev.cpu, data.cpuUsage || 0].slice(-30);
+            const memoryPercent = data.memMax > 0 ? (data.memUsed / data.memMax) * 100 : 0;
+            const newMemory = [...prev.memory, memoryPercent].slice(-30);
+            const newPlayers = [...prev.players, data.onlinePlayers || 0].slice(-30);
+            const diskPercent = data.diskTotal > 0 ? (data.diskUsed / data.diskTotal) * 100 : 0;
+            const newDisk = [...prev.disk, diskPercent].slice(-30);
+            const newTimestamps = [...prev.timestamps, data.timestamp || Date.now()].slice(-30);
+            
+            console.log('📊 Metrics updated:', {
+              cpu: (data.cpuUsage || 0).toFixed(2) + '%',
+              memory: memoryPercent.toFixed(2) + '%',
+              players: data.onlinePlayers || 0,
+            });
+            
+            return {
+              cpu: newCpu,
+              memory: newMemory,
+              players: newPlayers,
+              disk: newDisk,
+              timestamps: newTimestamps,
+            };
+          });
+        } catch (e) {
+          console.error('Error parsing metrics data:', e);
         }
-      } catch (e) { console.error(e); }
-    });
-
-    // Listen for player connect
-    newSocket.on('connecting_success', (data: string) => {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.type === 'connecting_success') {
-          console.log('Player connected:', parsed.playerdata);
-          // Optionally update players list
-          fetchPlayers();
+      };
+      
+      ws.onerror = (error) => {
+        console.error('❌ WebSocket error:', error);
+      };
+      
+      ws.onclose = () => {
+        console.log('🔌 Disconnected from metrics WebSocket');
+      };
+      
+      // Connect to players metrics WebSocket
+      const playersWsUrl = `${protocol}//${host}/players/metrics`;
+      console.log('🎮 Connecting to players WebSocket:', playersWsUrl);
+      
+      const playersWs = new WebSocket(playersWsUrl);
+      
+      playersWs.onopen = () => {
+        console.log('✅ Connected to players WebSocket');
+      };
+      
+      playersWs.onmessage = (event) => {
+        try {
+          const playersData = JSON.parse(event.data);
+          console.log('👥 Players data received:', playersData);
+          setPlayers(playersData);
+        } catch (e) {
+          console.error('Error parsing players data:', e);
         }
-      } catch (e) { console.error(e); }
-    });
-
-    // Fetch initial data
-    fetchPlayers();
-    fetchMap();
-
-    return () => {
-      newSocket.disconnect();
-    };
+      };
+      
+      playersWs.onerror = (error) => {
+        console.error('❌ Players WebSocket error:', error);
+      };
+      
+      playersWs.onclose = () => {
+        console.log('🔌 Disconnected from players WebSocket');
+      };
+      
+      return () => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+        if (playersWs.readyState === WebSocket.OPEN) {
+          playersWs.close();
+        }
+      };
+    } catch (error) {
+      console.error('Error connecting to WebSocket:', error);
+    }
   }, []);
 
   // Initialize plugins data
@@ -158,27 +244,45 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const fetchPlayers = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/players', { headers: { 'X-API-KEY': 'secret-change-me' } });
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/players`);
       if (res.ok) {
         const data = await res.json();
         setPlayers(data);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error fetching players:', e); }
+  };
+
+  const fetchServerStatus = async () => {
+    try {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/server/status`);
+      if (res.ok) {
+        const data = await res.json();
+        setServerStatus(data);
+      }
+    } catch (e) { console.error('Error fetching server status:', e); }
   };
 
   const fetchMap = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/map', { headers: { 'X-API-KEY': 'secret-change-me' } });
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/map`);
       if (res.ok) {
         const data = await res.json();
         setEntities(data);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error fetching map:', e); }
   };
 
   const fetchChartData = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/stats/history', { headers: { 'X-API-KEY': 'secret-change-me' } });
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/stats/history`);
       if (res.ok) {
         const data = await res.json();
         setChartData({
@@ -186,19 +290,20 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           memory: data.map((s: Stats) => (s.memUsed / s.memMax) * 100),
           players: data.map((s: Stats) => s.players),
           disk: data.map((s: Stats) => (s.diskUsed / s.diskTotal) * 100),
-          timestamps: data.map((s: Stats, i: number) => Date.now() - (data.length - 1 - i) * 1000),
+          timestamps: data.map((s: Stats, i: number) => Date.now() - (data.length - 1 - i) * 2000), // 2 second intervals
         });
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error fetching chart data:', e); }
   };
 
   const runCommand = async (cmd: string) => {
     try {
-      await fetch('http://localhost:8080/api/command?cmd=' + encodeURIComponent(cmd), {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      await fetch(`${protocol}//${host}/api/command?cmd=${encodeURIComponent(cmd)}`, {
         method: 'POST',
-        headers: { 'X-API-KEY': 'secret-change-me' }
       });
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error running command:', e); }
   };
 
   return (
@@ -208,12 +313,13 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       players,
       entities,
       plugins,
-      socket,
       mapImage,
+      serverStatus,
       chartData,
       fetchPlayers,
       fetchMap,
       fetchChartData,
+      fetchServerStatus,
       runCommand
     }}>
       {children}

@@ -139,3 +139,6 @@ dist
 
 # WebX Dashboard resources
 webx-dashboard/src/main/resources/web
+
+# WebX Dashboard build output
+webx-dashboard/bin
