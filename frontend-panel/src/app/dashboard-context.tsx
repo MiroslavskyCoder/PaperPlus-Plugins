@@ -36,6 +36,22 @@ interface Plugin {
   status: 'enabled' | 'disabled';
 }
 
+interface ServerStatus {
+  name: string;
+  version: string;
+  onlinePlayers: number;
+  maxPlayers: number;
+  cpuUsage: number;
+  memoryUsed: number;
+  memoryMax: number;
+  motd: string;
+  online: boolean;
+  uptime: number;
+  gameMode: string;
+  difficulty: number;
+  pvp: boolean;
+}
+
 interface DashboardContextType {
   stats: Stats | null;
   statsHistory: Stats[];
@@ -43,6 +59,7 @@ interface DashboardContextType {
   entities: Entity[];
   plugins: Plugin[];
   mapImage: string;
+  serverStatus: ServerStatus | null;
   chartData: {
     cpu: number[];
     memory: number[];
@@ -53,6 +70,7 @@ interface DashboardContextType {
   fetchPlayers: () => Promise<void>;
   fetchMap: () => Promise<void>;
   fetchChartData: () => Promise<void>;
+  fetchServerStatus: () => Promise<void>;
   runCommand: (cmd: string) => Promise<void>;
 }
 
@@ -73,6 +91,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [entities, setEntities] = useState<Entity[]>([]);
   const [plugins, setPlugins] = useState<Plugin[]>([]);
   const [mapImage, setMapImage] = useState<string>('');
+  const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null);
   const [chartData, setChartData] = useState({
     cpu: [25, 30, 45, 50, 35, 40, 55, 60, 45, 50],
     memory: [60, 65, 70, 75, 80, 85, 90, 95, 85, 80],
@@ -196,6 +215,18 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch (e) { console.error('Error fetching players:', e); }
   };
 
+  const fetchServerStatus = async () => {
+    try {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/server/status`);
+      if (res.ok) {
+        const data = await res.json();
+        setServerStatus(data);
+      }
+    } catch (e) { console.error('Error fetching server status:', e); }
+  };
+
   const fetchMap = async () => {
     try {
       const protocol = window.location.protocol;
@@ -244,10 +275,12 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       entities,
       plugins,
       mapImage,
+      serverStatus,
       chartData,
       fetchPlayers,
       fetchMap,
       fetchChartData,
+      fetchServerStatus,
       runCommand
     }}>
       {children}
