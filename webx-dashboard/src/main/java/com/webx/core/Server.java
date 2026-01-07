@@ -69,7 +69,5 @@ public class Server {
             this.diskTotal = diskTotal;
             this.status = "online";
         }
-            this.onlinePlayers = onlinePlayers;
-        }
     }
 }
