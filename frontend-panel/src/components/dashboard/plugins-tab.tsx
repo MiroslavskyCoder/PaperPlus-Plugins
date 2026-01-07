@@ -6,18 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader } from '@/components/loader';
 import { Search } from 'lucide-react';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '../ui/input-group';
 
 interface Plugin {
   name: string;
   version: string;
   description: string;
   author: string;
-  status: 'enabled' | 'disabled';
-}
-
-interface PluginsTabProps {
-  plugins: Plugin[];
+  isEnabled: boolean;
 }
 
 interface CurseForgeMod {
@@ -26,12 +21,19 @@ interface CurseForgeMod {
   summary: string;
 }
 
-export function PluginsTab({ plugins }: PluginsTabProps) {
+export function PluginsTab() {
+  const [plugins, setPlugins] = useState<Plugin[]>([]);
+  const [loadingPlugins, setLoadingPlugins] = useState(true);
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<CurseForgeMod[]>([]);
   const [installingId, setInstallingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Load installed plugins from API
+  useEffect(() => {
+    fetchPlugins();
+  }, []);
 
   // Load initial popular plugins on mount
   useEffect(() => {
@@ -45,6 +47,22 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
     const id = setTimeout(() => searchCurseForge(term), 450);
     return () => clearTimeout(id);
   }, [query]);
+
+  const fetchPlugins = async () => {
+    setLoadingPlugins(true);
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+      const res = await fetch(`${protocol}//${window.location.host}/api/plugins`);
+      if (res.ok) {
+        const data = await res.json();
+        setPlugins(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch plugins:', e);
+    } finally {
+      setLoadingPlugins(false);
+    }
+  };
 
   const searchCurseForge = async (searchQuery?: string) => {
     const q = (searchQuery || query || '').trim() || 'bukkit';
@@ -83,6 +101,8 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
       const res = await fetch(`${protocol}//${window.location.host}/api/curseforge/install?modId=${modId}&fileId=${first.id}`, { method: 'POST' });
       const install = await res.json();
       alert(install?.message || 'Installed');
+      // Refresh plugins list after installation
+      await fetchPlugins();
     } catch (e: any) {
       alert(e.message || 'Install failed');
     } finally {
@@ -97,24 +117,23 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
             <h2 className="text-lg font-semibold tracking-tight">Plugin Manager</h2>
             <p className="text-sm text-muted-foreground">Поиск и установка плагинов из CurseForge. Ключ берется из config.yml.</p>
           </div>
-          <InputGroup>
-            <InputGroupInput
-              placeholder="Найдите плагин: worldedit, luckperms, geyser..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSearch();
-              }}
-            />
-            <InputGroupAddon>
-              <Search className="h-4 w-4" />
-            </InputGroupAddon>
-            <InputGroupAddon align="inline-end">
-              <Button size="sm" variant="secondary" onClick={handleSearch} disabled={searching}>
-                {searching ? 'Поиск...' : 'Искать'}
-              </Button>
-            </InputGroupAddon>
-          </InputGroup>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Найдите плагин: worldedit, luckperms, geyser..."
+                value={query}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
+                className="pl-10"
+              />
+            </div>
+            <Button variant="secondary" onClick={handleSearch} disabled={searching}>
+              {searching ? 'Поиск...' : 'Искать'}
+            </Button>
+          </div>
           {error && (
             <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-2 text-sm text-destructive">
               {error}
@@ -130,10 +149,16 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
             <CardDescription>{plugins.length ? `Всего: ${plugins.length}` : 'Пока нет плагинов'}</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
-            {plugins.length === 0 && (
+            {loadingPlugins && (
+              <div className="col-span-full flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader />
+                <span>Загружаем плагины...</span>
+              </div>
+            )}
+            {!loadingPlugins && plugins.length === 0 && (
               <div className="col-span-full text-sm text-muted-foreground">Нет установленных плагинов.</div>
             )}
-            {plugins.map((plugin) => (
+            {!loadingPlugins && plugins.map((plugin) => (
               <div
                 key={plugin.name}
                 className="rounded-lg border border-border/70 bg-muted/30 p-4 shadow-sm hover:shadow transition-all"
@@ -145,12 +170,12 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
                   </div>
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${
-                      plugin.status === 'enabled'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-amber-100 text-amber-700'
+                      plugin.isEnabled
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-100'
+                        : 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-100'
                     }`}
                   >
-                    {plugin.status === 'enabled' ? 'Включен' : 'Выключен'}
+                    {plugin.isEnabled ? 'Включен' : 'Выключен'}
                   </span>
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{plugin.description || 'Нет описания'}</p>
@@ -179,7 +204,7 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
               <div className="text-sm text-muted-foreground">Начните поиск, чтобы увидеть плагины.</div>
             )}
 
-            <div className="grid gap-3 max-h-[520px] overflow-auto pr-1">
+            <div className="grid gap-3 max-h-130 overflow-auto pr-1">
               {results.map((mod) => (
                 <div
                   key={mod.id}

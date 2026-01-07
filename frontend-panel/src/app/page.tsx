@@ -44,7 +44,7 @@ interface Entity {
 }
 
 export default function Dashboard() {
-  const { stats, statsHistory, players, entities, plugins, mapImage, chartData, fetchPlayers, fetchMap, fetchChartData, runCommand } = useDashboard();
+  const { stats, statsHistory, players, entities, mapImage, chartData, fetchPlayers, fetchMap, fetchChartData, runCommand } = useDashboard();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 text-foreground">
@@ -96,7 +96,7 @@ export default function Dashboard() {
             </TabsContent>
 
             <TabsContent value="plugins" className="space-y-6 animate-fade-in">
-              <PluginsTab plugins={plugins} />
+              <PluginsTab />
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-6 animate-fade-in">
