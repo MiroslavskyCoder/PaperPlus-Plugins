@@ -1,5 +1,18 @@
+'use client';
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BorderTrail } from '@/components/motion-primitives/border-trail';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Loader } from '@/components/loader';
 
 interface Player {
   name: string;
@@ -23,6 +36,9 @@ interface PlayersTabProps {
 }
 
 export function PlayersTab({ players }: PlayersTabProps) {
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [actionInProgress, setActionInProgress] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const getHealthColor = (health: number, maxHealth: number) => {
     const percent = (health / maxHealth) * 100;
     if (percent > 75) return 'bg-green-500';
@@ -38,6 +54,66 @@ export function PlayersTab({ players }: PlayersTabProps) {
     return 'text-red-500';
   };
 
+  const executePlayerAction = async (action: string) => {
+    if (!selectedPlayer) return;
+
+    setActionInProgress(true);
+    setMessage(null);
+
+    try {
+      let endpoint = '';
+      let confirmMessage = '';
+
+      switch (action) {
+        case 'kick':
+          endpoint = `/api/players/${selectedPlayer.uuid}/kick?reason=Kicked%20by%20admin`;
+          confirmMessage = `Are you sure you want to kick ${selectedPlayer.name}?`;
+          break;
+        case 'ban':
+          endpoint = `/api/players/${selectedPlayer.uuid}/ban?reason=Banned%20by%20admin`;
+          confirmMessage = `Are you sure you want to ban ${selectedPlayer.name}?`;
+          break;
+        case 'teleport':
+          endpoint = `/api/players/${selectedPlayer.uuid}/teleport`;
+          break;
+        case 'heal':
+          endpoint = `/api/players/${selectedPlayer.uuid}/heal`;
+          break;
+        default:
+          return;
+      }
+
+      if (['kick', 'ban'].includes(action) && !window.confirm(confirmMessage)) {
+        setActionInProgress(false);
+        return;
+      }
+
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+      const response = await fetch(`${protocol}//${window.location.host}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: 'success', text: data.message || `Action "${action}" completed` });
+        setTimeout(() => {
+          setSelectedPlayer(null);
+          setMessage(null);
+        }, 2000);
+      } else {
+        setMessage({ type: 'error', text: data.message || 'Action failed' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Request failed' });
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <Card className="bg-card/50 backdrop-blur-sm">
@@ -48,7 +124,11 @@ export function PlayersTab({ players }: PlayersTabProps) {
           {players.length > 0 ? (
             <div className="space-y-4">
               {players.map((player) => (
-                <div key={player.uuid} className="p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-all duration-300">
+                <div
+                  key={player.uuid}
+                  className="p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-all duration-300 cursor-pointer"
+                  onClick={() => setSelectedPlayer(player)}
+                >
                   {/* Player Header */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -127,6 +207,79 @@ export function PlayersTab({ players }: PlayersTabProps) {
           size={120}
         />
       </Card>
+
+      {/* Player Actions Dialog */}
+      <Dialog open={!!selectedPlayer} onOpenChange={(open) => !open && setSelectedPlayer(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Player Actions</DialogTitle>
+            <DialogDescription>
+              Manage actions for <span className="font-medium text-foreground">{selectedPlayer?.name}</span>
+            </DialogDescription>
+          </DialogHeader>
+
+          {message && (
+            <div
+              className={`p-3 rounded-md text-sm ${
+                message.type === 'success'
+                  ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100'
+                  : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100'
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Button
+              onClick={() => executePlayerAction('teleport')}
+              disabled={actionInProgress}
+              variant="outline"
+              className="w-full justify-start"
+            >
+              {actionInProgress ? <Loader className="mr-2 h-4 w-4" /> : '📍'}
+              Teleport to Spawn
+            </Button>
+            <Button
+              onClick={() => executePlayerAction('heal')}
+              disabled={actionInProgress}
+              variant="outline"
+              className="w-full justify-start"
+            >
+              {actionInProgress ? <Loader className="mr-2 h-4 w-4" /> : '💊'}
+              Heal Player
+            </Button>
+            <Button
+              onClick={() => executePlayerAction('kick')}
+              disabled={actionInProgress}
+              variant="destructive"
+              className="w-full justify-start"
+            >
+              {actionInProgress ? <Loader className="mr-2 h-4 w-4" /> : '👢'}
+              Kick Player
+            </Button>
+            <Button
+              onClick={() => executePlayerAction('ban')}
+              disabled={actionInProgress}
+              variant="destructive"
+              className="w-full justify-start"
+            >
+              {actionInProgress ? <Loader className="mr-2 h-4 w-4" /> : '🚫'}
+              Ban Player
+            </Button>
+          </div>
+
+          <DialogFooter>
+            <Button
+              onClick={() => setSelectedPlayer(null)}
+              variant="ghost"
+              disabled={actionInProgress}
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
