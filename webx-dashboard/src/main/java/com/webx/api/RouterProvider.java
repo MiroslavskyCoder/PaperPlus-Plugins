@@ -398,6 +398,24 @@ public class RouterProvider {
             });
             
         }).start(9092);
+        
+        // Add cache control headers
+        app.before(ctx -> {
+            String path = ctx.path();
+            
+            // Cache static assets (CSS, JS, fonts, images) for 1 year
+            if (path.startsWith("/_next/static/") || 
+                path.matches(".*\\.(css|js|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico)$")) {
+                ctx.header("Cache-Control", "public, max-age=31536000, immutable");
+            } 
+            // Don't cache HTML files and root
+            else if (path.endsWith(".html") || path.equals("/") || 
+                    (!path.startsWith("/api") && !path.contains("."))) {
+                ctx.header("Cache-Control", "no-cache, no-store, must-revalidate");
+                ctx.header("Pragma", "no-cache");
+                ctx.header("Expires", "0");
+            }
+        });
 
         plugin.getLogger().info("====================================");
         plugin.getLogger().info("Javalin WebSocket server started!");
