@@ -215,24 +215,24 @@ const KeyValue = React.forwardRef<HTMLDivElement, KeyValueProps>(
   const store = React.useMemo<Store>(() => {
     return {
       subscribe: (cb) => {
-        listenersRef.current.add(cb);
-        return () => listenersRef.current.delete(cb);
+        listenersRef.current!.add(cb);
+        return () => listenersRef.current!.delete(cb);
       },
-      getState: () => stateRef.current,
+      getState: () => stateRef.current!,
       setState: (key, val) => {
-        if (Object.is(stateRef.current[key], val)) return;
+        if (Object.is(stateRef.current![key], val)) return;
 
         if (key === "value" && Array.isArray(val)) {
-          stateRef.current.value = val as ItemData[];
+          stateRef.current!.value = val as ItemData[];
           propsRef.current.onValueChange?.(val as ItemData[]);
         } else {
-          stateRef.current[key] = val;
+          stateRef.current![key] = val;
         }
 
         store.notify();
       },
       notify: () => {
-        for (const cb of listenersRef.current) {
+        for (const cb of listenersRef.current!) {
           cb();
         }
       },
