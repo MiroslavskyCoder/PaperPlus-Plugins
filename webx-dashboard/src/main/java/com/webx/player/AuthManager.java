@@ -3,7 +3,7 @@ package com.webx.player;
 import com.webx.services.RedisManager;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import redis.clients.jedis.Jedis; 
+import redis.clients.jedis.Jedis;
 
 public class AuthManager {
 
@@ -21,7 +21,7 @@ public class AuthManager {
         
         String status = "AUTHORIZED"; 
         
-        try (JedisPool jedis = redisManager.getPool().getResource()) { 
+        try (Jedis jedis = redisManager.getPool().getResource()) { 
             jedis.setex(redisKey, PERMANENT_TTL_SECONDS, status);
             System.out.println("Установлен статус авторизации для " + player.getName());
         }
