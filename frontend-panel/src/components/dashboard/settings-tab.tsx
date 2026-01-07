@@ -245,7 +245,7 @@ export function SettingsTab({ }: SettingsTabProps) {
                             <Checkbox 
                                 id="authplayer-checkbox"
                                 checked={isAuthEnabled}
-                                onCheckedChange={(e) => handleAuthPlayerToggle(e.target.checked)}
+                                onCheckedChange={(checked) => handleAuthPlayerToggle(checked as boolean)}
                             />
                             <Label htmlFor="authplayer-checkbox">
                                 Включить авторизацию игрока (Auth Player)
