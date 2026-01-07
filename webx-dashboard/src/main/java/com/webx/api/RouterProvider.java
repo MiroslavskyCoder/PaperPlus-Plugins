@@ -57,6 +57,39 @@ public class RouterProvider {
             plugin.getLogger().info("✅ GET /api/players response sent");
         });
 
+        // Server Status endpoint
+        app.get(API.getFullPath("server/status"), handler -> {
+            plugin.getLogger().info("📊 GET /api/server/status request received");
+            try {
+                Runtime runtime = Runtime.getRuntime();
+                long memUsed = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+                long memMax = runtime.maxMemory() / (1024 * 1024);
+                double cpuLoad = SystemHelper.getCpuLoad() * 100;
+                
+                Object status = new Object() {
+                    public String name = plugin.getServer().getName();
+                    public String version = plugin.getServer().getVersion();
+                    public int onlinePlayers = plugin.getServer().getOnlinePlayers().size();
+                    public int maxPlayers = plugin.getServer().getMaxPlayers();
+                    public double cpuUsage = cpuLoad;
+                    public long memoryUsed = memUsed;
+                    public long memoryMax = memMax;
+                    public String motd = plugin.getServer().getMotd();
+                    public boolean online = true;
+                    public long uptime = System.currentTimeMillis();
+                    public String gameMode = "Survival";
+                    public int difficulty = 2;
+                    public boolean pvp = true;
+                };
+                
+                handler.json(status);
+                plugin.getLogger().info("✅ GET /api/server/status response sent");
+            } catch (Exception e) {
+                plugin.getLogger().warning("❌ Error fetching server status: " + e.getMessage());
+                handler.status(500).result("Error fetching server status");
+            }
+        });
+
         app.get(API.getFullPath("plugins"), handler -> {
             Plugin[] plugins = plugin.getServer().getPluginManager().getPlugins(); 
 
@@ -238,7 +271,7 @@ public class RouterProvider {
                 plugin.getLogger().info(String.format("[HTTP] %s %s - %d (%s ms)",
                     ctx.method(),
                     ctx.path(),
-                    ctx.status(),
+                    ctx.status().getCode(),
                     ms
                 ));
             });

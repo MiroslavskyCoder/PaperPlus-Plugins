@@ -10,35 +10,53 @@ interface HomeTabProps {
 
 export function HomeTab({ stats }: HomeTabProps) {
   const { chartData } = useDashboard();
+  
+  // Calculate percentages and format values
+  const cpuValue = stats ? `${Math.round(stats.cpu)}%` : 'N/A';
+  const memoryPercent = stats && stats.memMax ? ((stats.memUsed / stats.memMax) * 100).toFixed(1) : 'N/A';
+  const memoryValue = stats ? `${stats.memUsed} MB / ${stats.memMax} MB (${memoryPercent}%)` : 'N/A';
+  const diskPercent = stats && stats.diskTotal ? ((stats.diskUsed / stats.diskTotal) * 100).toFixed(1) : 'N/A';
+  const diskValue = stats ? `${stats.diskUsed} GB / ${stats.diskTotal} GB (${diskPercent}%)` : 'N/A';
+  const playersValue = stats ? `${stats.players}` : 'N/A';
+  
+  // Determine memory trend
+  let memoryTrend = 'stable';
+  if (chartData.memory.length > 1) {
+    const current = chartData.memory[chartData.memory.length - 1];
+    const previous = chartData.memory[chartData.memory.length - 2];
+    if (current > previous + 5) memoryTrend = 'up';
+    if (current < previous - 5) memoryTrend = 'down';
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="CPU Usage"
-          value={stats ? `${stats.cpu.toFixed(2)}%` : 'N/A'}
+          value={cpuValue}
           icon="cpu"
-          trend="up"
+          trend={chartData.cpu.length > 1 && chartData.cpu[chartData.cpu.length - 1] > chartData.cpu[chartData.cpu.length - 2] ? 'up' : 'stable'}
           color="blue"
         />
         <StatCard
           title="Memory Usage"
-          value={stats ? `${stats.memUsed} MB / ${stats.memMax} MB` : 'N/A'}
+          value={memoryValue}
           icon="memory"
-          trend="stable"
+          trend={memoryTrend}
           color="green"
         />
         <StatCard
           title="Disk Usage"
-          value={stats ? `${stats.diskUsed} GB / ${stats.diskTotal} GB` : 'N/A'}
+          value={diskValue}
           icon="disk"
-          trend="down"
+          trend={chartData.disk.length > 1 && chartData.disk[chartData.disk.length - 1] < chartData.disk[chartData.disk.length - 2] ? 'down' : 'stable'}
           color="purple"
         />
         <StatCard
           title="Online Players"
-          value={stats ? `${stats.players}` : 'N/A'}
+          value={playersValue}
           icon="users"
-          trend="up"
+          trend={chartData.players.length > 1 && chartData.players[chartData.players.length - 1] > chartData.players[chartData.players.length - 2] ? 'up' : 'stable'}
           color="orange"
         />
       </div>

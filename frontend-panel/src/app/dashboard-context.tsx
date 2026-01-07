@@ -83,7 +83,12 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   useEffect(() => {
     // Connect to WebSocket for real-time metrics
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:9092/metrics';
+    // Dynamically determine the WebSocket URL based on the current location
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.host;
+    const wsUrl = `${protocol}//${host}/metrics`;
+    
+    console.log('🔌 Connecting to WebSocket:', wsUrl);
     
     try {
       const ws = new WebSocket(wsUrl);
@@ -95,37 +100,40 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          console.log('📥 Metrics received:', data);
           
           // Update current stats
           setStats({
-            cpu: data.cpuUsage,
-            memUsed: data.memUsed,
-            memMax: data.memMax,
-            diskUsed: data.diskUsed,
-            diskTotal: data.diskTotal,
-            players: data.onlinePlayers,
+            cpu: data.cpuUsage || 0,
+            memUsed: data.memUsed || 0,
+            memMax: data.memMax || 0,
+            diskUsed: data.diskUsed || 0,
+            diskTotal: data.diskTotal || 0,
+            players: data.onlinePlayers || 0,
           });
           
           // Update stats history for charts (keep last 30 data points = 60 seconds)
           setStatsHistory(prev => {
             const updated = [...prev, {
-              cpu: data.cpuUsage,
-              memUsed: data.memUsed,
-              memMax: data.memMax,
-              diskUsed: data.diskUsed,
-              diskTotal: data.diskTotal,
-              players: data.onlinePlayers,
+              cpu: data.cpuUsage || 0,
+              memUsed: data.memUsed || 0,
+              memMax: data.memMax || 0,
+              diskUsed: data.diskUsed || 0,
+              diskTotal: data.diskTotal || 0,
+              players: data.onlinePlayers || 0,
             }];
             return updated.slice(-30); // Keep last 30 points
           });
           
           // Update chart data
           setChartData(prev => {
-            const newCpu = [...prev.cpu, data.cpuUsage].slice(-30);
-            const newMemory = [...prev.memory, (data.memUsed / data.memMax) * 100].slice(-30);
-            const newPlayers = [...prev.players, data.onlinePlayers].slice(-30);
-            const newDisk = [...prev.disk, (data.diskUsed / data.diskTotal) * 100].slice(-30);
-            const newTimestamps = [...prev.timestamps, data.timestamp].slice(-30);
+            const newCpu = [...prev.cpu, data.cpuUsage || 0].slice(-30);
+            const memoryPercent = data.memMax > 0 ? (data.memUsed / data.memMax) * 100 : 0;
+            const newMemory = [...prev.memory, memoryPercent].slice(-30);
+            const newPlayers = [...prev.players, data.onlinePlayers || 0].slice(-30);
+            const diskPercent = data.diskTotal > 0 ? (data.diskUsed / data.diskTotal) * 100 : 0;
+            const newDisk = [...prev.disk, diskPercent].slice(-30);
+            const newTimestamps = [...prev.timestamps, data.timestamp || Date.now()].slice(-30);
             
             return {
               cpu: newCpu,
@@ -137,9 +145,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           });
           
           console.log('📊 Metrics updated:', {
-            cpu: data.cpuUsage.toFixed(2) + '%',
-            memory: ((data.memUsed / data.memMax) * 100).toFixed(2) + '%',
-            players: data.onlinePlayers,
+            cpu: (data.cpuUsage || 0).toFixed(2) + '%',
+            memory: (memoryPercent).toFixed(2) + '%',
+            players: data.onlinePlayers || 0,
           });
         } catch (e) {
           console.error('Error parsing metrics data:', e);
@@ -178,7 +186,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const fetchPlayers = async () => {
     try {
-      const res = await fetch('http://localhost:9092/api/players');
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/players`);
       if (res.ok) {
         const data = await res.json();
         setPlayers(data);
@@ -188,7 +198,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const fetchMap = async () => {
     try {
-      const res = await fetch('http://localhost:9092/api/map');
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/map`);
       if (res.ok) {
         const data = await res.json();
         setEntities(data);
@@ -198,7 +210,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const fetchChartData = async () => {
     try {
-      const res = await fetch('http://localhost:9092/api/stats/history');
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/stats/history`);
       if (res.ok) {
         const data = await res.json();
         setChartData({
@@ -214,7 +228,9 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const runCommand = async (cmd: string) => {
     try {
-      await fetch('http://localhost:9092/api/command?cmd=' + encodeURIComponent(cmd), {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      await fetch(`${protocol}//${host}/api/command?cmd=${encodeURIComponent(cmd)}`, {
         method: 'POST',
       });
     } catch (e) { console.error('Error running command:', e); }
