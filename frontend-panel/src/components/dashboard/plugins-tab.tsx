@@ -93,10 +93,36 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
                   <h3 className="font-semibold text-sm mb-1">{m.name}</h3>
                   <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{m.summary}</p>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="default" onClick={() => installFromCurseForge(m.id)} disabled={installingId === m.id}>
-                      {installingId === m.id ? <Loader className="mr-2 h-4 w-4" /> : null}
-                      Install
-                    </Button>
+                    {plugins.some(p => p.name.toLowerCase() === m.name.toLowerCase()) ? (
+                      <>
+                        <Button size="sm" variant="outline" onClick={() => alert('Open config for ' + m.name)}>Configure</Button>
+                        <Button
+                          size="sm"
+                          variant={plugins.find(p => p.name.toLowerCase() === m.name.toLowerCase())?.status === 'enabled' ? 'destructive' : 'default'}
+                          onClick={async () => {
+                            const installed = plugins.find(p => p.name.toLowerCase() === m.name.toLowerCase());
+                            if (!installed) return;
+                            const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+                            const path = installed.status === 'enabled' ? `/api/plugins/${encodeURIComponent(installed.name)}/disable` : `/api/plugins/${encodeURIComponent(installed.name)}/enable`;
+                            try {
+                              const res = await fetch(`${protocol}//${window.location.host}${path}`, { method: 'POST' });
+                              const data = await res.json();
+                              installed.status = installed.status === 'enabled' ? 'disabled' : 'enabled';
+                              alert(data?.message || 'Done');
+                            } catch (e: any) {
+                              alert(e.message || 'Action failed');
+                            }
+                          }}
+                        >
+                          {plugins.find(p => p.name.toLowerCase() === m.name.toLowerCase())?.status === 'enabled' ? 'Disable' : 'Enable'}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button size="sm" variant="default" onClick={() => installFromCurseForge(m.id)} disabled={installingId === m.id}>
+                        {installingId === m.id ? <Loader className="mr-2 h-4 w-4" /> : null}
+                        Install
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -140,10 +166,27 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
                   <span>by {plugin.author}</span>
                 </div>
                 <div className="flex gap-2 mt-3">
-                  <Button size="sm" variant="outline" className="flex-1 text-xs">
+                  <Button size="sm" variant="outline" className="flex-1 text-xs" onClick={() => alert('Open config for ' + plugin.name)}>
                     Configure
                   </Button>
-                  <Button size="sm" variant={plugin.status === 'enabled' ? 'destructive' : 'default'} className="flex-1 text-xs">
+                  <Button
+                    size="sm"
+                    variant={plugin.status === 'enabled' ? 'destructive' : 'default'}
+                    className="flex-1 text-xs"
+                    onClick={async () => {
+                      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+                      const path = plugin.status === 'enabled' ? `/api/plugins/${encodeURIComponent(plugin.name)}/disable` : `/api/plugins/${encodeURIComponent(plugin.name)}/enable`;
+                      try {
+                        const res = await fetch(`${protocol}//${window.location.host}${path}`, { method: 'POST' });
+                        const data = await res.json();
+                        // optimistic update
+                        plugin.status = plugin.status === 'enabled' ? 'disabled' : 'enabled';
+                        alert(data?.message || 'Done');
+                      } catch (e: any) {
+                        alert(e.message || 'Action failed');
+                      }
+                    }}
+                  >
                     {plugin.status === 'enabled' ? 'Disable' : 'Enable'}
                   </Button>
                 </div>

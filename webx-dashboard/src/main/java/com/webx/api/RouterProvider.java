@@ -246,6 +246,59 @@ public class RouterProvider {
             handler.json(pluginProfiles);
         });
 
+        // Enable a plugin by name (load if needed)
+        app.post(API.getFullPath("plugins/{name}/enable"), handler -> {
+            String name = handler.pathParam("name");
+            try {
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    public void run() {
+                        org.bukkit.plugin.PluginManager pm = plugin.getServer().getPluginManager();
+                        Plugin p = pm.getPlugin(name);
+                        if (p == null) {
+                            // try to load from /plugins directory
+                            File pluginsDir = plugin.getDataFolder().getParentFile();
+                            File[] jars = pluginsDir.listFiles((dir, fname) -> fname.toLowerCase().endsWith(".jar") && fname.toLowerCase().contains(name.toLowerCase()));
+                            if (jars != null) {
+                                for (File jar : jars) {
+                                    try {
+                                        p = pm.loadPlugin(jar);
+                                        break;
+                                    } catch (Exception ignored) {}
+                                }
+                            }
+                        }
+                        if (p != null && !p.isEnabled()) {
+                            pm.enablePlugin(p);
+                            plugin.getLogger().info("✅ Enabled plugin: " + p.getName());
+                        }
+                    }
+                }.runTask(plugin);
+                handler.json(new Object() { public boolean success = true; public String message = "Enable scheduled"; });
+            } catch (Exception e) {
+                handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
+            }
+        });
+
+        // Disable a plugin by name
+        app.post(API.getFullPath("plugins/{name}/disable"), handler -> {
+            String name = handler.pathParam("name");
+            try {
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    public void run() {
+                        org.bukkit.plugin.PluginManager pm = plugin.getServer().getPluginManager();
+                        Plugin p = pm.getPlugin(name);
+                        if (p != null && p.isEnabled()) {
+                            pm.disablePlugin(p);
+                            plugin.getLogger().info("🛑 Disabled plugin: " + p.getName());
+                        }
+                    }
+                }.runTask(plugin);
+                handler.json(new Object() { public boolean success = true; public String message = "Disable scheduled"; });
+            } catch (Exception e) {
+                handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
+            }
+        });
+
         // ===== CURSEFORGE PLUGIN MANAGER =====
         // Proxy search to CurseForge API (requires X-Api-Key)
         app.get(API.getFullPath("curseforge/search"), handler -> {
