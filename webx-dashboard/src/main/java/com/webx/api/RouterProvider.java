@@ -217,51 +217,6 @@ public class RouterProvider {
 
         app.post(API.getFullPath("plugins/{name}/disable"), handler -> {
             String name = handler.pathParam("name");
-    
-    private void registerCurseForgeRoutes() {
-        app.get(API.getFullPath("curseforge/search"), handler -> {
-            try {
-                String q = handler.queryParam("q");
-                String gameId = handler.queryParam("gameId");
-                String classId = handler.queryParam("classId");
-                
-                String response = curseForgeService.searchMods(q, gameId, classId);
-                handler.contentType("application/json").result(response);
-            } catch (Exception e) {
-                plugin.getLogger().warning("Error proxying CurseForge search: " + e.getMessage());
-                handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
-            }
-        });
-
-        app.get(API.getFullPath("curseforge/mods/{modId}/files"), handler -> {
-            try {
-                String modId = handler.pathParam("modId");
-                String response = curseForgeService.getModFiles(modId);
-                handler.contentType("application/json").result(response);
-            } catch (Exception e) {
-                plugin.getLogger().warning("Error fetching mod files: " + e.getMessage());
-                handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
-            }
-        });
-    }
-    
-    private void registerPluginRoutes() {
-        app.get(API.getFullPath("plugins"), handler -> {
-            handler.json(pluginService.getPlugins());
-        });
-
-        app.post(API.getFullPath("plugins/{name}/enable"), handler -> {
-            String name = handler.pathParam("name");
-            try {
-                pluginService.enablePlugin(name);
-                handler.json(new Object() { public boolean success = true; public String message = "Enable scheduled"; });
-            } catch (Exception e) {
-                handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
-            }
-        });
-
-        app.post(API.getFullPath("plugins/{name}/disable"), handler -> {
-            String name = handler.pathParam("name");
             try {
                 pluginService.disablePlugin(name);
                 handler.json(new Object() { public boolean success = true; public String message = "Disable scheduled"; });
