@@ -29,7 +29,7 @@ interface DivProps extends React.ComponentProps<"div"> {
   asChild?: boolean;
 }
 
-type RootElement = React.ComponentRef<typeof KeyValue>;
+type RootElement = HTMLDivElement;
 type KeyInputElement = React.ComponentRef<typeof KeyValueKeyInput>;
 type RemoveElement = React.ComponentRef<typeof KeyValueRemove>;
 type AddElement = React.ComponentRef<typeof KeyValueAdd>;
@@ -165,7 +165,8 @@ interface KeyValueProps extends Omit<DivProps, "onPaste" | "defaultValue"> {
   ) => string | undefined;
 }
 
-function KeyValue(props: KeyValueProps) {
+const KeyValue = React.forwardRef<HTMLDivElement, KeyValueProps>(
+  function KeyValue(props, ref) {
   const {
     value: valueProp,
     defaultValue,
@@ -190,7 +191,6 @@ function KeyValue(props: KeyValueProps) {
     className,
     id,
     name,
-    ref,
     ...rootProps
   } = props;
 
@@ -319,7 +319,8 @@ function KeyValue(props: KeyValueProps) {
       </KeyValueContext.Provider>
     </StoreContext.Provider>
   );
-}
+  }
+);
 
 interface KeyValueListProps extends DivProps {
   orientation?: Orientation;
