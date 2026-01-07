@@ -70,7 +70,8 @@ export function PluginsTab() {
     setError(null);
     try {
       const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-      const res = await fetch(`${protocol}//${window.location.host}/api/curseforge/search?q=${encodeURIComponent(q || 'bukkit')}&gameId=432`);
+      // classId=5 filters only Bukkit plugins
+      const res = await fetch(`${protocol}//${window.location.host}/api/curseforge/search?q=${encodeURIComponent(q || 'bukkit')}&gameId=432&classId=5`);
       const data = await res.json();
       const mods: CurseForgeMod[] = (data?.data || []).map((m: any) => ({ id: m.id, name: m.name, summary: m.summary }));
       setResults(mods);

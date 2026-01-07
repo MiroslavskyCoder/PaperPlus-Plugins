@@ -37,15 +37,17 @@ public class CurseForgeService {
         }
         
         if (gameId == null || gameId.isEmpty()) gameId = "432";
+        // Default to Bukkit plugins (classId=5) if not specified
+        if (classId == null || classId.isEmpty()) classId = "5";
         
         StringBuilder url = new StringBuilder("https://api.curseforge.com/v1/mods/search?gameId=")
             .append(gameId)
             .append("&searchFilter=")
-            .append(URLEncoder.encode(query, "UTF-8"));
+            .append(URLEncoder.encode(query, "UTF-8"))
+            .append("&classId=")
+            .append(classId);
         
-        if (classId != null && !classId.isEmpty()) {
-            url.append("&classId=").append(classId);
-        }
+        plugin.getLogger().info("🔍 Searching CurseForge: " + query + " (gameId=" + gameId + ", classId=" + classId + ")");
         
         return httpGet(url.toString(), apiKey);
     }
@@ -146,6 +148,5 @@ public class CurseForgeService {
         // For non-string values (numbers, booleans, etc.), we can't easily extract
         // Return null to indicate this field type is not supported by simple parser
         return null;
-    }
     }
 }
