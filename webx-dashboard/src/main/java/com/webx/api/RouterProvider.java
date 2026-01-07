@@ -8,8 +8,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.webx.api.models.SettingsConfig;
+import com.webx.api.models.SettingsConfig.RedisConfig;
+import com.webx.api.models.SettingsConfig.SQLConfig;
 import com.webx.core.Server.MetricsData;
 import com.webx.helper.SystemHelper;
+import com.webx.services.SettingsService;
 
 import io.javalin.Javalin;
 import io.javalin.websocket.WsContext;
@@ -20,9 +24,11 @@ public class RouterProvider {
     private Set<WsContext> clients = new CopyOnWriteArraySet<>();
     private ObjectMapper objectMapper = new ObjectMapper();
     private JavaPlugin plugin;
+    private SettingsService settingsService;
 
     public RouterProvider(JavaPlugin plugin) {
-        
+        this.plugin = plugin;
+        this.settingsService = new SettingsService(plugin);
         this.startWebServer();
 
         app.ws("/metrics", ws -> {
@@ -78,6 +84,64 @@ public class RouterProvider {
                 handler.status(404).result("Plugin not found.");
             }
         });
+
+        // ===== SETTINGS API ENDPOINTS =====
+        
+        // GET /api/settings - Get all settings
+        app.get(API.getFullPath("settings"), handler -> {
+            handler.json(settingsService.getSettings());
+        });
+
+        // PUT /api/settings - Update settings
+        app.put(API.getFullPath("settings"), handler -> {
+            try {
+                SettingsConfig updatedConfig = objectMapper.readValue(
+                    handler.body(), 
+                    SettingsConfig.class
+                );
+                settingsService.updateSettings(updatedConfig);
+                handler.json(updatedConfig);
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error updating settings: " + e.getMessage());
+                handler.status(400).result("Invalid settings format");
+            }
+        });
+
+        // POST /api/settings/test-connection - Test database and cache connections
+        app.post(API.getFullPath("settings/test-connection"), handler -> {
+            try {
+                TestConnectionRequest request = objectMapper.readValue(
+                    handler.body(),
+                    TestConnectionRequest.class
+                );
+                
+                boolean success = false;
+                if ("sql".equals(request.type)) {
+                    success = settingsService.testSQLConnection(request.config.sqlConfig);
+                } else if ("redis".equals(request.type)) {
+                    success = settingsService.testRedisConnection(request.config.redisConfig);
+                }
+                
+                handler.json(new TestConnectionResponse(success));
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error testing connection: " + e.getMessage());
+                handler.status(400).json(new TestConnectionResponse(false));
+            }
+        });
+    }
+
+    // Helper classes for connection testing
+    public static class TestConnectionRequest {
+        public String type; // "sql" or "redis"
+        public SettingsConfig config;
+    }
+
+    public static class TestConnectionResponse {
+        public boolean success;
+        
+        public TestConnectionResponse(boolean success) {
+            this.success = success;
+        }
     }
 
     private void collectAndSendMetrics() {
