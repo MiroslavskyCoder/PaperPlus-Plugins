@@ -5,6 +5,8 @@ import com.webx.player.PlayerProfile;
 import com.webx.services.DatabaseManager;
 import com.webx.services.RedisManager;
 import com.webx.services.SystemMonitorService;
+import com.webx.services.SettingsService;
+import com.webx.api.models.SettingsConfig;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -20,31 +22,74 @@ import java.util.UUID;
 public final class PolyglotPlugin extends JavaPlugin implements Listener {
 
     private SystemMonitorService monitorService;
+    private SettingsService settingsService;
     private RedisManager redisManager;
     private DatabaseManager dbManager;
     private AuthManager authManager;
 
     private final Map<UUID, PlayerProfile> onlineProfiles = new HashMap<>();
 
+    public SettingsService getSettingsService() {
+        return settingsService;
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return dbManager;
+    }
+
+    public RedisManager getRedisManager() {
+        return redisManager;
+    }
+
+    public AuthManager getAuthManager() {
+        return authManager;
+    }
+
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
         
-        String redisHost = getConfig().getString("Redis.Host", "localhost");
-        int redisPort = getConfig().getInt("Redis.Port", 6379);
-        String redisPass = getConfig().getString("Redis.Password", "");
+        // Load settings to check if Auth Player is enabled
+        settingsService = new SettingsService(this);
+        SettingsConfig settings = settingsService.getSettings();
         
-        redisManager = new RedisManager(this, redisHost, redisPort, redisPass);
-        
-        String dbHost = getConfig().getString("PostgreSQL.Host", "localhost");
-        int dbPort = getConfig().getInt("PostgreSQL.Port", 5432);
-        String dbName = getConfig().getString("PostgreSQL.Database", "minecraft");
-        String dbUser = getConfig().getString("PostgreSQL.User", "user");
-        String dbPass = getConfig().getString("PostgreSQL.Password", "password");
-        
-        dbManager = new DatabaseManager(this, dbHost, dbPort, dbName, dbUser, dbPass);
-        
-        authManager = new AuthManager(redisManager, dbManager);
+        // Initialize Redis, Database and AuthManager only if Auth Player is enabled
+        if (settings.authPlayer.isAuthPlayerEnabled) {
+            getLogger().info("Auth Player enabled - initializing Redis and Database...");
+            
+            String redisHost = getConfig().getString("Redis.Host", "localhost");
+            int redisPort = getConfig().getInt("Redis.Port", 6379);
+            String redisPass = getConfig().getString("Redis.Password", "");
+            
+            try {
+                redisManager = new RedisManager(this, redisHost, redisPort, redisPass);
+            } catch (Exception e) {
+                getLogger().warning("Failed to initialize Redis: " + e.getMessage());
+                getLogger().warning("Auth Player will not work properly without Redis.");
+            }
+            
+            String dbHost = getConfig().getString("PostgreSQL.Host", "localhost");
+            int dbPort = getConfig().getInt("PostgreSQL.Port", 5432);
+            String dbName = getConfig().getString("PostgreSQL.Database", "minecraft");
+            String dbUser = getConfig().getString("PostgreSQL.User", "user");
+            String dbPass = getConfig().getString("PostgreSQL.Password", "password");
+            
+            try {
+                dbManager = new DatabaseManager(this, dbHost, dbPort, dbName, dbUser, dbPass);
+            } catch (Exception e) {
+                getLogger().warning("Failed to initialize Database: " + e.getMessage());
+                getLogger().warning("Auth Player will not work properly without Database.");
+            }
+            
+            if (redisManager != null && dbManager != null) {
+                authManager = new AuthManager(redisManager, dbManager);
+                getLogger().info("Auth Player system initialized successfully.");
+            } else {
+                getLogger().warning("Auth Player system not initialized due to connection errors.");
+            }
+        } else {
+            getLogger().info("Auth Player disabled - skipping Redis and Database initialization.");
+        }
         
         getServer().getPluginManager().registerEvents(this, this);
 
@@ -57,9 +102,11 @@ public final class PolyglotPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() { 
-        getLogger().info("Saving profiles to PostgreSQL...");
-        for (PlayerProfile profile : onlineProfiles.values()) {
-            profile.saveToDatabase(this.dbManager);
+        if (dbManager != null) {
+            getLogger().info("Saving profiles to PostgreSQL...");
+            for (PlayerProfile profile : onlineProfiles.values()) {
+                profile.saveToDatabase(this.dbManager);
+            }
         }
         onlineProfiles.clear();
  
@@ -76,7 +123,8 @@ public final class PolyglotPlugin extends JavaPlugin implements Listener {
         org.bukkit.entity.Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         
-        if (authManager.isAuthorized(player)) {
+        // Skip auth check if Auth Player is disabled
+        if (authManager != null && authManager.isAuthorized(player)) {
             getLogger().info(player.getName() + " Find authorized profile. Loading data..."); 
             
             PlayerProfile profile = new PlayerProfile(player); 
@@ -85,9 +133,14 @@ public final class PolyglotPlugin extends JavaPlugin implements Listener {
             
             player.teleport(new Location(player.getWorld(), profile.x, profile.y, profile.z, profile.yaw, profile.pitch));
             
-        } else { 
+        } else if (authManager != null) { 
             getLogger().info(player.getName() + " Required authorization. Waiting for successful login.");
             PlayerProfile profile = new PlayerProfile(player);
+            onlineProfiles.put(uuid, profile);
+        } else {
+            // Auth Player disabled - allow direct join
+            PlayerProfile profile = new PlayerProfile(player);
+            profile.setAuthenticated(true);
             onlineProfiles.put(uuid, profile);
         }
     }
@@ -99,8 +152,12 @@ public final class PolyglotPlugin extends JavaPlugin implements Listener {
         PlayerProfile profile = onlineProfiles.remove(uuid);
         
         if (profile != null) { 
-            profile.saveToDatabase(this.dbManager); 
-            authManager.clearAuthorization(event.getPlayer()); 
+            if (dbManager != null) {
+                profile.saveToDatabase(this.dbManager);
+            }
+            if (authManager != null) {
+                authManager.clearAuthorization(event.getPlayer());
+            }
         }
     }
 }
