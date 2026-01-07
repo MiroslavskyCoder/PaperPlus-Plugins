@@ -35,19 +35,26 @@ public class RouterProvider {
             plugin.getLogger().info("WebSocket /metrics endpoint initialized"); 
             ws.onConnect(ctx -> {
                 clients.add(ctx);
-                plugin.getLogger().info("WebSocket client connected: " + ctx.sessionId());
+                plugin.getLogger().info("✅ WebSocket client connected: " + ctx.sessionId() + " | Total clients: " + clients.size());
             });
             ws.onClose(ctx -> {
                 clients.remove(ctx);
-                plugin.getLogger().info("WebSocket client disconnected: " + ctx.sessionId());
+                plugin.getLogger().info("❌ WebSocket client disconnected: " + ctx.sessionId() + " | Total clients: " + clients.size());
             });
-            ws.onError(ctx -> plugin.getLogger().warning("WebSocket error: " + ctx.error()));
+            ws.onError(ctx -> {
+                plugin.getLogger().warning("⚠️ WebSocket error for " + ctx.sessionId() + ": " + ctx.error());
+                if (ctx.error() != null) {
+                    ctx.error().printStackTrace();
+                }
+            });
         });
 
         app.get(API.getFullPath("players"), handler -> {
+            plugin.getLogger().info("📊 GET /api/players request received");
             handler.json(plugin.getServer().getOnlinePlayers().stream().map(player -> {
                 return new com.webx.player.PlayerProfile(player);
             }).toArray());
+            plugin.getLogger().info("✅ GET /api/players response sent");
         });
 
         app.get(API.getFullPath("plugins"), handler -> {
@@ -89,11 +96,14 @@ public class RouterProvider {
         
         // GET /api/settings - Get all settings
         app.get(API.getFullPath("settings"), handler -> {
+            plugin.getLogger().info("📊 GET /api/settings request received");
             handler.json(settingsService.getSettings());
+            plugin.getLogger().info("✅ GET /api/settings response sent");
         });
 
         // PUT /api/settings - Update settings
         app.put(API.getFullPath("settings"), handler -> {
+            plugin.getLogger().info("📝 PUT /api/settings request received");
             try {
                 SettingsConfig updatedConfig = objectMapper.readValue(
                     handler.body(), 
@@ -101,8 +111,10 @@ public class RouterProvider {
                 );
                 settingsService.updateSettings(updatedConfig);
                 handler.json(updatedConfig);
+                plugin.getLogger().info("✅ PUT /api/settings - Settings updated successfully");
             } catch (Exception e) {
-                plugin.getLogger().warning("Error updating settings: " + e.getMessage());
+                plugin.getLogger().warning("❌ Error updating settings: " + e.getMessage());
+                e.printStackTrace();
                 handler.status(400).result("Invalid settings format");
             }
         });
@@ -188,23 +200,63 @@ public class RouterProvider {
 
             // Send to all connected clients
             if (!clients.isEmpty()) {
+                plugin.getLogger().info("📤 Sending metrics to " + clients.size() + " client(s)");
                 for (WsContext client : clients) {
                     try {
                         client.send(json);
                     } catch (Exception e) {
-                        plugin.getLogger().warning("Error sending metrics to client: " + e.getMessage());
+                        plugin.getLogger().warning("❌ Error sending metrics to client " + client.sessionId() + ": " + e.getMessage());
                     }
                 }
             }
         } catch (Exception e) {
-            plugin.getLogger().warning("Error collecting/sending metrics: " + e.getMessage());
+            plugin.getLogger().warning("❌ Error collecting/sending metrics: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private void startWebServer() {
         app = Javalin.create(config -> {
             config.staticFiles.add("/web");  // Serve static files from /web
+            
+            // Enable CORS for all origins
+            config.bundledPlugins.enableCors(cors -> {
+                cors.addRule(it -> {
+                    it.anyHost();
+                });
+            });
+            
+            // Add request logging
+            config.requestLogger.http((ctx, ms) -> {
+                plugin.getLogger().info(String.format("[HTTP] %s %s - %d (%s ms)",
+                    ctx.method(),
+                    ctx.path(),
+                    ctx.status(),
+                    ms
+                ));
+            });
+            
+            config.requestLogger.ws(ws -> {
+                ws.onConnect(ctx -> 
+                    plugin.getLogger().info("[WS] Connected: " + ctx.sessionId())
+                );
+                ws.onClose(ctx -> 
+                    plugin.getLogger().info("[WS] Closed: " + ctx.sessionId())
+                );
+                ws.onError(ctx -> 
+                    plugin.getLogger().warning("[WS] Error: " + ctx.error())
+                );
+            });
+            
         }).start(9092); // Changed to 9092 to match frontend
+
+        plugin.getLogger().info("====================================");
+        plugin.getLogger().info("Javalin WebSocket server started!");
+        plugin.getLogger().info("Port: 9092");
+        plugin.getLogger().info("WebSocket: ws://localhost:9092/metrics");
+        plugin.getLogger().info("REST API: http://localhost:9092/api/*");
+        plugin.getLogger().info("Static files: http://localhost:9092/");
+        plugin.getLogger().info("====================================");
 
         // Start metrics collection every 2 seconds (40 ticks = 2 seconds on 20 TPS server)
         new BukkitRunnable() {
@@ -214,8 +266,7 @@ public class RouterProvider {
             }
         }.runTaskTimer(plugin, 0L, 40L); // 40 ticks = 2 seconds
 
-        plugin.getLogger().info("Javalin WebSocket server started on port 9092");
-        plugin.getLogger().info("Metrics will be sent every 2 seconds");
+        plugin.getLogger().info("Metrics collection started (every 2 seconds)");
     }
 
     public void stopWebServer() {
