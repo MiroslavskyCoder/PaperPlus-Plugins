@@ -273,17 +273,30 @@ public class RouterProvider {
                 String modId = handler.queryParam("modId");
                 String fileId = handler.queryParam("fileId");
                 
+                plugin.getLogger().info("📦 Installing mod: modId=" + modId + ", fileId=" + fileId);
+                
                 if (modId == null || fileId == null) {
                     handler.status(400).json(new Object() { public boolean success = false; public String message = "Missing modId or fileId"; });
                     return;
                 }
 
                 String fileInfoJson = curseForgeService.getFileInfo(modId, fileId);
+                plugin.getLogger().info("📄 File info received: " + fileInfoJson.substring(0, Math.min(200, fileInfoJson.length())) + "...");
+                
                 String downloadUrl = curseForgeService.extractJsonField(fileInfoJson, "downloadUrl");
                 String fileName = curseForgeService.extractJsonField(fileInfoJson, "fileName");
                 
+                plugin.getLogger().info("🔍 Extracted - fileName: " + fileName + ", downloadUrl: " + downloadUrl);
+                
                 if (downloadUrl == null || fileName == null) {
-                    handler.status(500).json(new Object() { public boolean success = false; public String message = "Failed to parse file info"; });
+                    plugin.getLogger().warning("❌ Failed to extract file info from JSON");
+                    handler.status(500).json(new Object() { public boolean success = false; public String message = "Failed to parse file info. downloadUrl or fileName is null"; });
+                    return;
+                }
+                
+                if (downloadUrl.isEmpty() || !downloadUrl.startsWith("http")) {
+                    plugin.getLogger().warning("❌ Invalid download URL: " + downloadUrl);
+                    handler.status(500).json(new Object() { public boolean success = false; public String message = "Invalid download URL: " + downloadUrl; });
                     return;
                 }
 
@@ -295,6 +308,7 @@ public class RouterProvider {
                 });
             } catch (Exception e) {
                 plugin.getLogger().warning("Error installing plugin: " + e.getMessage());
+                e.printStackTrace();
                 handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
             }
         });
@@ -376,8 +390,12 @@ public class RouterProvider {
                 });
             });
             
+            // Log all requests for debugging
             config.requestLogger.http((ctx, ms) -> {
-                plugin.getLogger().info(String.format("[HTTP] %s %s - %d (%s ms)",
+                String statusEmoji = ctx.status().getCode() == 200 ? "✅" : 
+                                   ctx.status().getCode() == 404 ? "❌" : "⚠️";
+                plugin.getLogger().info(String.format("%s [HTTP] %s %s - %d (%s ms)",
+                    statusEmoji,
                     ctx.method(),
                     ctx.path(),
                     ctx.status().getCode(),
@@ -423,6 +441,21 @@ public class RouterProvider {
         plugin.getLogger().info("WebSocket: ws://localhost:9092/metrics");
         plugin.getLogger().info("REST API: http://localhost:9092/api/*");
         plugin.getLogger().info("Static files: http://localhost:9092/");
+        plugin.getLogger().info("Static directory: /web (CLASSPATH)");
+        
+        // Log available CSS files for debugging
+        try {
+            java.util.Enumeration<java.net.URL> resources = 
+                getClass().getClassLoader().getResources("web/_next/static/chunks/");
+            if (resources.hasMoreElements()) {
+                plugin.getLogger().info("✅ CSS files found in classpath");
+            } else {
+                plugin.getLogger().warning("⚠️ No CSS files found in classpath!");
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Could not verify CSS files: " + e.getMessage());
+        }
+        
         plugin.getLogger().info("====================================");
 
         new BukkitRunnable() {

@@ -98,7 +98,7 @@ public class CurseForgeService {
         conn.setConnectTimeout(10000);
         conn.setReadTimeout(60000);
         try (BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
-             FileOutputStream fos = new FileOutputStream(target)) {
+            FileOutputStream fos = new FileOutputStream(target)) {
             byte[] buffer = new byte[8192];
             int count;
             while ((count = bis.read(buffer)) != -1) {
@@ -108,15 +108,44 @@ public class CurseForgeService {
     }
     
     public String extractJsonField(String json, String field) {
+        // Find the field in JSON
         String pattern = "\"" + field + "\"";
         int idx = json.indexOf(pattern);
         if (idx == -1) return null;
+        
         int colon = json.indexOf(':', idx);
         if (colon == -1) return null;
-        int startQuote = json.indexOf('"', colon + 1);
-        if (startQuote == -1) return null;
-        int endQuote = json.indexOf('"', startQuote + 1);
-        if (endQuote == -1) return null;
-        return json.substring(startQuote + 1, endQuote);
+        
+        // Skip whitespace after colon
+        int valueStart = colon + 1;
+        while (valueStart < json.length() && Character.isWhitespace(json.charAt(valueStart))) {
+            valueStart++;
+        }
+        
+        if (valueStart >= json.length()) return null;
+        
+        // Check if value is null
+        if (json.startsWith("null", valueStart)) {
+            return null;
+        }
+        
+        // Check if value is a string (starts with quote)
+        if (json.charAt(valueStart) == '"') {
+            int startQuote = valueStart;
+            int endQuote = json.indexOf('"', startQuote + 1);
+            
+            // Handle escaped quotes
+            while (endQuote > 0 && json.charAt(endQuote - 1) == '\\') {
+                endQuote = json.indexOf('"', endQuote + 1);
+            }
+            
+            if (endQuote == -1) return null;
+            return json.substring(startQuote + 1, endQuote);
+        }
+        
+        // For non-string values (numbers, booleans, etc.), we can't easily extract
+        // Return null to indicate this field type is not supported by simple parser
+        return null;
+    }
     }
 }
