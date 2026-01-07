@@ -13,6 +13,9 @@ public class SettingsConfig {
     @JsonProperty
     public RedisConfig redisConfig;
     
+    @JsonProperty
+    public String curseforgeApiKey = "$2a$10$QitAfRaRIDC.UOrrlIzKOeC6O8NTWo/niULqLYjy0s3wsYcO27IE2";
+    
     public SettingsConfig() {
         this.authPlayer = new AuthPlayerSettings();
         this.sqlConfig = new SQLConfig();

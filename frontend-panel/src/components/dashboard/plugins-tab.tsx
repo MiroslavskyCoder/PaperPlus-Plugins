@@ -30,12 +30,17 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
   const [results, setResults] = useState<CurseForgeMod[]>([]);
   const [installingId, setInstallingId] = useState<number | null>(null);
 
-  const searchCurseForge = async () => {
-    if (!query.trim()) return;
+  // Load initial popular plugins on mount
+  useEffect(() => {
+    searchCurseForge('bukkit');
+  }, []);
+
+  const searchCurseForge = async (searchQuery?: string) => {
+    const q = searchQuery || query;
     setSearching(true);
     try {
       const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
-      const res = await fetch(`${protocol}//${window.location.host}/api/curseforge/search?q=${encodeURIComponent(query)}&gameId=432`);
+      const res = await fetch(`${protocol}//${window.location.host}/api/curseforge/search?q=${encodeURIComponent(q || 'bukkit')}&gameId=432`);
       const data = await res.json();
       const mods: CurseForgeMod[] = (data?.data || []).map((m: any) => ({ id: m.id, name: m.name, summary: m.summary }));
       setResults(mods);
@@ -43,6 +48,12 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
       console.error(e);
     } finally {
       setSearching(false);
+    }
+  };
+
+  const handleSearch = () => {
+    if (query.trim()) {
+      searchCurseForge();
     }
   };
 
@@ -80,13 +91,18 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
         </CardHeader>
         <CardContent>
           <div className="flex gap-2 mb-4">
-            <Input placeholder="Search plugins..." value={query} onChange={(e) => setQuery(e.target.value)} />
-            <Button onClick={searchCurseForge} disabled={searching}>
+            <Input 
+              placeholder="Search plugins..." 
+              value={query} 
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            <Button onClick={handleSearch} disabled={searching}>
               {searching ? <Loader className="mr-2 h-4 w-4" /> : null}
               Search
             </Button>
           </div>
-          {results.length > 0 && (
+          {results.length > 0 ? (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {results.map((m) => (
                 <div key={m.id} className="border border-border rounded-lg p-4 bg-card">
@@ -126,6 +142,15 @@ export function PluginsTab({ plugins }: PluginsTabProps) {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : searching ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Loader className="mx-auto h-8 w-8" />
+              <p className="mt-2">Searching plugins...</p>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Enter a search term to find plugins</p>
             </div>
           )}
         </CardContent>
