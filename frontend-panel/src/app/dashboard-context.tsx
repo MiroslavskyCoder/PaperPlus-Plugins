@@ -1,7 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface Stats {
   cpu: number;
@@ -43,7 +42,6 @@ interface DashboardContextType {
   players: Player[];
   entities: Entity[];
   plugins: Plugin[];
-  socket: Socket | null;
   mapImage: string;
   chartData: {
     cpu: number[];
@@ -74,7 +72,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [players, setPlayers] = useState<Player[]>([]);
   const [entities, setEntities] = useState<Entity[]>([]);
   const [plugins, setPlugins] = useState<Plugin[]>([]);
-  const [socket, setSocket] = useState<Socket | null>(null);
   const [mapImage, setMapImage] = useState<string>('');
   const [chartData, setChartData] = useState({
     cpu: [25, 30, 45, 50, 35, 40, 55, 60, 45, 50],
@@ -157,9 +154,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         console.log('🔌 Disconnected from metrics WebSocket');
       };
       
-      // Store ws reference in state
-      setSocket(ws as any);
-      
       return () => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.close();
@@ -233,7 +227,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       players,
       entities,
       plugins,
-      socket,
       mapImage,
       chartData,
       fetchPlayers,
