@@ -135,6 +135,12 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             const newDisk = [...prev.disk, diskPercent].slice(-30);
             const newTimestamps = [...prev.timestamps, data.timestamp || Date.now()].slice(-30);
             
+            console.log('📊 Metrics updated:', {
+              cpu: (data.cpuUsage || 0).toFixed(2) + '%',
+              memory: memoryPercent.toFixed(2) + '%',
+              players: data.onlinePlayers || 0,
+            });
+            
             return {
               cpu: newCpu,
               memory: newMemory,
@@ -142,12 +148,6 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               disk: newDisk,
               timestamps: newTimestamps,
             };
-          });
-          
-          console.log('📊 Metrics updated:', {
-            cpu: (data.cpuUsage || 0).toFixed(2) + '%',
-            memory: (memoryPercent).toFixed(2) + '%',
-            players: data.onlinePlayers || 0,
           });
         } catch (e) {
           console.error('Error parsing metrics data:', e);
