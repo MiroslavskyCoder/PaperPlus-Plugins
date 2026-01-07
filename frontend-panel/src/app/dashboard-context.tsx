@@ -15,9 +15,17 @@ interface Player {
   name: string;
   uuid: string;
   health: number;
+  maxHealth: number;
   x: number;
   y: number;
   z: number;
+  world: string;
+  level: number;
+  experience: number;
+  foodLevel: number;
+  ping: number;
+  online: boolean;
+  timestamp: number;
 }
 
 interface Entity {
@@ -181,9 +189,40 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         console.log('🔌 Disconnected from metrics WebSocket');
       };
       
+      // Connect to players metrics WebSocket
+      const playersWsUrl = `${protocol}//${host}/players/metrics`;
+      console.log('🎮 Connecting to players WebSocket:', playersWsUrl);
+      
+      const playersWs = new WebSocket(playersWsUrl);
+      
+      playersWs.onopen = () => {
+        console.log('✅ Connected to players WebSocket');
+      };
+      
+      playersWs.onmessage = (event) => {
+        try {
+          const playersData = JSON.parse(event.data);
+          console.log('👥 Players data received:', playersData);
+          setPlayers(playersData);
+        } catch (e) {
+          console.error('Error parsing players data:', e);
+        }
+      };
+      
+      playersWs.onerror = (error) => {
+        console.error('❌ Players WebSocket error:', error);
+      };
+      
+      playersWs.onclose = () => {
+        console.log('🔌 Disconnected from players WebSocket');
+      };
+      
       return () => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.close();
+        }
+        if (playersWs.readyState === WebSocket.OPEN) {
+          playersWs.close();
         }
       };
     } catch (error) {

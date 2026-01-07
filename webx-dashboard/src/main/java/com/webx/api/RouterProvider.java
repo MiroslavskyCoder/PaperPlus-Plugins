@@ -22,6 +22,7 @@ public class RouterProvider {
 
     private Javalin app; 
     private Set<WsContext> clients = new CopyOnWriteArraySet<>();
+    private Set<WsContext> playersClients = new CopyOnWriteArraySet<>();
     private ObjectMapper objectMapper = new ObjectMapper();
     private JavaPlugin plugin;
     private SettingsService settingsService;
@@ -46,6 +47,24 @@ public class RouterProvider {
                 if (ctx.error() != null) {
                     ctx.error().printStackTrace();
                 }
+            });
+        });
+
+        // Players metrics WebSocket endpoint
+        app.ws("/players/metrics", ws -> {
+            plugin.getLogger().info("🎮 WebSocket /players/metrics endpoint initialized");
+            ws.onConnect(ctx -> {
+                playersClients.add(ctx);
+                plugin.getLogger().info("✅ Players WebSocket connected: " + ctx.sessionId() + " | Total: " + playersClients.size());
+                // Send initial player data
+                sendPlayersMetrics();
+            });
+            ws.onClose(ctx -> {
+                playersClients.remove(ctx);
+                plugin.getLogger().info("❌ Players WebSocket disconnected: " + ctx.sessionId() + " | Total: " + playersClients.size());
+            });
+            ws.onError(ctx -> {
+                plugin.getLogger().warning("⚠️ Players WebSocket error: " + ctx.error());
             });
         });
 
@@ -236,7 +255,7 @@ public class RouterProvider {
 
             // Send to all connected clients
             if (!clients.isEmpty()) {
-                plugin.getLogger().info("📤 Sending metrics to " + clients.size() + " client(s)");
+                // plugin.getLogger().info("📤 Sending metrics to " + clients.size() + " client(s)");
                 for (WsContext client : clients) {
                     try {
                         client.send(json);
@@ -247,6 +266,45 @@ public class RouterProvider {
             }
         } catch (Exception e) {
             plugin.getLogger().warning("❌ Error collecting/sending metrics: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void sendPlayersMetrics() {
+        try {
+            Object[] playersData = plugin.getServer().getOnlinePlayers().stream().map(player -> {
+                return new Object() {
+                    public String name = player.getName();
+                    public String uuid = player.getUniqueId().toString();
+                    public double health = player.getHealth();
+                    public double maxHealth = player.getMaxHealth();
+                    public double x = player.getLocation().getX();
+                    public double y = player.getLocation().getY();
+                    public double z = player.getLocation().getZ();
+                    public String world = player.getWorld().getName();
+                    public int level = player.getLevel();
+                    public float experience = player.getExp();
+                    public int foodLevel = player.getFoodLevel();
+                    public long ping = player.getPing();
+                    public boolean online = player.isOnline();
+                    public long timestamp = System.currentTimeMillis();
+                };
+            }).toArray();
+
+            String json = objectMapper.writeValueAsString(playersData);
+
+            if (!playersClients.isEmpty()) {
+                // plugin.getLogger().info("📤 Sending player metrics to " + playersClients.size() + " client(s)");
+                for (WsContext client : playersClients) {
+                    try {
+                        client.send(json);
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("❌ Error sending players to client: " + e.getMessage());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("❌ Error collecting/sending players: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -309,7 +367,16 @@ public class RouterProvider {
             }
         }.runTaskTimer(plugin, 0L, 40L); // 40 ticks = 2 seconds
 
+        // Start players metrics collection every 1 second (20 ticks)
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                sendPlayersMetrics();
+            }
+        }.runTaskTimer(plugin, 0L, 20L); // 20 ticks = 1 second
+
         plugin.getLogger().info("Metrics collection started (every 2 seconds)");
+        plugin.getLogger().info("Players metrics started (every 1 second)");
     }
 
     public void stopWebServer() {
