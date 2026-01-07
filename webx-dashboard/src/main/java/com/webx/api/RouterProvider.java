@@ -83,14 +83,20 @@ public class RouterProvider {
                 String reason = handler.queryParam("reason");
                 if (reason == null) reason = "Kicked by admin";
                 
-                org.bukkit.entity.Player player = plugin.getServer().getPlayer(java.util.UUID.fromString(playerUuid));
-                if (player != null && player.isOnline()) {
-                    player.kickPlayer(reason);
-                    plugin.getLogger().info("👢 Kicked player: " + player.getName() + " Reason: " + reason);
-                    handler.json(new Object() { public boolean success = true; public String message = "Player kicked"; });
-                } else {
-                    handler.status(404).json(new Object() { public boolean success = false; public String message = "Player not found"; });
-                }
+                java.util.UUID uuid = java.util.UUID.fromString(playerUuid);
+                String finalReason = reason;
+                
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    public void run() {
+                        org.bukkit.entity.Player player = plugin.getServer().getPlayer(uuid);
+                        if (player != null && player.isOnline()) {
+                            player.kickPlayer(finalReason);
+                            plugin.getLogger().info("👢 Kicked player: " + player.getName() + " Reason: " + finalReason);
+                        }
+                    }
+                }.runTask(plugin);
+                
+                handler.json(new Object() { public boolean success = true; public String message = "Player kick scheduled"; });
             } catch (Exception e) {
                 plugin.getLogger().warning("Error kicking player: " + e.getMessage());
                 handler.status(400).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
@@ -103,17 +109,23 @@ public class RouterProvider {
                 String reason = handler.queryParam("reason");
                 if (reason == null) reason = "Banned by admin";
                 
-                org.bukkit.entity.Player player = plugin.getServer().getPlayer(java.util.UUID.fromString(playerUuid));
-                if (player != null) {
-                    org.bukkit.BanEntry ban = plugin.getServer().getBanList(org.bukkit.BanList.Type.NAME).addBan(player.getName(), reason, null, "Admin");
-                    if (player.isOnline()) {
-                        player.kickPlayer("You have been banned: " + reason);
+                java.util.UUID uuid = java.util.UUID.fromString(playerUuid);
+                String finalReason = reason;
+                
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    public void run() {
+                        org.bukkit.entity.Player player = plugin.getServer().getPlayer(uuid);
+                        if (player != null) {
+                            org.bukkit.BanEntry ban = plugin.getServer().getBanList(org.bukkit.BanList.Type.NAME).addBan(player.getName(), finalReason, null, "Admin");
+                            if (player.isOnline()) {
+                                player.kickPlayer("You have been banned: " + finalReason);
+                            }
+                            plugin.getLogger().info("🚫 Banned player: " + player.getName() + " Reason: " + finalReason);
+                        }
                     }
-                    plugin.getLogger().info("🚫 Banned player: " + player.getName() + " Reason: " + reason);
-                    handler.json(new Object() { public boolean success = true; public String message = "Player banned"; });
-                } else {
-                    handler.status(404).json(new Object() { public boolean success = false; public String message = "Player not found"; });
-                }
+                }.runTask(plugin);
+                
+                handler.json(new Object() { public boolean success = true; public String message = "Player ban scheduled"; });
             } catch (Exception e) {
                 plugin.getLogger().warning("Error banning player: " + e.getMessage());
                 handler.status(400).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
@@ -123,14 +135,19 @@ public class RouterProvider {
         app.post(API.getFullPath("players/{uuid}/teleport"), handler -> {
             try {
                 String playerUuid = handler.pathParam("uuid");
-                org.bukkit.entity.Player player = plugin.getServer().getPlayer(java.util.UUID.fromString(playerUuid));
-                if (player != null && player.isOnline()) {
-                    player.teleport(plugin.getServer().getWorld("world").getSpawnLocation());
-                    plugin.getLogger().info("📍 Teleported player: " + player.getName() + " to spawn");
-                    handler.json(new Object() { public boolean success = true; public String message = "Player teleported to spawn"; });
-                } else {
-                    handler.status(404).json(new Object() { public boolean success = false; public String message = "Player not found"; });
-                }
+                java.util.UUID uuid = java.util.UUID.fromString(playerUuid);
+                
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    public void run() {
+                        org.bukkit.entity.Player player = plugin.getServer().getPlayer(uuid);
+                        if (player != null && player.isOnline()) {
+                            player.teleport(plugin.getServer().getWorld("world").getSpawnLocation());
+                            plugin.getLogger().info("📍 Teleported player: " + player.getName() + " to spawn");
+                        }
+                    }
+                }.runTask(plugin);
+                
+                handler.json(new Object() { public boolean success = true; public String message = "Player teleport scheduled"; });
             } catch (Exception e) {
                 plugin.getLogger().warning("Error teleporting player: " + e.getMessage());
                 handler.status(400).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
@@ -140,15 +157,20 @@ public class RouterProvider {
         app.post(API.getFullPath("players/{uuid}/heal"), handler -> {
             try {
                 String playerUuid = handler.pathParam("uuid");
-                org.bukkit.entity.Player player = plugin.getServer().getPlayer(java.util.UUID.fromString(playerUuid));
-                if (player != null && player.isOnline()) {
-                    player.setHealth(player.getMaxHealth());
-                    player.setFoodLevel(20);
-                    plugin.getLogger().info("💊 Healed player: " + player.getName());
-                    handler.json(new Object() { public boolean success = true; public String message = "Player healed"; });
-                } else {
-                    handler.status(404).json(new Object() { public boolean success = false; public String message = "Player not found"; });
-                }
+                java.util.UUID uuid = java.util.UUID.fromString(playerUuid);
+                
+                new org.bukkit.scheduler.BukkitRunnable() {
+                    public void run() {
+                        org.bukkit.entity.Player player = plugin.getServer().getPlayer(uuid);
+                        if (player != null && player.isOnline()) {
+                            player.setHealth(player.getMaxHealth());
+                            player.setFoodLevel(20);
+                            plugin.getLogger().info("💊 Healed player: " + player.getName());
+                        }
+                    }
+                }.runTask(plugin);
+                
+                handler.json(new Object() { public boolean success = true; public String message = "Player heal scheduled"; });
             } catch (Exception e) {
                 plugin.getLogger().warning("Error healing player: " + e.getMessage());
                 handler.status(400).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
