@@ -77,7 +77,7 @@ public class RouterProvider {
         });
 
         // Player Actions endpoints
-        app.post(API.getFullPath("players/:uuid/kick"), handler -> {
+        app.post(API.getFullPath("players/{uuid}/kick"), handler -> {
             try {
                 String playerUuid = handler.pathParam("uuid");
                 String reason = handler.queryParam("reason");
@@ -97,7 +97,7 @@ public class RouterProvider {
             }
         });
 
-        app.post(API.getFullPath("players/:uuid/ban"), handler -> {
+        app.post(API.getFullPath("players/{uuid}/ban"), handler -> {
             try {
                 String playerUuid = handler.pathParam("uuid");
                 String reason = handler.queryParam("reason");
@@ -120,7 +120,7 @@ public class RouterProvider {
             }
         });
 
-        app.post(API.getFullPath("players/:uuid/teleport"), handler -> {
+        app.post(API.getFullPath("players/{uuid}/teleport"), handler -> {
             try {
                 String playerUuid = handler.pathParam("uuid");
                 org.bukkit.entity.Player player = plugin.getServer().getPlayer(java.util.UUID.fromString(playerUuid));
@@ -137,7 +137,7 @@ public class RouterProvider {
             }
         });
 
-        app.post(API.getFullPath("players/:uuid/heal"), handler -> {
+        app.post(API.getFullPath("players/{uuid}/heal"), handler -> {
             try {
                 String playerUuid = handler.pathParam("uuid");
                 org.bukkit.entity.Player player = plugin.getServer().getPlayer(java.util.UUID.fromString(playerUuid));
