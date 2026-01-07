@@ -1,5 +1,12 @@
 package com.webx.api;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -229,6 +236,93 @@ public class RouterProvider {
             handler.json(pluginProfiles);
         });
 
+        // ===== CURSEFORGE PLUGIN MANAGER =====
+        // Proxy search to CurseForge API (requires X-Api-Key)
+        app.get(API.getFullPath("curseforge/search"), handler -> {
+            try {
+                String apiKey = getCurseForgeApiKey(handler);
+                if (apiKey == null || apiKey.isEmpty()) {
+                    handler.status(400).json(new Object() { public boolean success = false; public String message = "Missing CurseForge API key (set env CURSEFORGE_API_KEY or pass ?apiKey=)"; });
+                    return;
+                }
+
+                String q = handler.queryParam("q");
+                if (q == null || q.isEmpty()) {
+                    handler.status(400).json(new Object() { public boolean success = false; public String message = "Missing query parameter 'q'"; });
+                    return;
+                }
+
+                String gameId = handler.queryParam("gameId");
+                if (gameId == null || gameId.isEmpty()) gameId = "432"; // Minecraft
+                String classId = handler.queryParam("classId"); // optional, allow caller to filter (e.g., Bukkit plugins)
+
+                StringBuilder url = new StringBuilder("https://api.curseforge.com/v1/mods/search?gameId=").append(gameId)
+                    .append("&searchFilter=").append(URLEncoder.encode(q, "UTF-8"));
+                if (classId != null && !classId.isEmpty()) url.append("&classId=").append(classId);
+
+                String response = httpGet(url.toString(), apiKey);
+                handler.contentType("application/json").result(response);
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error proxying CurseForge search: " + e.getMessage());
+                handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
+            }
+        });
+
+        // List files for a specific mod
+        app.get(API.getFullPath("curseforge/mods/{modId}/files"), handler -> {
+            try {
+                String apiKey = getCurseForgeApiKey(handler);
+                if (apiKey == null || apiKey.isEmpty()) {
+                    handler.status(400).json(new Object() { public boolean success = false; public String message = "Missing CurseForge API key"; });
+                    return;
+                }
+                String modId = handler.pathParam("modId");
+                String url = "https://api.curseforge.com/v1/mods/" + modId + "/files";
+                String response = httpGet(url, apiKey);
+                handler.contentType("application/json").result(response);
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error fetching mod files: " + e.getMessage());
+                handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
+            }
+        });
+
+        // Install a specific mod file into /plugins
+        app.post(API.getFullPath("curseforge/install"), handler -> {
+            try {
+                String apiKey = getCurseForgeApiKey(handler);
+                if (apiKey == null || apiKey.isEmpty()) {
+                    handler.status(400).json(new Object() { public boolean success = false; public String message = "Missing CurseForge API key"; });
+                    return;
+                }
+                String modId = handler.queryParam("modId");
+                String fileId = handler.queryParam("fileId");
+                if (modId == null || fileId == null) {
+                    handler.status(400).json(new Object() { public boolean success = false; public String message = "Missing modId or fileId"; });
+                    return;
+                }
+
+                String fileInfoJson = httpGet("https://api.curseforge.com/v1/mods/" + modId + "/files/" + fileId, apiKey);
+                // Extract downloadUrl and fileName using a simple approach to avoid adding dependencies
+                String downloadUrl = extractJsonField(fileInfoJson, "downloadUrl");
+                String fileName = extractJsonField(fileInfoJson, "fileName");
+                if (downloadUrl == null || fileName == null) {
+                    handler.status(500).json(new Object() { public boolean success = false; public String message = "Failed to parse file info"; });
+                    return;
+                }
+
+                File pluginsDir = plugin.getDataFolder().getParentFile(); // /plugins
+                File target = new File(pluginsDir, fileName);
+
+                downloadToFile(downloadUrl, target);
+                plugin.getLogger().info("⬇️ Downloaded plugin: " + fileName + " to " + target.getAbsolutePath());
+
+                handler.json(new Object() { public boolean success = true; public String message = "Installed to /plugins"; public String path = target.getAbsolutePath(); });
+            } catch (Exception e) {
+                plugin.getLogger().warning("Error installing plugin: " + e.getMessage());
+                handler.status(500).json(new Object() { public boolean success = false; public String message = e.getMessage(); });
+            }
+        });
+
         app.post(API.getFullPath("setconfig"), handler -> {
             String pluginId = handler.formParam("pluginId");
             String key = handler.formParam("key");
@@ -369,6 +463,58 @@ public class RouterProvider {
             plugin.getLogger().warning("❌ Error collecting/sending metrics: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // ===== Helper methods for CurseForge integration =====
+    private String getCurseForgeApiKey(io.javalin.http.Context handler) {
+        String fromParam = handler.queryParam("apiKey");
+        if (fromParam != null && !fromParam.isEmpty()) return fromParam;
+        String env = System.getenv("CURSEFORGE_API_KEY");
+        return env;
+    }
+
+    private String httpGet(String urlStr, String apiKey) throws Exception {
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Accept", "application/json");
+        conn.setRequestProperty("x-api-key", apiKey);
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(20000);
+        try (InputStream in = conn.getInputStream()) {
+            return new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        }
+    }
+
+    private void downloadToFile(String urlStr, File target) throws Exception {
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(60000);
+        try (BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+             FileOutputStream fos = new FileOutputStream(target)) {
+            byte[] buffer = new byte[8192];
+            int count;
+            while ((count = bis.read(buffer)) != -1) {
+                fos.write(buffer, 0, count);
+            }
+        }
+    }
+
+    private String extractJsonField(String json, String field) {
+        // Very simple parser to avoid adding dependencies here
+        // Looks for "field":"value" or "field": "value"
+        String pattern = "\"" + field + "\"";
+        int idx = json.indexOf(pattern);
+        if (idx == -1) return null;
+        int colon = json.indexOf(':', idx);
+        if (colon == -1) return null;
+        int startQuote = json.indexOf('"', colon + 1);
+        if (startQuote == -1) return null;
+        int endQuote = json.indexOf('"', startQuote + 1);
+        if (endQuote == -1) return null;
+        return json.substring(startQuote + 1, endQuote);
     }
 
     private void sendPlayersMetrics() {

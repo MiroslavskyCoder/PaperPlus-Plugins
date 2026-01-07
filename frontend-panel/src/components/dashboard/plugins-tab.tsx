@@ -1,5 +1,10 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader } from '@/components/loader';
 
 interface Plugin {
   name: string;
@@ -13,9 +18,93 @@ interface PluginsTabProps {
   plugins: Plugin[];
 }
 
+interface CurseForgeMod {
+  id: number;
+  name: string;
+  summary: string;
+}
+
 export function PluginsTab({ plugins }: PluginsTabProps) {
+  const [query, setQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [results, setResults] = useState<CurseForgeMod[]>([]);
+  const [installingId, setInstallingId] = useState<number | null>(null);
+
+  const searchCurseForge = async () => {
+    if (!query.trim()) return;
+    setSearching(true);
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+      const res = await fetch(`${protocol}//${window.location.host}/api/curseforge/search?q=${encodeURIComponent(query)}&gameId=432`);
+      const data = await res.json();
+      const mods: CurseForgeMod[] = (data?.data || []).map((m: any) => ({ id: m.id, name: m.name, summary: m.summary }));
+      setResults(mods);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const installFromCurseForge = async (modId: number) => {
+    setInstallingId(modId);
+    try {
+      const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+      // Fetch files and pick the first one (caller can refine later)
+      const filesRes = await fetch(`${protocol}//${window.location.host}/api/curseforge/mods/${modId}/files`);
+      const files = await filesRes.json();
+      const first = files?.data?.[0];
+      if (!first) throw new Error('No files found for this mod');
+
+      const res = await fetch(`${protocol}//${window.location.host}/api/curseforge/install?modId=${modId}&fileId=${first.id}`, { method: 'POST' });
+      const install = await res.json();
+      alert(install?.message || 'Installed');
+    } catch (e: any) {
+      alert(e.message || 'Install failed');
+    } finally {
+      setInstallingId(null);
+    }
+  };
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* CurseForge Plugin Manager */}
+      <Card className="bg-card/50 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 4a7 7 0 100 14 7 7 0 000-14zm0 0v7h7" />
+            </svg>
+            Plugin Manager (CurseForge)
+          </CardTitle>
+          <CardDescription>Search and install Bukkit plugins from CurseForge</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2 mb-4">
+            <Input placeholder="Search plugins..." value={query} onChange={(e) => setQuery(e.target.value)} />
+            <Button onClick={searchCurseForge} disabled={searching}>
+              {searching ? <Loader className="mr-2 h-4 w-4" /> : null}
+              Search
+            </Button>
+          </div>
+          {results.length > 0 && (
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {results.map((m) => (
+                <div key={m.id} className="border border-border rounded-lg p-4 bg-card">
+                  <h3 className="font-semibold text-sm mb-1">{m.name}</h3>
+                  <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{m.summary}</p>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="default" onClick={() => installFromCurseForge(m.id)} disabled={installingId === m.id}>
+                      {installingId === m.id ? <Loader className="mr-2 h-4 w-4" /> : null}
+                      Install
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="bg-card/50 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
