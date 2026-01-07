@@ -193,7 +193,10 @@ public class RouterProvider {
         try {
             // Сбор полных метрик системы
             long timestamp = System.currentTimeMillis();
-            double cpuUsage = SystemHelper.getCpuLoad() * 100; // Convert to percentage
+            double cpuLoad = SystemHelper.getCpuLoad();
+            // Normalize CPU usage to 0-100% range (handle both 0-1 and 0-100 scales)
+            double cpuUsage = cpuLoad > 100 ? Math.min(cpuLoad / Runtime.getRuntime().availableProcessors(), 100) : 
+                              cpuLoad <= 1 ? cpuLoad * 100 : cpuLoad;
             
             // Memory metrics
             Runtime runtime = Runtime.getRuntime();
