@@ -45,8 +45,14 @@ tasks.jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
+// Task to clean old frontend files
+tasks.register<Delete>("cleanFrontend") {
+    delete("src/main/resources/web")
+}
+
 // Task to copy frontend build output to resources
 tasks.register<Copy>("copyFrontend") {
+    dependsOn("cleanFrontend")
     from("../frontend-panel/out")
     into("src/main/resources/web")
     dependsOn(":frontend-panel:bunBuild")
@@ -59,5 +65,10 @@ tasks.compileJava {
 
 tasks.processResources {
     dependsOn("copyFrontend")
+}
+
+// Clean task should also clean frontend
+tasks.clean {
+    dependsOn("cleanFrontend")
 }
  
