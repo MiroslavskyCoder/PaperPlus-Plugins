@@ -7,6 +7,7 @@ import com.webx.services.RedisManager;
 import com.webx.services.SystemMonitorService;
 import com.webx.services.SettingsService;
 import com.webx.api.models.SettingsConfig;
+import com.webx.api.RouterProvider;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -26,6 +27,7 @@ public final class PolyglotPlugin extends JavaPlugin implements Listener {
     private RedisManager redisManager;
     private DatabaseManager dbManager;
     private AuthManager authManager;
+    private RouterProvider routerProvider;
 
     private final Map<UUID, PlayerProfile> onlineProfiles = new HashMap<>();
 
@@ -95,9 +97,13 @@ public final class PolyglotPlugin extends JavaPlugin implements Listener {
 
         getLogger().info("WebxDashboard Plugin Enabled.");
 
-
+        // Start monitoring service
         monitorService = new SystemMonitorService(this);
         monitorService.startMonitoring();
+
+        // Start Web Server for API and WebSocket
+        routerProvider = new RouterProvider(this);
+        getLogger().info("Web Server API/WebSocket started on port 9092");
     }
 
     @Override
@@ -115,6 +121,9 @@ public final class PolyglotPlugin extends JavaPlugin implements Listener {
         }
         if (dbManager != null) {
             dbManager.shutdown();
+        }
+        if (routerProvider != null) {
+            routerProvider.stopWebServer();
         }
     } 
 
