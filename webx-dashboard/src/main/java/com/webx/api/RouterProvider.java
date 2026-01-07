@@ -50,10 +50,14 @@ public class RouterProvider {
                 plugin.getLogger().info("❌ WebSocket client disconnected: " + ctx.sessionId() + " | Total clients: " + clients.size());
             });
             ws.onError(ctx -> {
-                plugin.getLogger().warning("⚠️ WebSocket error for " + ctx.sessionId() + ": " + ctx.error());
-                if (ctx.error() != null) {
-                    ctx.error().printStackTrace();
+                Throwable err = ctx.error();
+                // ClosedChannelException is normal when client disconnects
+                if (err instanceof java.nio.channels.ClosedChannelException) {
+                    plugin.getLogger().info("WS closed (metrics): " + ctx.sessionId());
+                } else {
+                    plugin.getLogger().warning("⚠️ WebSocket error (metrics) for " + ctx.sessionId() + ": " + err);
                 }
+                clients.remove(ctx);
             });
         });
 
@@ -71,7 +75,13 @@ public class RouterProvider {
                 plugin.getLogger().info("❌ Players WebSocket disconnected: " + ctx.sessionId() + " | Total: " + playersClients.size());
             });
             ws.onError(ctx -> {
-                plugin.getLogger().warning("⚠️ Players WebSocket error: " + ctx.error());
+                Throwable err = ctx.error();
+                if (err instanceof java.nio.channels.ClosedChannelException) {
+                    plugin.getLogger().info("WS closed (players): " + ctx.sessionId());
+                } else {
+                    plugin.getLogger().warning("⚠️ Players WebSocket error: " + err);
+                }
+                playersClients.remove(ctx);
             });
         });
 
@@ -455,7 +465,8 @@ public class RouterProvider {
                     try {
                         client.send(json);
                     } catch (Exception e) {
-                        plugin.getLogger().warning("❌ Error sending metrics to client " + client.sessionId() + ": " + e.getMessage());
+                        plugin.getLogger().info("WS send failed (metrics), removing client " + client.sessionId());
+                        clients.remove(client);
                     }
                 }
             }
@@ -546,7 +557,8 @@ public class RouterProvider {
                     try {
                         client.send(json);
                     } catch (Exception e) {
-                        plugin.getLogger().warning("❌ Error sending players to client: " + e.getMessage());
+                        plugin.getLogger().info("WS send failed (players), removing client " + client.sessionId());
+                        playersClients.remove(client);
                     }
                 }
             }
@@ -592,7 +604,7 @@ public class RouterProvider {
                     plugin.getLogger().info("[WS] Closed: " + ctx.sessionId())
                 );
                 ws.onError(ctx -> 
-                    plugin.getLogger().warning("[WS] Error: " + ctx.error())
+                    plugin.getLogger().info("[WS] Error: " + ctx.error())
                 );
             });
             
