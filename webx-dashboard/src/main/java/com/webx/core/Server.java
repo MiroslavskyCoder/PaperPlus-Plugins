@@ -43,11 +43,32 @@ public class Server {
         public double cpuUsage;
         public double memoryUsage;
         public int onlinePlayers;
+        public long memUsed;
+        public long memMax;
+        public long diskUsed;
+        public long diskTotal;
+        public String status;
 
         public MetricsData(long timestamp, double cpuUsage, double memoryUsage, int onlinePlayers) {
             this.timestamp = timestamp;
             this.cpuUsage = cpuUsage;
             this.memoryUsage = memoryUsage;
+            this.onlinePlayers = onlinePlayers;
+            this.status = "online";
+        }
+
+        public MetricsData(long timestamp, double cpuUsage, double memoryUsage, int onlinePlayers,
+                          long memUsed, long memMax, long diskUsed, long diskTotal) {
+            this.timestamp = timestamp;
+            this.cpuUsage = cpuUsage;
+            this.memoryUsage = memoryUsage;
+            this.onlinePlayers = onlinePlayers;
+            this.memUsed = memUsed;
+            this.memMax = memMax;
+            this.diskUsed = diskUsed;
+            this.diskTotal = diskTotal;
+            this.status = "online";
+        }
             this.onlinePlayers = onlinePlayers;
         }
     }

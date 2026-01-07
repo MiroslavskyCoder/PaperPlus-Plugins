@@ -85,63 +85,89 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   });
 
   useEffect(() => {
-    // Connect to Socket.IO
-    const newSocket = io('http://localhost:9092');
-    setSocket(newSocket);
-
-    newSocket.on('connect', () => console.log('Connected to server'));
-    newSocket.on('disconnect', () => console.log('Disconnected'));
-
-    // Listen for metrics updates
-    newSocket.on('metrics', (data) => {
-      setStats({
-        cpu: data.cpuUsage,
-        memUsed: data.memoryUsage * 100, // assuming percentage
-        memMax: 100,
-        diskUsed: 50, // placeholder
-        diskTotal: 100,
-        players: data.onlinePlayers,
-      });
-      // Update history
-      setStatsHistory(prev => [...prev.slice(-9), {
-        cpu: data.cpuUsage,
-        memUsed: data.memoryUsage * 100,
-        memMax: 100,
-        diskUsed: 50,
-        diskTotal: 100,
-        players: data.onlinePlayers,
-      }]);
-    }); 
-
-    // Listen for map updates
-    newSocket.on('map', (data: string) => {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.type === 'map') {
-          setMapImage(parsed.image);
+    // Connect to WebSocket for real-time metrics
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:9092/metrics';
+    
+    try {
+      const ws = new WebSocket(wsUrl);
+      
+      ws.onopen = () => {
+        console.log('✅ Connected to metrics WebSocket');
+      };
+      
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          // Update current stats
+          setStats({
+            cpu: data.cpuUsage,
+            memUsed: data.memUsed,
+            memMax: data.memMax,
+            diskUsed: data.diskUsed,
+            diskTotal: data.diskTotal,
+            players: data.onlinePlayers,
+          });
+          
+          // Update stats history for charts (keep last 30 data points = 60 seconds)
+          setStatsHistory(prev => {
+            const updated = [...prev, {
+              cpu: data.cpuUsage,
+              memUsed: data.memUsed,
+              memMax: data.memMax,
+              diskUsed: data.diskUsed,
+              diskTotal: data.diskTotal,
+              players: data.onlinePlayers,
+            }];
+            return updated.slice(-30); // Keep last 30 points
+          });
+          
+          // Update chart data
+          setChartData(prev => {
+            const newCpu = [...prev.cpu, data.cpuUsage].slice(-30);
+            const newMemory = [...prev.memory, (data.memUsed / data.memMax) * 100].slice(-30);
+            const newPlayers = [...prev.players, data.onlinePlayers].slice(-30);
+            const newDisk = [...prev.disk, (data.diskUsed / data.diskTotal) * 100].slice(-30);
+            const newTimestamps = [...prev.timestamps, data.timestamp].slice(-30);
+            
+            return {
+              cpu: newCpu,
+              memory: newMemory,
+              players: newPlayers,
+              disk: newDisk,
+              timestamps: newTimestamps,
+            };
+          });
+          
+          console.log('📊 Metrics updated:', {
+            cpu: data.cpuUsage.toFixed(2) + '%',
+            memory: ((data.memUsed / data.memMax) * 100).toFixed(2) + '%',
+            players: data.onlinePlayers,
+          });
+        } catch (e) {
+          console.error('Error parsing metrics data:', e);
         }
-      } catch (e) { console.error(e); }
-    });
-
-    // Listen for player connect
-    newSocket.on('connecting_success', (data: string) => {
-      try {
-        const parsed = JSON.parse(data);
-        if (parsed.type === 'connecting_success') {
-          console.log('Player connected:', parsed.playerdata);
-          // Optionally update players list
-          fetchPlayers();
+      };
+      
+      ws.onerror = (error) => {
+        console.error('❌ WebSocket error:', error);
+      };
+      
+      ws.onclose = () => {
+        console.log('🔌 Disconnected from metrics WebSocket');
+      };
+      
+      // Store ws reference in state
+      setSocket(ws as any);
+      
+      return () => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close();
         }
-      } catch (e) { console.error(e); }
-    });
-
-    // Fetch initial data
-    fetchPlayers();
-    fetchMap();
-
-    return () => {
-      newSocket.disconnect();
-    };
+      };
+    } catch (error) {
+      console.error('Error connecting to WebSocket:', error);
+    }
   }, []);
 
   // Initialize plugins data
@@ -158,27 +184,27 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const fetchPlayers = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/players', { headers: { 'X-API-KEY': 'secret-change-me' } });
+      const res = await fetch('http://localhost:9092/api/players');
       if (res.ok) {
         const data = await res.json();
         setPlayers(data);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error fetching players:', e); }
   };
 
   const fetchMap = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/map', { headers: { 'X-API-KEY': 'secret-change-me' } });
+      const res = await fetch('http://localhost:9092/api/map');
       if (res.ok) {
         const data = await res.json();
         setEntities(data);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error fetching map:', e); }
   };
 
   const fetchChartData = async () => {
     try {
-      const res = await fetch('http://localhost:8080/api/stats/history', { headers: { 'X-API-KEY': 'secret-change-me' } });
+      const res = await fetch('http://localhost:9092/api/stats/history');
       if (res.ok) {
         const data = await res.json();
         setChartData({
@@ -186,19 +212,18 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           memory: data.map((s: Stats) => (s.memUsed / s.memMax) * 100),
           players: data.map((s: Stats) => s.players),
           disk: data.map((s: Stats) => (s.diskUsed / s.diskTotal) * 100),
-          timestamps: data.map((s: Stats, i: number) => Date.now() - (data.length - 1 - i) * 1000),
+          timestamps: data.map((s: Stats, i: number) => Date.now() - (data.length - 1 - i) * 2000), // 2 second intervals
         });
       }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error fetching chart data:', e); }
   };
 
   const runCommand = async (cmd: string) => {
     try {
-      await fetch('http://localhost:8080/api/command?cmd=' + encodeURIComponent(cmd), {
+      await fetch('http://localhost:9092/api/command?cmd=' + encodeURIComponent(cmd), {
         method: 'POST',
-        headers: { 'X-API-KEY': 'secret-change-me' }
       });
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error('Error running command:', e); }
   };
 
   return (

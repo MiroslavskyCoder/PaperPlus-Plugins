@@ -146,18 +146,55 @@ public class RouterProvider {
 
     private void collectAndSendMetrics() {
         try {
-            // Сбор метрик
+            // Сбор полных метрик системы
             long timestamp = System.currentTimeMillis();
-            double cpuUsage = SystemHelper.getCpuLoad();
-            double memoryUsage = SystemHelper.getMemoryUsageMB();
+            double cpuUsage = SystemHelper.getCpuLoad() * 100; // Convert to percentage
+            
+            // Memory metrics
+            Runtime runtime = Runtime.getRuntime();
+            long memUsed = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024); // MB
+            long memMax = runtime.maxMemory() / (1024 * 1024); // MB
+            double memoryUsagePercent = (memUsed / (double) memMax) * 100;
+            
+            // Players
             int onlinePlayers = plugin.getServer().getOnlinePlayers().size();
+            
+            // Disk metrics (if available)
+            long diskUsed = 0;
+            long diskTotal = 0;
+            try {
+                java.nio.file.FileStore store = java.nio.file.Files.getFileStore(java.nio.file.Paths.get("/"));
+                diskUsed = (store.getTotalSpace() - store.getUsableSpace()) / (1024L * 1024L * 1024L); // GB
+                diskTotal = store.getTotalSpace() / (1024L * 1024L * 1024L); // GB
+            } catch (Exception e) {
+                diskUsed = 0;
+                diskTotal = 100;
+            }
+            
+            // Create comprehensive metrics data
+            MetricsData metrics = new MetricsData(
+                timestamp,
+                cpuUsage,
+                memoryUsagePercent,
+                onlinePlayers,
+                memUsed,
+                memMax,
+                diskUsed,
+                diskTotal
+            );
 
-            // Форматирование в JSON
-            String json = objectMapper.writeValueAsString(new MetricsData(timestamp, cpuUsage, memoryUsage, onlinePlayers));
+            // Serialize to JSON
+            String json = objectMapper.writeValueAsString(metrics);
 
-            // Отправка всем клиентам
-            for (WsContext client : clients) {
-                client.send(json);
+            // Send to all connected clients
+            if (!clients.isEmpty()) {
+                for (WsContext client : clients) {
+                    try {
+                        client.send(json);
+                    } catch (Exception e) {
+                        plugin.getLogger().warning("Error sending metrics to client: " + e.getMessage());
+                    }
+                }
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Error collecting/sending metrics: " + e.getMessage());
@@ -166,17 +203,19 @@ public class RouterProvider {
 
     private void startWebServer() {
         app = Javalin.create(config -> {
-            config.staticFiles.add("/web");  // Обслуживание статических файлов из /web
-        }).start(8080);
+            config.staticFiles.add("/web");  // Serve static files from /web
+        }).start(9092); // Changed to 9092 to match frontend
 
+        // Start metrics collection every 2 seconds (40 ticks = 2 seconds on 20 TPS server)
         new BukkitRunnable() {
             @Override
             public void run() {
                 collectAndSendMetrics();
             }
-        }.runTaskTimer(plugin, 0L, 40L); 
+        }.runTaskTimer(plugin, 0L, 40L); // 40 ticks = 2 seconds
 
-        plugin.getLogger().info("Javalin WebSocket server started on port 8080");
+        plugin.getLogger().info("Javalin WebSocket server started on port 9092");
+        plugin.getLogger().info("Metrics will be sent every 2 seconds");
     }
 
     public void stopWebServer() {
