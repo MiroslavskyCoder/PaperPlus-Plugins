@@ -32,10 +32,10 @@ public class SeasonsPlugin extends JavaPlugin {
     
     public static SeasonsPlugin getInstance() {
         return instance;
-    
-        public SeasonManager getSeasonManager() {
-            return seasonManager;
-        }
+    }
+
+    public SeasonManager getSeasonManager() {
+        return seasonManager;
     }
     
     public enum Season {
