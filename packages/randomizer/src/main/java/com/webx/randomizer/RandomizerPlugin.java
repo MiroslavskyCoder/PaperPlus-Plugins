@@ -66,9 +66,9 @@ public class RandomizerPlugin extends JavaPlugin implements Listener {
     
     public static RandomizerPlugin getInstance() {
         return instance;
-    
-        public RandomizerManager getRandomizerManager() {
-            return randomizerManager;
-        }
+    }
+
+    public RandomizerManager getRandomizerManager() {
+        return randomizerManager;
     }
 }
