@@ -4,6 +4,7 @@ import com.webx.economy.commands.*;
 import com.webx.economy.listeners.PlayerJoinListener;
 import com.webx.economy.listeners.PlayerQuitListener;
 import com.webx.economy.managers.*;
+import com.webx.economy.storage.JsonStorage;
 import com.webx.economy.storage.MySQLStorage;
 import com.webx.economy.storage.StorageProvider;
 import com.webx.economy.storage.YamlStorage;
@@ -65,15 +66,22 @@ public class EconomyPlugin extends JavaPlugin {
     }
 
     private void initStorage() {
-        String type = getConfig().getString("database.type", "yaml");
+        String type = getConfig().getString("database.type", "json");
         
-        if (type.equalsIgnoreCase("mysql")) {
-            storage = new MySQLStorage(this);
-        } else {
-            storage = new YamlStorage(this);
+        switch (type.toLowerCase()) {
+            case "mysql":
+                storage = new MySQLStorage(this);
+                break;
+            case "yaml":
+                storage = new YamlStorage(this);
+                break;
+            case "json":
+            default:
+                storage = new JsonStorage(getDataFolder());
+                break;
         }
         
-        storage.initialize();
+        storage.init();
     }
 
     private void registerCommands() {
