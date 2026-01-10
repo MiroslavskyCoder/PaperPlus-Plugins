@@ -5,6 +5,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -66,8 +68,18 @@ public class DeathListener implements Listener {
                 }
             }
 
+            // Create 3D text label above chest
+            Location textLoc = chestLoc.clone().add(0.5, 1.5, 0.5);
+            ArmorStand textStand = (ArmorStand) chestLoc.getWorld().spawnEntity(textLoc, EntityType.ARMOR_STAND);
+            textStand.setVisible(false);
+            textStand.setGravity(false);
+            textStand.setCustomName(ChatColor.GOLD + "☠ " + ChatColor.YELLOW + player.getName() + ChatColor.GOLD + " ☠");
+            textStand.setCustomNameVisible(true);
+            textStand.setInvulnerable(true);
+            textStand.setMarker(true);
+            
             // Register chest
-            manager.registerChest(chestLoc, player.getUniqueId());
+            manager.registerChest(chestLoc, player.getUniqueId(), textStand);
 
             // Notify player
             if (plugin.getConfig().getBoolean("notify-player", true)) {
@@ -77,12 +89,6 @@ public class DeathListener implements Listener {
                          .replace("{y}", String.valueOf(chestLoc.getBlockY()))
                          .replace("{z}", String.valueOf(chestLoc.getBlockZ()));
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
-            }
-
-            // Schedule expiration if configured
-            int expireSeconds = plugin.getConfig().getInt("expire-seconds", 600);
-            if (expireSeconds > 0) {
-                manager.scheduleExpiration(chestLoc, player.getUniqueId(), expireSeconds);
             }
         }
     }

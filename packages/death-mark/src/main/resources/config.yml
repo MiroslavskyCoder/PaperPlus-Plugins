@@ -7,7 +7,7 @@ enabled: true
 protected: true
 
 # How long (in seconds) until chest expires (0 = never)
-expire-seconds: 600
+expire-seconds: 0
 
 # Whether to send a message to player about chest location
 notify-player: true

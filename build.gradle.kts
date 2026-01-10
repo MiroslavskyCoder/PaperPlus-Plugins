@@ -14,10 +14,10 @@ tasks.register("buildAllPlugins") {
         ":regionigroks-map:build",
         ":pvp-base:build",
         ":show-health:build",
-        ":from-drop:build",
         ":abomination:build",
-        ":dance:build",
-        ":death-mark:build"
+        ":death-mark:build",
+        ":home-tp:build",
+        ":back-tp:build"
     )
     finalizedBy("copyPlugins")
 }
@@ -26,14 +26,15 @@ tasks.register("buildAllPlugins") {
 tasks.register<Copy>("copyPlugins") {
     group = "build"
     description = "Copy all built plugin JARs to out/plugins"
-    
+    `
+    from("packages/webx-dashboard/build/libs")
     from("packages/regionigroks-map/build/libs")
     from("packages/pvp-base/build/libs")
     from("packages/show-health/build/libs")
-    from("packages/from-drop/build/libs")
     from("packages/abomination/build/libs")
-    from("packages/dance/build/libs")
     from("packages/death-mark/build/libs")
+    from("packages/home-tp/build/libs")
+    from("packages/back-tp/build/libs")
     into("out/plugins")
     
     include("*.jar")
@@ -83,10 +84,10 @@ tasks.clean {
         ":regionigroks-map:clean",
         ":pvp-base:clean",
         ":show-health:clean",
-        ":from-drop:clean",
         ":abomination:clean",
-        ":dance:clean",
-        ":death-mark:clean"
+        ":death-mark:clean",
+        ":home-tp:clean",
+        ":back-tp:clean"
     )
 }
 

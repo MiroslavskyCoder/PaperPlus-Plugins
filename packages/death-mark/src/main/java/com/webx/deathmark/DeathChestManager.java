@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -15,18 +16,24 @@ import java.util.UUID;
 public class DeathChestManager {
     private final JavaPlugin plugin;
     private final Map<Location, UUID> chests = new HashMap<>();
+    private final Map<Location, ArmorStand> textStands = new HashMap<>();
     private final Map<Location, Integer> expirationTasks = new HashMap<>();
 
     public DeathChestManager(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
-    public void registerChest(Location loc, UUID owner) {
+    public void registerChest(Location loc, UUID owner, ArmorStand textStand) {
         chests.put(loc, owner);
+        textStands.put(loc, textStand);
     }
 
     public void unregisterChest(Location loc) {
         chests.remove(loc);
+        ArmorStand textStand = textStands.remove(loc);
+        if (textStand != null && !textStand.isDead()) {
+            textStand.remove();
+        }
         Integer taskId = expirationTasks.remove(loc);
         if (taskId != null) {
             plugin.getServer().getScheduler().cancelTask(taskId);
@@ -79,10 +86,16 @@ public class DeathChestManager {
     }
 
     public void cleanup() {
+        for (ArmorStand textStand : textStands.values()) {
+            if (textStand != null && !textStand.isDead()) {
+                textStand.remove();
+            }
+        }
         for (Integer taskId : expirationTasks.values()) {
             plugin.getServer().getScheduler().cancelTask(taskId);
         }
         chests.clear();
+        textStands.clear();
         expirationTasks.clear();
     }
 }
