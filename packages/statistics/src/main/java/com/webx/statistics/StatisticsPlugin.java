@@ -1,5 +1,6 @@
 package com.webx.statistics;
 
+import com.webx.statistics.managers.StatisticsManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,12 +15,15 @@ import java.util.UUID;
 
 public class StatisticsPlugin extends JavaPlugin implements Listener {
     private static StatisticsPlugin instance;
+    private StatisticsManager statisticsManager;
     private Map<UUID, PlayerStats> playerStats = new HashMap<>();
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        
+        statisticsManager = new StatisticsManager();
         
         getServer().getPluginManager().registerEvents(this, this);
         
@@ -79,6 +83,10 @@ public class StatisticsPlugin extends JavaPlugin implements Listener {
     
     public static StatisticsPlugin getInstance() {
         return instance;
+    }
+    
+    public StatisticsManager getStatisticsManager() {
+        return statisticsManager;
     }
     
     private static class PlayerStats {

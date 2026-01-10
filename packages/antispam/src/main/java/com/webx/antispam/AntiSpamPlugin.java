@@ -1,5 +1,6 @@
 package com.webx.antispam;
 
+import com.webx.antispam.managers.SpamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 
 public class AntiSpamPlugin extends JavaPlugin implements Listener {
     private static AntiSpamPlugin instance;
+    private SpamManager spamManager;
     private Map<UUID, ChatData> playerChatData = new HashMap<>();
     
     private int maxMessagesPerSecond;
@@ -29,6 +31,8 @@ public class AntiSpamPlugin extends JavaPlugin implements Listener {
         maxMessagesPerSecond = getConfig().getInt("max-messages-per-second", 3);
         messageWarnThreshold = getConfig().getInt("warn-threshold", 5);
         minWordLength = getConfig().getInt("min-word-length", 3);
+        
+        spamManager = new SpamManager(maxMessagesPerSecond, 1000);
         
         String spamRegex = getConfig().getString("spam-pattern", "[a-zA-Z]{5,}");
         spamPattern = Pattern.compile(spamRegex);
@@ -88,6 +92,10 @@ public class AntiSpamPlugin extends JavaPlugin implements Listener {
     
     public static AntiSpamPlugin getInstance() {
         return instance;
+    }
+    
+    public SpamManager getSpamManager() {
+        return spamManager;
     }
     
     private static class ChatData {

@@ -1,4 +1,5 @@
 package com.webx.bedwarsevent;
+import com.webx.bedwarsevent.managers.BedWarsManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -10,11 +11,13 @@ import java.util.*;
 public class BedWarsEventPlugin extends JavaPlugin {
     private static BedWarsEventPlugin instance;
     private BedWarsGame game;
+    private BedWarsManager bedWarsManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+            bedWarsManager = new BedWarsManager();
         
         getCommand("bedwars").setExecutor((sender, cmd, label, args) -> {
             if (!(sender instanceof Player)) return true;
@@ -42,6 +45,10 @@ public class BedWarsEventPlugin extends JavaPlugin {
     
     public static BedWarsEventPlugin getInstance() {
         return instance;
+    
+        public BedWarsManager getBedWarsManager() {
+            return bedWarsManager;
+        }
     }
     
     private static class BedWarsGame {

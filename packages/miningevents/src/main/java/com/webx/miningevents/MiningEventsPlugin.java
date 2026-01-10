@@ -1,4 +1,5 @@
 package com.webx.miningevents;
+import com.webx.miningevents.managers.MiningEventManager;
 
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -13,11 +14,13 @@ import java.util.UUID;
 public class MiningEventsPlugin extends JavaPlugin implements Listener {
     private static MiningEventsPlugin instance;
     private Map<UUID, Integer> playerOre = new HashMap<>();
+    private MiningEventManager miningEventManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+            miningEventManager = new MiningEventManager();
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("Mining Events Plugin enabled!");
     }
@@ -47,5 +50,9 @@ public class MiningEventsPlugin extends JavaPlugin implements Listener {
     
     public static MiningEventsPlugin getInstance() {
         return instance;
+    
+        public MiningEventManager getMiningEventManager() {
+            return miningEventManager;
+        }
     }
 }

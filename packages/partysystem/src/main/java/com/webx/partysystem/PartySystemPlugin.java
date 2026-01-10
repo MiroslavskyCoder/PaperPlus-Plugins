@@ -1,5 +1,6 @@
 package com.webx.partysystem;
 
+import com.webx.partysystem.managers.PartyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +12,7 @@ import java.util.*;
 
 public class PartySystemPlugin extends JavaPlugin implements Listener {
     private static PartySystemPlugin instance;
+    private PartyManager partyManager;
     private Map<UUID, Party> playerParties = new HashMap<>();
     private Map<UUID, Party> parties = new HashMap<>();
 
@@ -18,6 +20,8 @@ public class PartySystemPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        
+        partyManager = new PartyManager();
         
         getServer().getPluginManager().registerEvents(this, this);
         
@@ -153,6 +157,10 @@ public class PartySystemPlugin extends JavaPlugin implements Listener {
     
     public static PartySystemPlugin getInstance() {
         return instance;
+    }
+    
+    public PartyManager getPartyManager() {
+        return partyManager;
     }
     
     private static class Party {

@@ -1,5 +1,6 @@
 package com.webx.pvpevents;
 
+import com.webx.pvpevents.managers.PvPEventManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -9,12 +10,15 @@ import java.util.*;
 
 public class PvPEventsPlugin extends JavaPlugin {
     private static PvPEventsPlugin instance;
+    private PvPEventManager pvpEventManager;
     private PvPEvent currentEvent;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        
+        pvpEventManager = new PvPEventManager();
         
         getCommand("pvpevent").setExecutor((sender, cmd, label, args) -> {
             if (!sender.hasPermission("pvpevent.admin")) {
@@ -75,6 +79,10 @@ public class PvPEventsPlugin extends JavaPlugin {
     
     public static PvPEventsPlugin getInstance() {
         return instance;
+    }
+    
+    public PvPEventManager getPvpEventManager() {
+        return pvpEventManager;
     }
     
     private static class PvPEvent {

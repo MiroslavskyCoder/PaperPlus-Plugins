@@ -1,5 +1,6 @@
 package com.webx.leveling;
 
+import com.webx.leveling.managers.LevelingManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 public class LevelingPlugin extends JavaPlugin implements Listener {
     private static LevelingPlugin instance;
+    private LevelingManager levelingManager;
     private Map<UUID, PlayerLevel> playerLevels = new HashMap<>();
     
     private int expPerKill;
@@ -27,6 +29,8 @@ public class LevelingPlugin extends JavaPlugin implements Listener {
         
         expPerKill = getConfig().getInt("exp-per-kill", 10);
         expPerLevel = getConfig().getInt("exp-per-level", 100);
+        
+        levelingManager = new LevelingManager(expPerLevel);
         
         getServer().getPluginManager().registerEvents(this, this);
         getCommand("level").setExecutor((sender, cmd, label, args) -> {
@@ -85,6 +89,10 @@ public class LevelingPlugin extends JavaPlugin implements Listener {
     
     public static LevelingPlugin getInstance() {
         return instance;
+    }
+    
+    public LevelingManager getLevelingManager() {
+        return levelingManager;
     }
     
     public int getPlayerLevel(Player player) {

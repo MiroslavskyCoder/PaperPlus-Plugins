@@ -1,4 +1,5 @@
 package com.webx.dungeonraids;
+import com.webx.dungeonraids.managers.DungeonManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,11 +12,13 @@ public class DungeonRaidsPlugin extends JavaPlugin {
     private static DungeonRaidsPlugin instance;
     private List<Dungeon> dungeons = new ArrayList<>();
     private Map<UUID, DungeonProgress> playerProgress = new HashMap<>();
+    private DungeonManager dungeonManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+            dungeonManager = new DungeonManager();
         
         // Инициализируем подземелья
         initializeDungeons();
@@ -65,6 +68,10 @@ public class DungeonRaidsPlugin extends JavaPlugin {
     
     public static DungeonRaidsPlugin getInstance() {
         return instance;
+    
+        public DungeonManager getDungeonManager() {
+            return dungeonManager;
+        }
     }
     
     private static class Dungeon {

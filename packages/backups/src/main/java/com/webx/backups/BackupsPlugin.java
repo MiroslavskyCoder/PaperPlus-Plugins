@@ -1,5 +1,6 @@
 package com.webx.backups;
 
+import com.webx.backups.managers.BackupManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 public class BackupsPlugin extends JavaPlugin {
     private static BackupsPlugin instance;
+    private BackupManager backupManager;
     private Path backupDir;
 
     @Override
@@ -17,10 +19,11 @@ public class BackupsPlugin extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         
-        backupDir = Paths.get(getDataFolder().getParent().getParent().getAbsolutePath(), "backups");
+        backupDir = Paths.get(getDataFolder().getParentFile().getParentFile().getAbsolutePath(), "backups");
         
         try {
             Files.createDirectories(backupDir);
+            backupManager = new BackupManager(backupDir.toFile());
         } catch (IOException e) {
             getLogger().severe("Failed to create backup directory!");
         }
@@ -89,5 +92,9 @@ public class BackupsPlugin extends JavaPlugin {
     
     public static BackupsPlugin getInstance() {
         return instance;
+    }
+    
+    public BackupManager getBackupManager() {
+        return backupManager;
     }
 }

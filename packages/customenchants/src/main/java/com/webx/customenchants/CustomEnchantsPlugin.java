@@ -1,5 +1,6 @@
 package com.webx.customenchants;
 
+import com.webx.customenchants.managers.EnchantManager;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,11 +11,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class CustomEnchantsPlugin extends JavaPlugin implements Listener {
     private static CustomEnchantsPlugin instance;
+    private EnchantManager enchantManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        enchantManager = new EnchantManager();
         getServer().getPluginManager().registerEvents(this, this);
         getLogger().info("Custom Enchants Plugin enabled!");
     }
@@ -49,5 +52,9 @@ public class CustomEnchantsPlugin extends JavaPlugin implements Listener {
     
     public static CustomEnchantsPlugin getInstance() {
         return instance;
+    }
+    
+    public EnchantManager getEnchantManager() {
+        return enchantManager;
     }
 }

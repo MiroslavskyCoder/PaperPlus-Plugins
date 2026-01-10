@@ -1,4 +1,5 @@
 package com.webx.guilds;
+import com.webx.guilds.managers.GuildManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -10,11 +11,13 @@ public class GuildsPlugin extends JavaPlugin {
     private static GuildsPlugin instance;
     private Map<UUID, Guild> playerGuilds = new HashMap<>();
     private Map<String, Guild> guilds = new HashMap<>();
+    private GuildManager guildManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+            guildManager = new GuildManager();
         
         getCommand("guild").setExecutor((sender, cmd, label, args) -> {
             if (!(sender instanceof Player)) return true;
@@ -103,6 +106,10 @@ public class GuildsPlugin extends JavaPlugin {
     
     public static GuildsPlugin getInstance() {
         return instance;
+    
+        public GuildManager getGuildManager() {
+            return guildManager;
+        }
     }
     
     private static class Guild {

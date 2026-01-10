@@ -1,5 +1,6 @@
 package com.webx.afk;
 
+import com.webx.afk.managers.AFKManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,6 +21,7 @@ public class AFKPlugin extends JavaPlugin implements Listener {
     private long afkTimeoutMillis;
     private String afkPrefix;
     private String afkSuffix;
+    private AFKManager afkManager;
 
     @Override
     public void onEnable() {
@@ -29,6 +31,9 @@ public class AFKPlugin extends JavaPlugin implements Listener {
         afkTimeoutMillis = getConfig().getLong("afk-timeout-minutes", 5) * 60 * 1000;
         afkPrefix = getConfig().getString("afk-prefix", "&7[AFK] &r");
         afkSuffix = getConfig().getString("afk-suffix", " &7(AFK)");
+        
+        // Initialize manager
+        afkManager = new AFKManager(afkTimeoutMillis);
         
         getServer().getPluginManager().registerEvents(this, this);
         
@@ -94,5 +99,9 @@ public class AFKPlugin extends JavaPlugin implements Listener {
     
     public boolean isAFK(Player player) {
         return afkStatus.getOrDefault(player.getUniqueId(), false);
+    }
+    
+    public AFKManager getAFKManager() {
+        return afkManager;
     }
 }

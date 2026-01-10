@@ -2,7 +2,7 @@ package com.webx.afk.api;
 
 import java.util.UUID;
 
-public class AFKAPI {
+public class AFKApi {
     
     public static boolean isPlayerAFK(UUID uuid) {
         // Implementation will check AFK status

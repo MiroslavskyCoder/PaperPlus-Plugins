@@ -1,4 +1,5 @@
 package com.webx.randomizer;
+import com.webx.randomizer.managers.RandomizerManager;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,11 +14,13 @@ import java.util.Random;
 public class RandomizerPlugin extends JavaPlugin implements Listener {
     private static RandomizerPlugin instance;
     private Random random = new Random();
+    private RandomizerManager randomizerManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+            randomizerManager = new RandomizerManager();
         getServer().getPluginManager().registerEvents(this, this);
         
         getCommand("randomizer").setExecutor((sender, cmd, label, args) -> {
@@ -63,5 +66,9 @@ public class RandomizerPlugin extends JavaPlugin implements Listener {
     
     public static RandomizerPlugin getInstance() {
         return instance;
+    
+        public RandomizerManager getRandomizerManager() {
+            return randomizerManager;
+        }
     }
 }

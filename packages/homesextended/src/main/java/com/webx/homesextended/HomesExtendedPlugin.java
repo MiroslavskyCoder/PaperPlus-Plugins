@@ -1,4 +1,5 @@
 package com.webx.homesextended;
+import com.webx.homesextended.managers.HomeManager;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,11 +10,13 @@ public class HomesExtendedPlugin extends JavaPlugin {
     private static HomesExtendedPlugin instance;
     private Map<UUID, List<Home>> playerHomes = new HashMap<>();
     private int maxHomes;
+    private HomeManager homeManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+            homeManager = new HomeManager();
         maxHomes = getConfig().getInt("max-homes", 10);
         
         getCommand("home").setExecutor((sender, cmd, label, args) -> {
@@ -77,6 +80,10 @@ public class HomesExtendedPlugin extends JavaPlugin {
     
     public static HomesExtendedPlugin getInstance() {
         return instance;
+    
+        public HomeManager getHomeManager() {
+            return homeManager;
+        }
     }
     
     private static class Home {

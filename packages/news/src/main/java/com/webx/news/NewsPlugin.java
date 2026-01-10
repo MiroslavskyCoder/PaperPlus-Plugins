@@ -1,5 +1,6 @@
 package com.webx.news;
 
+import com.webx.news.managers.NewsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,12 +12,14 @@ import java.util.*;
 
 public class NewsPlugin extends JavaPlugin implements Listener {
     private static NewsPlugin instance;
+    private NewsManager newsManager;
     private List<NewsItem> news = new ArrayList<>();
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        newsManager = new NewsManager();
         getServer().getPluginManager().registerEvents(this, this);
         
         getCommand("news").setExecutor((sender, cmd, label, args) -> {
@@ -76,6 +79,10 @@ public class NewsPlugin extends JavaPlugin implements Listener {
     
     public static NewsPlugin getInstance() {
         return instance;
+    }
+    
+    public NewsManager getNewsManager() {
+        return newsManager;
     }
     
     private static class NewsItem {

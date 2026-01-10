@@ -1,5 +1,6 @@
 package com.webx.claims;
 
+import com.webx.claims.managers.ClaimManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import java.util.*;
 
 public class ClaimsPlugin extends JavaPlugin implements Listener {
     private static ClaimsPlugin instance;
+    private ClaimManager claimManager;
     private Map<String, Claim> claims = new HashMap<>();
     private Map<UUID, Set<String>> playerClaims = new HashMap<>();
 
@@ -20,6 +22,7 @@ public class ClaimsPlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        claimManager = new ClaimManager();
         getServer().getPluginManager().registerEvents(this, this);
         
         getCommand("claim").setExecutor((sender, cmd, label, args) -> {
@@ -98,6 +101,12 @@ public class ClaimsPlugin extends JavaPlugin implements Listener {
         if (claim != null && !claim.owner.equals(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
             event.getPlayer().sendMessage("§cThis chunk is claimed by another player!");
+        }
+    }
+    
+    public ClaimManager getClaimManager() {
+        return claimManager;
+    }
         }
     }
     

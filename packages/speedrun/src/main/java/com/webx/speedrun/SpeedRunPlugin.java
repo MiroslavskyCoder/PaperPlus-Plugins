@@ -1,4 +1,5 @@
 package com.webx.speedrun;
+import com.webx.speedrun.managers.SpeedRunManager;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -14,11 +15,13 @@ import java.util.UUID;
 public class SpeedRunPlugin extends JavaPlugin implements Listener {
     private static SpeedRunPlugin instance;
     private Map<UUID, SpeedRunData> playerRuns = new HashMap<>();
+    private SpeedRunManager speedRunManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+            speedRunManager = new SpeedRunManager();
         getServer().getPluginManager().registerEvents(this, this);
         
         getCommand("speedrun").setExecutor((sender, cmd, label, args) -> {
@@ -74,6 +77,10 @@ public class SpeedRunPlugin extends JavaPlugin implements Listener {
     
     public static SpeedRunPlugin getInstance() {
         return instance;
+    
+        public SpeedRunManager getSpeedRunManager() {
+            return speedRunManager;
+        }
     }
     
     private static class SpeedRunData {

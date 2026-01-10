@@ -1,4 +1,5 @@
 package com.webx.jumpquests;
+import com.webx.jumpquests.managers.QuestManager;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -13,11 +14,13 @@ public class JumpQuestsPlugin extends JavaPlugin implements Listener {
     private static JumpQuestsPlugin instance;
     private List<JumpQuest> quests = new ArrayList<>();
     private Map<UUID, Integer> playerProgress = new HashMap<>();
+    private QuestManager questManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+            questManager = new QuestManager();
         getServer().getPluginManager().registerEvents(this, this);
         
         getCommand("jumpquest").setExecutor((sender, cmd, label, args) -> {
@@ -72,6 +75,10 @@ public class JumpQuestsPlugin extends JavaPlugin implements Listener {
     
     public static JumpQuestsPlugin getInstance() {
         return instance;
+    
+        public QuestManager getQuestManager() {
+            return questManager;
+        }
     }
     
     private static class JumpQuest {

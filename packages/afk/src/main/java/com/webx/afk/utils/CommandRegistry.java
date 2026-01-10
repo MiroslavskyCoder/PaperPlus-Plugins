@@ -1,11 +1,11 @@
 package com.webx.afk.utils;
 
-import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class CommandRegistry {
-    private final Plugin plugin;
+    private final JavaPlugin plugin;
     
-    public CommandRegistry(Plugin plugin) {
+    public CommandRegistry(JavaPlugin plugin) {
         this.plugin = plugin;
     }
     

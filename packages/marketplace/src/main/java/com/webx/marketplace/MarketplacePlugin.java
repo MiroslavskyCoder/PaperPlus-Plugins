@@ -1,5 +1,6 @@
 package com.webx.marketplace;
 
+import com.webx.marketplace.managers.MarketplaceManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 public class MarketplacePlugin extends JavaPlugin implements Listener {
     private static MarketplacePlugin instance;
+    private MarketplaceManager marketplaceManager;
     private Map<UUID, MarketListing> listings = new HashMap<>();
     private Inventory marketplace;
 
@@ -24,6 +26,8 @@ public class MarketplacePlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        
+        marketplaceManager = new MarketplaceManager();
         
         getServer().getPluginManager().registerEvents(this, this);
         
@@ -75,6 +79,10 @@ public class MarketplacePlugin extends JavaPlugin implements Listener {
     
     public static MarketplacePlugin getInstance() {
         return instance;
+    }
+    
+    public MarketplaceManager getMarketplaceManager() {
+        return marketplaceManager;
     }
     
     private static class MarketListing {

@@ -1,5 +1,6 @@
 package com.webx.feed;
 
+import com.webx.feed.managers.FeedManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -8,11 +9,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class FeedPlugin extends JavaPlugin implements CommandExecutor {
     private static FeedPlugin instance;
+    private FeedManager feedManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        feedManager = new FeedManager(getConfig().getInt("hunger-restore", 20));
         getCommand("feed").setExecutor(this);
         getCommand("heal").setExecutor(this);
         getLogger().info("Feed Plugin enabled!");
@@ -94,5 +97,9 @@ public class FeedPlugin extends JavaPlugin implements CommandExecutor {
     
     public static FeedPlugin getInstance() {
         return instance;
+    }
+    
+    public FeedManager getFeedManager() {
+        return feedManager;
     }
 }
