@@ -76,4 +76,33 @@ public class AccountManager {
     public int getAccountCount() {
         return accounts.size();
     }
+
+    /**
+     * Deposits money into player account
+     * @param uuid Player UUID
+     * @param amount Amount to deposit
+     * @return true if successful
+     */
+    public boolean deposit(UUID uuid, double amount) {
+        if (amount <= 0) return false;
+        Account account = getAccount(uuid);
+        account.setBalance(account.getBalance() + amount);
+        saveAccount(account);
+        return true;
+    }
+
+    /**
+     * Withdraws money from player account
+     * @param uuid Player UUID
+     * @param amount Amount to withdraw
+     * @return true if successful
+     */
+    public boolean withdraw(UUID uuid, double amount) {
+        if (amount <= 0) return false;
+        Account account = getAccount(uuid);
+        if (account.getBalance() < amount) return false;
+        account.setBalance(account.getBalance() - amount);
+        saveAccount(account);
+        return true;
+    }
 }
