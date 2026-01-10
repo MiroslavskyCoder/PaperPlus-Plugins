@@ -68,10 +68,10 @@ public class DungeonRaidsPlugin extends JavaPlugin {
     
     public static DungeonRaidsPlugin getInstance() {
         return instance;
-    
-        public DungeonManager getDungeonManager() {
-            return dungeonManager;
-        }
+    }
+
+    public DungeonManager getDungeonManager() {
+        return dungeonManager;
     }
     
     private static class Dungeon {
