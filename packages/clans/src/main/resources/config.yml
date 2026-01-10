@@ -1,0 +1,16 @@
+clan:
+  max-members: 50
+  max-level: 5
+  exp-to-level: 10000
+  territory:
+    enabled: true
+    chunks-per-member: 5
+    
+messages:
+  prefix: '&8[&6Clans&8]&r '
+  clan-created: '&aClan &6{clan} &acreated!'
+  clan-disbanded: '&aClan &6{clan} &adisbanded!'
+  player-invited: '&6{player} &ainvited you to &6{clan}'
+  player-joined: '&6{player} &ajoined the clan'
+  player-kicked: '&6{player} &awas kicked from the clan'
+  rank-changed: '&6{player}''s rank changed to &6{rank}'

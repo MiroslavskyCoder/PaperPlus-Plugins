@@ -1,0 +1,50 @@
+database:
+  type: yaml # yaml or mysql
+  mysql:
+    host: localhost
+    port: 3306
+    database: economy
+    username: root
+    password: ''
+
+currency:
+  name: Coin
+  plural: Coins
+  symbol: '$'
+  starting-balance: 1000.0
+  
+transactions:
+  min-amount: 0.01
+  max-amount: 1000000.0
+  fee-enabled: true
+  fee-percentage: 2.0 # 2% transaction fee
+  
+bank:
+  enabled: true
+  interest-enabled: true
+  interest-rate: 0.5 # 0.5% per day
+  interest-interval: 86400 # seconds (1 day)
+  max-balance: 10000000.0
+
+baltop:
+  update-interval: 300 # seconds (5 minutes)
+  display-amount: 10 # top 10 players
+
+messages:
+  prefix: '&8[&6Economy&8]&r '
+  balance: '&aYour balance: &6{symbol}{balance}'
+  balance-other: '&a{player}''s balance: &6{symbol}{balance}'
+  pay-sent: '&aYou paid &6{symbol}{amount} &ato {player}'
+  pay-received: '&aYou received &6{symbol}{amount} &afrom {player}'
+  pay-fee: '&7Transaction fee: &6{symbol}{fee}'
+  insufficient-funds: '&cInsufficient funds!'
+  player-not-found: '&cPlayer not found!'
+  invalid-amount: '&cInvalid amount!'
+  eco-give: '&aGave &6{symbol}{amount} &ato {player}'
+  eco-take: '&aTook &6{symbol}{amount} &afrom {player}'
+  eco-set: '&aSet {player}''s balance to &6{symbol}{amount}'
+  eco-reset: '&aReset {player}''s balance'
+  bank-deposit: '&aDeposited &6{symbol}{amount} &ato bank'
+  bank-withdraw: '&aWithdrew &6{symbol}{amount} &afrom bank'
+  bank-balance: '&aBank balance: &6{symbol}{balance}'
+  no-permission: '&cYou don''t have permission!'

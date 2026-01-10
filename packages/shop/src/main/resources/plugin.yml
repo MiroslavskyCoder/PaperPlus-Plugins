@@ -1,0 +1,27 @@
+name: Shop
+version: 0.1.0
+main: com.webx.shop.ShopPlugin
+api-version: '1.20'
+author: WebX
+description: Advanced shop system with GUI and admin shops
+
+commands:
+  shop:
+    description: Open shop menu
+    usage: /<command> [name]
+    aliases: [shops, buy, sell]
+  adminshop:
+    description: Admin shop commands
+    usage: /<command> <create|delete|edit|list> [name]
+    aliases: [ashop]
+
+permissions:
+  shop.use:
+    description: Use shops
+    default: true
+  shop.create:
+    description: Create shops
+    default: op
+  shop.admin:
+    description: Manage all shops
+    default: op

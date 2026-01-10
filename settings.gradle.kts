@@ -26,3 +26,18 @@ project(":home-tp").projectDir = File("packages/home-tp")
 
 include(":back-tp")
 project(":back-tp").projectDir = File("packages/back-tp")
+
+include(":warps")
+project(":warps").projectDir = File("packages/warps")
+
+include(":economy")
+project(":economy").projectDir = File("packages/economy")
+
+include(":shop")
+project(":shop").projectDir = File("packages/shop")
+
+include(":clans")
+project(":clans").projectDir = File("packages/clans")
+
+include(":quests")
+project(":quests").projectDir = File("packages/quests")

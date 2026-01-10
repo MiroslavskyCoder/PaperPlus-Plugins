@@ -1,0 +1,14 @@
+quest:
+  max-active-quests: 10
+  auto-complete: false
+  
+rewards:
+  default-money: 100
+  default-exp: 50
+  
+messages:
+  prefix: '&8[&6Quests&8]&r '
+  quest-accepted: '&aQuest &6{quest} &aaccepted!'
+  quest-completed: '&aQuest &6{quest} &acompleted! Reward: &6{reward}'
+  quest-abandoned: '&aQuest &6{quest} &aabandoned!'
+  objective-progress: '&6{objective}: &a{progress}/{total}'

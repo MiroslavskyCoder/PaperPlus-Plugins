@@ -1,0 +1,50 @@
+# Warps Configuration
+
+# Database settings
+database:
+  type: yaml  # yaml or mysql
+  mysql:
+    host: localhost
+    port: 3306
+    database: minecraft
+    username: root
+    password: ""
+
+# Teleport settings
+teleport:
+  delay: 3
+  cancel-on-move: true
+  cancel-on-damage: true
+  cooldown: 30
+  
+# Economy
+economy:
+  enabled: false
+  cost-per-warp: 10.0
+  
+# Warp settings
+warps:
+  max-per-player: 5
+  allow-player-warps: false
+  show-in-tab: true
+  
+# GUI settings
+gui:
+  enabled: true
+  title: "&6&lWarps Menu"
+  rows: 3
+  fill-empty: true
+  
+# Messages
+messages:
+  prefix: "&8[&6Warps&8]&r "
+  warp-created: "&aWarp '{name}' created!"
+  warp-deleted: "&cWarp '{name}' deleted!"
+  warp-not-found: "&cWarp '{name}' not found!"
+  teleporting: "&eTeleporting to {name} in {delay} seconds..."
+  teleported: "&aYou have been teleported to {name}!"
+  cancelled: "&cTeleport cancelled!"
+  cooldown: "&cYou must wait {time} seconds before using another warp!"
+  no-permission: "&cYou don't have permission to use this warp!"
+  cost: "&eWarp cost: &6{cost} coins"
+  insufficient-funds: "&cYou don't have enough money!"

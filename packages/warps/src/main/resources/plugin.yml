@@ -1,0 +1,39 @@
+name: Warps
+version: 0.1.0
+main: com.webx.warps.WarpsPlugin
+api-version: 1.20
+author: WebX
+description: Advanced warp teleportation system
+
+commands:
+  warp:
+    description: Teleport to a warp
+    usage: /warp <name>
+  setwarp:
+    description: Create a warp
+    usage: /setwarp <name>
+    permission: warps.admin
+  delwarp:
+    description: Delete a warp
+    usage: /delwarp <name>
+    permission: warps.admin
+  warps:
+    description: List all warps
+    usage: /warps
+  warpinfo:
+    description: Get warp information
+    usage: /warpinfo <name>
+
+permissions:
+  warps.use:
+    description: Use warps
+    default: true
+  warps.admin:
+    description: Manage warps
+    default: op
+  warps.bypass.cooldown:
+    description: Bypass warp cooldown
+    default: op
+  warps.bypass.cost:
+    description: Bypass warp cost
+    default: op

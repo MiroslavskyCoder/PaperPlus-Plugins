@@ -17,7 +17,12 @@ tasks.register("buildAllPlugins") {
         ":abomination:build",
         ":death-mark:build",
         ":home-tp:build",
-        ":back-tp:build"
+        ":back-tp:build",
+        ":warps:build",
+        ":economy:build",
+        ":shop:build",
+        ":clans:build",
+        ":quests:build"
     )
     finalizedBy("copyPlugins")
 }
@@ -35,6 +40,11 @@ tasks.register<Copy>("copyPlugins") {
     from("packages/death-mark/build/libs")
     from("packages/home-tp/build/libs")
     from("packages/back-tp/build/libs")
+    from("packages/warps/build/libs")
+    from("packages/economy/build/libs")
+    from("packages/shop/build/libs")
+    from("packages/clans/build/libs")
+    from("packages/quests/build/libs")
     into("out/plugins")
     
     include("*.jar")
@@ -87,7 +97,12 @@ tasks.clean {
         ":abomination:clean",
         ":death-mark:clean",
         ":home-tp:clean",
-        ":back-tp:clean"
+        ":warps:clean",
+        ":back-tp:clean",
+        ":economy:clean",
+        ":shop:clean",
+        ":clans:clean",
+        ":quests:clean"
     )
 }
 
