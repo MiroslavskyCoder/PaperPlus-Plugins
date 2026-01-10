@@ -9,13 +9,13 @@ public class PotionsManager {
     public void applyBuff(Player player, String buffType, int duration) {
         switch (buffType.toLowerCase()) {
             case "strength":
-                player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, duration * 20, 1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, duration * 20, 1));
                 break;
             case "speed":
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration * 20, 1));
                 break;
             case "haste":
-                player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, duration * 20, 1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, duration * 20, 1));
                 break;
             default:
                 player.sendMessage("§cUnknown buff type!");

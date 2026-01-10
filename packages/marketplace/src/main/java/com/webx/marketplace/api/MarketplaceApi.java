@@ -3,7 +3,7 @@ package com.webx.marketplace.api;
 import com.webx.marketplace.models.ShopItem;
 import java.util.List;
 
-public class MarketplaceAPI {
+public class MarketplaceApi {
     
     public static List<ShopItem> getAvailableItems() {
         // Returns available marketplace items

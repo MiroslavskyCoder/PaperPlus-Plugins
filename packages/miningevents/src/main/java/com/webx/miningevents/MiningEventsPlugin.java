@@ -50,9 +50,9 @@ public class MiningEventsPlugin extends JavaPlugin implements Listener {
     
     public static MiningEventsPlugin getInstance() {
         return instance;
-    
-        public MiningEventManager getMiningEventManager() {
-            return miningEventManager;
-        }
+    }
+
+    public MiningEventManager getMiningEventManager() {
+        return miningEventManager;
     }
 }

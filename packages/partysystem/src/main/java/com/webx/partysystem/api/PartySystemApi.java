@@ -3,7 +3,7 @@ package com.webx.partysystem.api;
 import com.webx.partysystem.models.Party;
 import java.util.UUID;
 
-public class PartySystemAPI {
+public class PartySystemApi {
     
     public static Party getPlayerParty(UUID uuid) {
         // Returns player party

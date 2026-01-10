@@ -16,7 +16,7 @@ public class PvPEventCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         sender.sendMessage("§6=== Active PvP Events ===");
         
-        for (var event : plugin.getPvPEventManager().getAllEvents()) {
+        for (var event : plugin.getPvpEventManager().getAllEvents()) {
             String status = event.isActive() ? "§aActive" : "§cInactive";
             sender.sendMessage("§f" + event.getName() + " " + status);
         }

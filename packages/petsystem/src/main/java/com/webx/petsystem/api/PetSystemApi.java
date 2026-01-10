@@ -4,7 +4,7 @@ import com.webx.petsystem.models.Pet;
 import java.util.List;
 import java.util.UUID;
 
-public class PetSystemAPI {
+public class PetSystemApi {
     
     public static List<Pet> getPlayerPets(UUID uuid) {
         // Returns player pets
