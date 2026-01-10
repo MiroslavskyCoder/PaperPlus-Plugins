@@ -26,7 +26,7 @@ tasks.register("buildAllPlugins") {
 tasks.register<Copy>("copyPlugins") {
     group = "build"
     description = "Copy all built plugin JARs to out/plugins"
-    `
+    
     from("packages/webx-dashboard/build/libs")
     from("packages/regionigroks-map/build/libs")
     from("packages/pvp-base/build/libs")
