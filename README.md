@@ -1,95 +1,200 @@
-# WebX Dashboard by LXXV
+# 🎮 My Polyglot Project - Minecraft Server Plugins
 
-A professional-grade Web Management Panel for Minecraft Paper servers.
+Коллекция плагинов для Paper/Spigot сервера Minecraft 1.20.4
 
-## ⚠️ Important: Building for Production
+## 📦 Плагины
 
-**Always use `clean` when building to ensure web files are updated!**
+### 🏠 HomeTP (0.1.0)
+Система домашних точек телепортации с защитой и задержкой
+
+**Команды:**
+- `/sethome <название>` - установить дом
+- `/delhome <название>` - удалить дом  
+- `/home <название>` - телепортироваться в дом
+- `/homes` - список всех домов
+
+**Функции:**
+- До 5 домов на игрока (настраивается)
+- Задержка телепортации 3 секунды
+- Отмена при движении или получении урона
+- Сохранение координат и направления взгляда
+
+[📖 Подробнее](packages/home-tp/README.md)
+
+---
+
+### ⏪ BackTP (0.1.0)
+Телепортация к месту смерти + система запросов на ТП между игроками
+
+**Команды:**
+- `/back` - вернуться к месту последней смерти
+- `/tpa <игрок>` - запрос на телепортацию к игроку
+- `/tpahere <игрок>` - запросить игрока к себе
+- `/tpaccept` - принять запрос (алиас: `/tpyes`)
+- `/tpdeny` - отклонить запрос (алиас: `/tpno`)
+
+**Функции:**
+- Автосохранение точки смерти
+- Запросы с таймаутом 60 секунд
+- Защита от злоупотреблений
+- Задержка телепортации с отменой
+
+[📖 Подробнее](packages/back-tp/README.md)
+
+---
+
+### 💀 DeathMark (0.1.0)
+Сохранение вещей игрока в защищенном сундуке при смерти
+
+**Функции:**
+- Автоматическое создание сундука на месте смерти
+- 3D текст над сундуком с именем игрока (☠ ИмяИгрока ☠)
+- Защита от других игроков
+- Вещи хранятся вечно (expire-seconds: 0)
+- Умный поиск безопасного места для сундука
+
+[📖 Подробнее](packages/death-mark/README.md)
+
+---
+
+### 👹 Abomination (0.1.0)
+Враждебный босс с AI, способностями и системой спавна
+
+**Функции:**
+- Естественный спавн по ночам
+- Автоматический деспавн днём
+- Агрессивное поведение и способности
+- Система миньонов
+- Настраиваемый урон и здоровье
+
+[📖 Подробнее](packages/abomination/README.md)
+
+---
+
+### 🗺️ RegionIgroksMap (0.1.0)
+Система управления регионами и минимап
+
+**Функции:**
+- Создание и управление регионами
+- Защита территорий
+- Визуализация на карте
+- Права доступа
+
+---
+
+### ⚔️ PvP Base (0.1.0)
+Игровые режимы: SkyWars, BedWars, Duels, Siege
+
+**Функции:**
+- Множество PvP режимов
+- Система матчмейкинга
+- Статистика игроков
+- Настраиваемые арены
+
+---
+
+### ❤️ ShowHealth (0.1.2)
+Отображение здоровья мобов и игроков
+
+**Функции:**
+- Полоски здоровья над головой
+- Настраиваемый формат
+- Поддержка боссов
+- Цветовая индикация
+
+---
+
+### 🖥️ WebX Dashboard
+Web-панель управления сервером
+
+**Функции:**
+- Мониторинг в реальном времени (CPU, RAM, игроки)
+- Управление игроками
+- Система разрешений
+- REST API + WebSockets
+- React + Next.js интерфейс
+
+[📖 Подробнее](packages/webx-dashboard/README.md)
+
+---
+
+## 🚀 Быстрый старт
+
+### Требования
+- Java 25+ (или 17+)
+- Gradle 9.2.1+
+- Paper Server 1.20.4
+
+### Сборка всех плагинов
 
 ```bash
 # Windows
-gradlew.bat clean build
+gradle buildAllPlugins
 
-# Linux/Mac  
-./gradlew clean build
+# Linux/Mac
+./gradlew buildAllPlugins
 ```
 
-The JAR will be in `webx-dashboard/build/libs/webx-dashboard-1.0.0.jar`
+JAR файлы будут скопированы в `out/plugins/`
 
-See [DEPLOY.md](DEPLOY.md) for detailed deployment instructions.
+### Сборка отдельного плагина
 
-## Architecture
-
-- **Backend**: Java 17 (Paper API 1.19.4 + Javalin Web Server)
-- **Frontend**: React, TypeScript, Bun, Next.js (Turbopack), Shadcn UI
-- **Communication**: REST API + WebSockets
-
-## Features
-
-- Real-time server monitoring (CPU, RAM, Disk, Players)
-- Player management
-- Permissions management (basic)
-- Vault economy settings (placeholder)
-- EssentialsX configuration (placeholder)
-- Server control (commands, stop)
-- WebSocket for live updates
-
-## Setup
-
-### Prerequisites
-- JDK 17
-- Bun 1.0+
-- Gradle
-
-### Development
-
-1. **Build everything**:
-   ```bash
-   gradlew.bat build  # Windows
-   ./gradlew build    # Linux/Mac
-   ```
-
-2. **Frontend dev server** (optional, for live reload):
-   ```bash
-   cd frontend-panel
-   bun install
-   bun run dev
-   ```
-
-### Production
-
-**Full build with clean** (recommended):
 ```bash
-gradlew.bat clean build
-# or
-./gradlew clean build
+gradle :home-tp:build
+gradle :back-tp:build
+gradle :death-mark:build
+gradle :abomination:build
 ```
 
-The plugin JAR includes all frontend files. Deploy to server:
+### Установка
+
+1. Соберите плагины командой выше
+2. Скопируйте нужные JAR из `out/plugins/` в папку `plugins/` вашего сервера
+3. Перезапустите сервер
+4. Настройте конфигурацию в `plugins/<имя-плагина>/config.yml`
+
+## ⚙️ Конфигурация
+
+Каждый плагин создаёт свой конфиг при первом запуске:
+- `plugins/HomeTP/config.yml` - настройки домов
+- `plugins/BackTP/config.yml` - настройки телепортации
+- `plugins/DeathMark/config.yml` - настройки сундуков смерти
+- `plugins/Abomination/config.yml` - настройки босса
+
+Все сообщения поддерживают цветовые коды Minecraft (`&a`, `&c`, и т.д.)
+
+## 📁 Структура проекта
+
+```
+my-polyglot-project/
+├── packages/
+│   ├── home-tp/          # Система домов
+│   ├── back-tp/          # Телепортация и TPA
+│   ├── death-mark/       # Сундуки смерти
+│   ├── abomination/      # Босс
+│   ├── regionigroks-map/ # Регионы
+│   ├── pvp-base/         # PvP режимы
+│   ├── show-health/      # Здоровье мобов
+│   ├── webx-dashboard/   # Backend панели
+│   └── webx-dashboard-panel/ # Frontend панели
+├── out/plugins/          # Собранные JAR файлы
+├── build.gradle.kts      # Корневой скрипт сборки
+└── settings.gradle.kts   # Настройки проекта
+```
+
+## 🛠️ Команды Gradle
+
 ```bash
-# Copy JAR to server plugins folder
-cp webx-dashboard/build/libs/webx-dashboard-1.0.0.jar /path/to/server/plugins/
-
-# Restart server or use /reload
+gradle buildAllPlugins    # Собрать все плагины
+gradle copyPlugins         # Скопировать JAR в out/plugins
+gradle clean               # Очистить все сборки
+gradle listProjects        # Список всех подпроектов
 ```
 
-### Why files don't update?
+## 📝 Лицензия
 
-Web files are packaged inside the JAR. Without `clean`:
-- Old files remain in `src/main/resources/web/`
-- Old JAR cached in `build/libs/`
+Все плагины разработаны для личного использования
 
-**Solution**: Always run `gradlew clean build` before deployment.
-   ```
+## 👨‍💻 Автор
 
-2. Deploy backend jar to Paper plugins/
-
-## API Key
-
-Default API key: `secret-change-me`
-
-Change in plugin config.yml
-
-## WebSocket
-
-Connect to ws://localhost:8080/ws for real-time stats
+WebX Development Team
