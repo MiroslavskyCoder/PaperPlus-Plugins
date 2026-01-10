@@ -77,10 +77,10 @@ public class SpeedRunPlugin extends JavaPlugin implements Listener {
     
     public static SpeedRunPlugin getInstance() {
         return instance;
-    
-        public SpeedRunManager getSpeedRunManager() {
-            return speedRunManager;
-        }
+    }
+
+    public SpeedRunManager getSpeedRunManager() {
+        return speedRunManager;
     }
     
     private static class SpeedRunData {
