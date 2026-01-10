@@ -80,10 +80,10 @@ public class HomesExtendedPlugin extends JavaPlugin {
     
     public static HomesExtendedPlugin getInstance() {
         return instance;
-    
-        public HomeManager getHomeManager() {
-            return homeManager;
-        }
+    }
+
+    public HomeManager getHomeManager() {
+        return homeManager;
     }
     
     private static class Home {
