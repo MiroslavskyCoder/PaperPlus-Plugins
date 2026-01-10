@@ -1,0 +1,20 @@
+# DeathMark Configuration
+
+# Whether to enable death chests
+enabled: true
+
+# Whether to protect chests from other players
+protected: true
+
+# How long (in seconds) until chest expires (0 = never)
+expire-seconds: 600
+
+# Whether to send a message to player about chest location
+notify-player: true
+
+# Custom messages
+messages:
+  chest-created: "&aВаши вещи сохранены в сундуке на &e{x}, {y}, {z}"
+  chest-opened: "&aВы открыли свой сундук со смертью"
+  chest-protected: "&cЭтот сундук принадлежит другому игроку"
+  chest-expired: "&7Ваш сундук со смертью исчез через {time} секунд"

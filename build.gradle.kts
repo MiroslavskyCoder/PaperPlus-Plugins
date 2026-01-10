@@ -16,7 +16,8 @@ tasks.register("buildAllPlugins") {
         ":show-health:build",
         ":from-drop:build",
         ":abomination:build",
-        ":dance:build"
+        ":dance:build",
+        ":death-mark:build"
     )
     finalizedBy("copyPlugins")
 }
@@ -32,6 +33,7 @@ tasks.register<Copy>("copyPlugins") {
     from("packages/from-drop/build/libs")
     from("packages/abomination/build/libs")
     from("packages/dance/build/libs")
+    from("packages/death-mark/build/libs")
     into("out/plugins")
     
     include("*.jar")
@@ -83,7 +85,8 @@ tasks.clean {
         ":show-health:clean",
         ":from-drop:clean",
         ":abomination:clean",
-        ":dance:clean"
+        ":dance:clean",
+        ":death-mark:clean"
     )
 }
 

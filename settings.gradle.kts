@@ -23,3 +23,6 @@ project(":abomination").projectDir = File("packages/abomination")
 
 include(":dance")
 project(":dance").projectDir = File("packages/dance")
+
+include(":death-mark")
+project(":death-mark").projectDir = File("packages/death-mark")
