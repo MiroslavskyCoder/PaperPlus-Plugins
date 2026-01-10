@@ -106,10 +106,10 @@ public class GuildsPlugin extends JavaPlugin {
     
     public static GuildsPlugin getInstance() {
         return instance;
-    
-        public GuildManager getGuildManager() {
-            return guildManager;
-        }
+    }
+
+    public GuildManager getGuildManager() {
+        return guildManager;
     }
     
     private static class Guild {
