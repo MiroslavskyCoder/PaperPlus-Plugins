@@ -15,7 +15,8 @@ tasks.register("buildAllPlugins") {
         ":pvp-base:build",
         ":show-health:build",
         ":from-drop:build",
-        ":abomination:build"
+        ":abomination:build",
+        ":dance:build"
     )
     finalizedBy("copyPlugins")
 }
@@ -30,6 +31,7 @@ tasks.register<Copy>("copyPlugins") {
     from("packages/show-health/build/libs")
     from("packages/from-drop/build/libs")
     from("packages/abomination/build/libs")
+    from("packages/dance/build/libs")
     into("out/plugins")
     
     include("*.jar")
@@ -80,7 +82,8 @@ tasks.clean {
         ":pvp-base:clean",
         ":show-health:clean",
         ":from-drop:clean",
-        ":abomination:clean"
+        ":abomination:clean",
+        ":dance:clean"
     )
 }
 

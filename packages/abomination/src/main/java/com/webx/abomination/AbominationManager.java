@@ -149,6 +149,16 @@ public class AbominationManager {
             int summonTimer = 0;
             @Override
             public void run() {
+                // Despawn at daytime
+                if (!isNight(entity.getWorld())) {
+                    String msg = plugin.getConfig().getString("messages.despawn", "&7Абоминация растворилась на рассвете.");
+                    broadcast(entity.getWorld(), ChatColor.translateAlternateColorCodes('&', msg));
+                    removeMinions(entity.getWorld());
+                    active.remove(entity.getUniqueId());
+                    entity.remove();
+                    cancel();
+                    return;
+                }
                 if (entity.isDead() || !entity.isValid()) {
                     cancel();
                     active.remove(entity.getUniqueId());
@@ -261,6 +271,16 @@ public class AbominationManager {
 
     public boolean isMarked(Entity e) {
         return e.getPersistentDataContainer().has(key, PersistentDataType.INTEGER);
+    }
+
+    private void removeMinions(World world) {
+        for (Entity e : world.getEntities()) {
+            if (!(e instanceof LivingEntity)) continue;
+            PersistentDataContainer pdc = e.getPersistentDataContainer();
+            if (pdc.has(key, PersistentDataType.INTEGER) && pdc.getOrDefault(key, PersistentDataType.INTEGER, 0) == 2) {
+                e.remove();
+            }
+        }
     }
 
     public boolean isFireImmune() {

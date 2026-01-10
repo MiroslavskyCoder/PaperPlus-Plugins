@@ -20,3 +20,6 @@ project(":show-health").projectDir = file("packages/show-health")
  
 include(":abomination")
 project(":abomination").projectDir = File("packages/abomination")
+
+include(":dance")
+project(":dance").projectDir = File("packages/dance")

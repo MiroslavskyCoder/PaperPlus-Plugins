@@ -1,0 +1,18 @@
+name: Dance
+version: 0.1.0
+main: com.webx.dance.DancePlugin
+author: WebX
+api-version: 1.20
+commands:
+  dance:
+    description: Perform a dance
+    usage: /dance <name> | /dance list
+    aliases: [d]
+    permission: dance.use
+permissions:
+  dance.use:
+    default: true
+    description: Allows using dance command
+  dance.admin:
+    default: op
+    description: Allows reloading dance config
