@@ -75,10 +75,10 @@ public class JumpQuestsPlugin extends JavaPlugin implements Listener {
     
     public static JumpQuestsPlugin getInstance() {
         return instance;
-    
-        public QuestManager getQuestManager() {
-            return questManager;
-        }
+    }
+
+    public QuestManager getQuestManager() {
+        return questManager;
     }
     
     private static class JumpQuest {
