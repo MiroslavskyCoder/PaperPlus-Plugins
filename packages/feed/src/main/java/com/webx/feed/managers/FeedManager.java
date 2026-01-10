@@ -16,7 +16,7 @@ public class FeedManager {
         player.sendMessage("§aYou have been fed!");
     }
     
-    public void feedAll(Collection<Player> players) {
+    public void feedAll(Collection<? extends Player> players) {
         for (Player player : players) {
             feedPlayer(player);
         }
