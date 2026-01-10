@@ -1,0 +1,11 @@
+name: WebX-Dashboard
+version: 1.0.0
+author: LXXV
+main: com.webx.PolyglotPlugin
+api-version: '1.21'
+depend-soft:
+  - Vault
+  - Essentials
+permissions:
+  mypolyglot.admin:
+    description: Allows management of the web panel

@@ -1,0 +1,12 @@
+name: PvPBase
+version: ${version}
+main: com.webx.pvpbase.PvPBasePlugin
+api-version: "1.20"
+authors:
+  - WebX
+description: PvP base management plugin supporting SkyWars, BedWars, Duels, and Siege modes.
+commands:
+  match:
+    description: Manage PvP matches
+    usage: /match create <mode> | join <matchId> | list | leave
+
