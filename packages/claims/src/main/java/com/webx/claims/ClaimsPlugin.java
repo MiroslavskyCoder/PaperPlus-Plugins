@@ -107,8 +107,6 @@ public class ClaimsPlugin extends JavaPlugin implements Listener {
     public ClaimManager getClaimManager() {
         return claimManager;
     }
-        }
-    }
     
     public static ClaimsPlugin getInstance() {
         return instance;
