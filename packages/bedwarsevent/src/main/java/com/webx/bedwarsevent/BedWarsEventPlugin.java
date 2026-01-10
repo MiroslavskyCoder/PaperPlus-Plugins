@@ -45,10 +45,10 @@ public class BedWarsEventPlugin extends JavaPlugin {
     
     public static BedWarsEventPlugin getInstance() {
         return instance;
-    
-        public BedWarsManager getBedWarsManager() {
-            return bedWarsManager;
-        }
+    }
+
+    public BedWarsManager getBedWarsManager() {
+        return bedWarsManager;
     }
     
     private static class BedWarsGame {
