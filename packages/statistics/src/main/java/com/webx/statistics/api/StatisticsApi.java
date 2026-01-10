@@ -2,7 +2,7 @@ package com.webx.statistics.api;
 
 import java.util.UUID;
 
-public class StatisticsAPI {
+public class StatisticsApi {
     
     public static int getPlayerKills(UUID uuid) {
         // Returns player kills
