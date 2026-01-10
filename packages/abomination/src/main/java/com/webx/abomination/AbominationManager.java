@@ -8,6 +8,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -67,7 +68,7 @@ public class AbominationManager {
             int maxActive = plugin.getConfig().getInt("natural-spawn.max-active", 2);
             if (active.size() >= maxActive) return;
             for (Player p : plugin.getServer().getOnlinePlayers()) {
-                if (!p.getWorld().isNight()) continue;
+                if (!isNight(p.getWorld())) continue;
                 spawnAroundPlayer(p);
             }
         }, interval, interval);
@@ -177,7 +178,9 @@ public class AbominationManager {
             }
         }
         if (nearest != null) {
-            entity.setTarget(nearest);
+            if (entity instanceof org.bukkit.entity.Mob mob) {
+                mob.setTarget(nearest);
+            }
             // Occasional short teleports to keep pressure
             if (ThreadLocalRandom.current().nextDouble() < 0.15) {
                 Location base = nearest.getLocation();
@@ -232,6 +235,11 @@ public class AbominationManager {
             }
         }
         return nearest;
+    }
+
+    private boolean isNight(World world) {
+        long time = world.getTime() % 24000;
+        return time >= 13000 && time <= 23000;
     }
 
     private void broadcast(World world, String msg) {

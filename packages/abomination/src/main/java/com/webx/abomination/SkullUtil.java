@@ -1,15 +1,12 @@
 package com.webx.abomination;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.Material;
+import org.bukkit.profile.PlayerProfile;
 
-import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.net.URL;
 import java.util.UUID;
 
 public class SkullUtil {
@@ -19,14 +16,10 @@ public class SkullUtil {
             ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) skull.getItemMeta();
             if (meta == null) return null;
-            GameProfile profile = new GameProfile(UUID.randomUUID(), "abomination");
-            String json = "{\"textures\":{\"SKIN\":{\"url\":\"" + url + "\"}}}";
-            String encoded = Base64.getEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
-            profile.getProperties().put("textures", new Property("textures", encoded));
 
-            Method m = meta.getClass().getDeclaredMethod("setProfile", GameProfile.class);
-            m.setAccessible(true);
-            m.invoke(meta, profile);
+            PlayerProfile profile = Bukkit.createProfile(UUID.randomUUID(), "abomination");
+            profile.getTextures().setSkin(new URL(url));
+            meta.setOwnerProfile(profile);
             skull.setItemMeta(meta);
             return skull;
         } catch (Exception e) {
