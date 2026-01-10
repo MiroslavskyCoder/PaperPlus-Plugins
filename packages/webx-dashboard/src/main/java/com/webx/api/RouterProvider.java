@@ -7,10 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webx.api.models.SettingsConfig;
-import com.webx.api.services.CurseForgeService;
-import com.webx.api.services.MetricsService;
-import com.webx.api.services.PlayerService;
-import com.webx.api.services.PluginService;
+import com.webx.api.services.*;
 import com.webx.helper.SystemHelper;
 import com.webx.services.SettingsService;
 
@@ -58,6 +55,15 @@ public class RouterProvider {
         
         // ===== SETTINGS ENDPOINTS =====
         registerSettingsRoutes();
+        
+        // ===== ECONOMY ENDPOINTS =====
+        registerEconomyRoutes();
+        
+        // ===== SHOP CONFIG ENDPOINTS =====
+        registerShopRoutes();
+        
+        // ===== AFK CONFIG ENDPOINTS =====
+        registerAfkRoutes();
     }
     
     private void registerMetricsWebSocket() {
@@ -528,6 +534,27 @@ public class RouterProvider {
 
         plugin.getLogger().info("Metrics collection started (every 2 seconds)");
         plugin.getLogger().info("Players metrics started (every 1 second)");
+    }
+    
+    private void registerEconomyRoutes() {
+        app.get(API.getFullPath("economy/player/{uuid}"), EconomyService::getPlayerCoins);
+        app.get(API.getFullPath("economy/top"), EconomyService::getTopPlayers);
+        app.post(API.getFullPath("economy/player/{uuid}/deposit"), EconomyService::depositCoins);
+        plugin.getLogger().info("✅ Economy API routes registered");
+    }
+    
+    private void registerShopRoutes() {
+        app.get(API.getFullPath("shop/config"), ShopService::getShopConfig);
+        app.put(API.getFullPath("shop/config"), ShopService::updateShopConfig);
+        app.post(API.getFullPath("shop/item"), ShopService::addShopItem);
+        app.delete(API.getFullPath("shop/item/{id}"), ShopService::deleteShopItem);
+        plugin.getLogger().info("✅ Shop config API routes registered");
+    }
+    
+    private void registerAfkRoutes() {
+        app.get(API.getFullPath("afk/config"), AfkService::getAfkConfig);
+        app.put(API.getFullPath("afk/config"), AfkService::updateAfkConfig);
+        plugin.getLogger().info("✅ AFK config API routes registered");
     }
 
     public void stopWebServer() {

@@ -31,7 +31,7 @@ public class JsonStorage implements StorageProvider {
     }
     
     @Override
-    public void init() {
+    public void initialize() {
         // Initialization already done in constructor
     }
     
@@ -106,14 +106,13 @@ public class JsonStorage implements StorageProvider {
     }
     
     @Override
-    public boolean deleteAccount(UUID uuid) {
+    public void deleteAccount(UUID uuid) {
         Path filePath = getAccountFile(uuid);
         
         try {
             return Files.deleteIfExists(filePath);
         } catch (IOException e) {
             System.err.println("Failed to delete account " + uuid + ": " + e.getMessage());
-            return false;
         }
     }
     

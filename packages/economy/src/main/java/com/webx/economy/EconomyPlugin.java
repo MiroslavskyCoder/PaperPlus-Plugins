@@ -81,7 +81,7 @@ public class EconomyPlugin extends JavaPlugin {
                 break;
         }
         
-        storage.init();
+        storage.initialize();
     }
 
     private void registerCommands() {
