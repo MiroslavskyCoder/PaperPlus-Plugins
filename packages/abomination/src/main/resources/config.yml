@@ -1,0 +1,29 @@
+# Abomination configuration
+natural-spawn:
+  enabled: true
+  interval-ticks: 600        # 30s
+  min-distance: 20
+  max-distance: 35
+  max-active: 2
+abilities:
+  blindness-radius: 12
+  blindness-duration: 100    # ticks (5s)
+  blindness-cooldown: 160    # 8s
+  summon-interval: 300       # 15s
+  summon-count: 3
+  summon-radius: 4
+stats:
+  health: 120.0
+  damage: 10.0
+  speed: 0.32
+  knockback-resist: 0.5
+  fire-immune: true
+  explosion-immune: true
+minion:
+  health: 20.0
+  speed: 0.30
+  damage: 5.0
+messages:
+  spawn: "&5&lОблик ужаса восстал…"
+  blindness: "&7Тьма окутывает вас!"
+  killed: "&aАбоминация повержена."

@@ -24,9 +24,11 @@ public class RegionCreateCommand implements CommandExecutor {
         String sub = args.length > 0 ? args[0].toLowerCase() : "create";
         switch (sub) {
             case "create":
+            case "menu":
                 CreateRegionGui.openColorSelector(player);
                 PendingRegion pr = new PendingRegion();
                 pr.setCenter(player.getLocation());
+                pr.setStage(PendingRegion.Stage.COLOR_SELECT);
                 plugin.getPendingRegions().put(player.getUniqueId(), pr);
                 return true;
             case "join":

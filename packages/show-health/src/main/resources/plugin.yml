@@ -1,0 +1,11 @@
+name: ShowHealth
+version: ${version}
+main: com.webx.showhealth.ShowHealthPlugin
+api-version: "1.20"
+authors:
+  - WebX
+description: Display health bars above players, mobs, and monsters.
+commands:
+  togglehealth:
+    description: Toggle health bar visibility
+    usage: /togglehealth

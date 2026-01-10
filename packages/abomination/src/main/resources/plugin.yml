@@ -1,0 +1,14 @@
+name: Abomination
+version: 0.1.0
+main: com.webx.abomination.AbominationPlugin
+author: WebX
+api-version: 1.20
+commands:
+  abomination:
+    description: Abomination admin commands
+    usage: /abomination <spawn|killall|status> [player]
+    permission: abomination.admin
+permissions:
+  abomination.admin:
+    default: op
+    description: Allows managing Abomination

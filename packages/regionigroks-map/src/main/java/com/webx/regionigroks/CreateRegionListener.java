@@ -32,13 +32,18 @@ public class CreateRegionListener implements Listener {
                 if (color != null) {
                     PendingRegion pr = plugin.getPendingRegions().computeIfAbsent(player.getUniqueId(), k -> new PendingRegion());
                     pr.setColor(color);
+                    pr.setStage(PendingRegion.Stage.RADIUS_INPUT);
                     if (pr.getCenter() == null) {
                         pr.setCenter(player.getLocation());
                     }
                     player.closeInventory();
-                    player.sendMessage(ChatColor.GREEN + "Enter region name in chat:");
+                    CreateRegionGui.openRadiusInput(player);
+                    player.sendMessage(ChatColor.GREEN + "Enter radius in chat (5-256):");
                 }
             }
+        } else if (event.getView().getTitle().equals(CreateRegionGui.RADIUS_INPUT_TITLE)) {
+            // Prevent taking the hint item
+            event.setCancelled(true);
         }
     }
 

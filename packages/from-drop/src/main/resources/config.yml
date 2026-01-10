@@ -1,0 +1,27 @@
+# FromDrop v0.1.2 configuration
+# Define extra drops for blocks and mobs.
+# Chance is between 0.0 and 1.0.
+
+blocks:
+  DIAMOND_ORE:
+    - item: DIAMOND
+      amount: 1
+      chance: 0.25
+  ANCIENT_DEBRIS:
+    - item: NETHERITE_SCRAP
+      amount: 1
+      chance: 0.15
+
+mobs:
+  ZOMBIE:
+    - item: IRON_INGOT
+      amount: 1
+      chance: 0.05
+  CREEPER:
+    - item: GUNPOWDER
+      amount: 2
+      chance: 0.30
+
+settings:
+  announce-drops: true
+  message: "You received bonus drop: %item% x%amount%"
