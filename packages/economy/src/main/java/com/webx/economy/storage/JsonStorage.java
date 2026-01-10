@@ -110,7 +110,7 @@ public class JsonStorage implements StorageProvider {
         Path filePath = getAccountFile(uuid);
         
         try {
-            return Files.deleteIfExists(filePath);
+            Files.deleteIfExists(filePath);
         } catch (IOException e) {
             System.err.println("Failed to delete account " + uuid + ": " + e.getMessage());
         }
