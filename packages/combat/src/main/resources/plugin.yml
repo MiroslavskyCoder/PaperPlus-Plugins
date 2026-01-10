@@ -1,0 +1,5 @@
+name: Combat
+version: 1.0.0
+api-version: "1.20"
+description: "Combat stats and rankings"
+main: com.webx.combat.CombatPlugin

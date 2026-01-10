@@ -1,0 +1,5 @@
+name: Levels
+version: 1.0.0
+api-version: "1.20"
+description: "Player leveling system"
+main: com.webx.levels.LevelsPlugin

@@ -1,0 +1,30 @@
+jobs:
+  miner:
+    name: "Miner"
+    color: "&7"
+    description: "Mine ores and earn money"
+    rewards:
+      stone: 10
+      iron_ore: 50
+      gold_ore: 100
+  builder:
+    name: "Builder"
+    color: "&e"
+    description: "Build and place blocks"
+    rewards:
+      oak_wood: 5
+      stone: 15
+  hunter:
+    name: "Hunter"
+    color: "&c"
+    description: "Hunt animals"
+    rewards:
+      raw_beef: 20
+      raw_chicken: 15
+  fisherman:
+    name: "Fisherman"
+    color: "&b"
+    description: "Fish and catch treasures"
+    rewards:
+      raw_fish: 25
+      water_bucket: 100

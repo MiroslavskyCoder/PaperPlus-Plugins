@@ -1,0 +1,5 @@
+name: Fishing
+version: 1.0.0
+api-version: "1.20"
+description: "Fishing rewards system"
+main: com.webx.fishing.FishingPlugin

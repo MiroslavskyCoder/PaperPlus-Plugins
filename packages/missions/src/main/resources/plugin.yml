@@ -1,0 +1,5 @@
+name: Missions
+version: 1.0.0
+api-version: "1.20"
+description: "Daily/weekly missions"
+main: com.webx.missions.MissionsPlugin
