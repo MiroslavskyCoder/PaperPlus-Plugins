@@ -28,6 +28,8 @@ public class AbominationManager {
     private final double kbResist;
     private final boolean fireImmune;
     private final boolean explosionImmune;
+    private final boolean useCustomHead;
+    private final String skinTextureUrl;
 
     private final int blindRadius;
     private final int blindDuration;
@@ -46,6 +48,8 @@ public class AbominationManager {
         this.kbResist = plugin.getConfig().getDouble("stats.knockback-resist", 0.5);
         this.fireImmune = plugin.getConfig().getBoolean("stats.fire-immune", true);
         this.explosionImmune = plugin.getConfig().getBoolean("stats.explosion-immune", true);
+        this.useCustomHead = plugin.getConfig().getBoolean("skin.use-custom-head", true);
+        this.skinTextureUrl = plugin.getConfig().getString("skin.texture-url", "");
 
         this.blindRadius = plugin.getConfig().getInt("abilities.blindness-radius", 12);
         this.blindDuration = plugin.getConfig().getInt("abilities.blindness-duration", 100);
@@ -101,7 +105,16 @@ public class AbominationManager {
         z.setCustomNameVisible(true);
         z.setAdult();
         z.getEquipment().clear();
-        z.getEquipment().setHelmet(new ItemStack(Material.NETHERITE_HELMET));
+        if (useCustomHead && skinTextureUrl != null && !skinTextureUrl.isEmpty()) {
+            ItemStack head = SkullUtil.fromUrl(skinTextureUrl);
+            if (head != null) {
+                z.getEquipment().setHelmet(head);
+            } else {
+                z.getEquipment().setHelmet(new ItemStack(Material.NETHERITE_HELMET));
+            }
+        } else {
+            z.getEquipment().setHelmet(new ItemStack(Material.NETHERITE_HELMET));
+        }
         z.getEquipment().setChestplate(new ItemStack(Material.NETHERITE_CHESTPLATE));
         z.getEquipment().setLeggings(new ItemStack(Material.NETHERITE_LEGGINGS));
         z.getEquipment().setBoots(new ItemStack(Material.NETHERITE_BOOTS));

@@ -19,6 +19,9 @@ stats:
   knockback-resist: 0.5
   fire-immune: true
   explosion-immune: true
+skin:
+  use-custom-head: true
+  texture-url: "" # Укажите прямую ссылку на skin.png (например https://example.com/skin.png). Если пусто – будет обычный шлем.
 minion:
   health: 20.0
   speed: 0.30
