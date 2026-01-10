@@ -16,6 +16,6 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.jar {
-    archiveBaseName.set("tournaments")
+    archiveBaseName.set("marketplace")
     archiveVersion.set("1.0.0")
 }

@@ -116,3 +116,76 @@ project(":clans").projectDir = File("packages/clans")
 
 include(":quests")
 project(":quests").projectDir = File("packages/quests")
+
+// 25 new plugins from expansion
+include(":afk")
+project(":afk").projectDir = File("packages/afk")
+
+include(":antispam")
+project(":antispam").projectDir = File("packages/antispam")
+
+include(":feed")
+project(":feed").projectDir = File("packages/feed")
+
+include(":leveling")
+project(":leveling").projectDir = File("packages/leveling")
+
+include(":statistics")
+project(":statistics").projectDir = File("packages/statistics")
+
+include(":marketplace")
+project(":marketplace").projectDir = File("packages/marketplace")
+
+include(":petsystem")
+project(":petsystem").projectDir = File("packages/petsystem")
+
+include(":partysystem")
+project(":partysystem").projectDir = File("packages/partysystem")
+
+include(":chatformatting")
+project(":chatformatting").projectDir = File("packages/chatformatting")
+
+include(":customenchants")
+project(":customenchants").projectDir = File("packages/customenchants")
+
+include(":claims")
+project(":claims").projectDir = File("packages/claims")
+
+include(":backups")
+project(":backups").projectDir = File("packages/backups")
+
+include(":news")
+project(":news").projectDir = File("packages/news")
+
+include(":pvpevents")
+project(":pvpevents").projectDir = File("packages/pvpevents")
+
+include(":miningevents")
+project(":miningevents").projectDir = File("packages/miningevents")
+
+include(":jumpquests")
+project(":jumpquests").projectDir = File("packages/jumpquests")
+
+include(":guilds")
+project(":guilds").projectDir = File("packages/guilds")
+
+include(":bedwarsevent")
+project(":bedwarsevent").projectDir = File("packages/bedwarsevent")
+
+include(":seasons")
+project(":seasons").projectDir = File("packages/seasons")
+
+include(":skyesurvival")
+project(":skyesurvival").projectDir = File("packages/skyesurvival")
+
+include(":speedrun")
+project(":speedrun").projectDir = File("packages/speedrun")
+
+include(":randomizer")
+project(":randomizer").projectDir = File("packages/randomizer")
+
+include(":dungeonraids")
+project(":dungeonraids").projectDir = File("packages/dungeonraids")
+
+include(":homesextended")
+project(":homesextended").projectDir = File("packages/homesextended")
