@@ -4,3 +4,7 @@ main: com.webx.jumpquests.JumpQuestsPlugin
 description: Jump quest challenges
 authors:
   - LXXV
+commands:
+  jumpquest:
+    description: Jump quest commands
+    usage: /jumpquest <list|join|checkpoint>

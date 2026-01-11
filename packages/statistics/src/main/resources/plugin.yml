@@ -4,3 +4,7 @@ main: com.webx.statistics.StatisticsPlugin
 description: Player statistics tracking
 authors:
   - LXXV
+commands:
+  stats:
+    description: View your statistics
+    usage: /stats

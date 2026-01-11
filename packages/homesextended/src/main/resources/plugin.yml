@@ -4,3 +4,10 @@ main: com.webx.homesextended.HomesExtendedPlugin
 description: Extended homes system
 authors:
   - LXXV
+commands:
+  home:
+    description: Teleport to a saved home
+    usage: /home <name>
+  sethome:
+    description: Set a home
+    usage: /sethome <name>

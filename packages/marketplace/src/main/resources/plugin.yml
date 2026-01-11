@@ -4,3 +4,7 @@ main: com.webx.marketplace.MarketplacePlugin
 description: Player-to-player trading marketplace
 authors:
   - LXXV
+commands:
+  marketplace:
+    description: Open the marketplace
+    usage: /marketplace

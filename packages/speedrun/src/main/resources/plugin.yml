@@ -5,3 +5,7 @@ api-version: 1.21
 description: Speedrun challenges system
 authors:
   - LXXV
+commands:
+  speedrun:
+    description: Speedrun commands
+    usage: /speedrun <start|stop|time>

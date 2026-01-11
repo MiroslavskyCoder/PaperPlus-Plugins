@@ -5,3 +5,7 @@ api-version: 1.21
 description: Randomizer challenges
 authors:
   - LXXV
+commands:
+  randomizer:
+    description: Gives a random item or toggles random drops
+    usage: /randomizer

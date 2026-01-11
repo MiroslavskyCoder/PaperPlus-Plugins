@@ -19,7 +19,8 @@ public class BackupsPlugin extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
         
-        backupDir = Paths.get(getDataFolder().getParentFile().getParentFile().getAbsolutePath(), "backups");
+        // Store backups inside this plugin's data folder to avoid null parents on some hosts
+        backupDir = getDataFolder().toPath().resolve("backups");
         
         try {
             Files.createDirectories(backupDir);

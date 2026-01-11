@@ -4,3 +4,7 @@ main: com.webx.claims.ClaimsPlugin
 description: Land claiming system
 authors:
   - LXXV
+commands:
+  claim:
+    description: Manage land claims
+    usage: /claim <create|delete|list>

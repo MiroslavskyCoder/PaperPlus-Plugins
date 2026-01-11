@@ -4,3 +4,7 @@ main: com.webx.pvpevents.PvPEventsPlugin
 description: PvP event challenges
 authors:
   - LXXV
+commands:
+  pvpevent:
+    description: Control PvP events
+    usage: /pvpevent <start|stop|type>

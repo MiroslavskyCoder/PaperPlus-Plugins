@@ -4,3 +4,10 @@ main: com.webx.feed.FeedPlugin
 description: Player feeding system
 authors:
   - LXXV
+commands:
+  feed:
+    description: Feed yourself or others
+    usage: /feed [player]
+  heal:
+    description: Heal yourself or others
+    usage: /heal [player]

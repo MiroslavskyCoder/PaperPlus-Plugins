@@ -5,3 +5,7 @@ api-version: 1.21
 description: Skye's Survival mode
 authors:
   - LXXV
+commands:
+  survival:
+    description: Skyes Survival commands
+    usage: /survival
