@@ -1,6 +1,7 @@
 plugins {
 	// Auto-download JDK toolchains via Foojay resolver
-	id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+	// Disabled due to IBM_SEMERU issues - using local JDK instead
+	// id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
 }
 
 rootProject.name = "webx-dashboard"

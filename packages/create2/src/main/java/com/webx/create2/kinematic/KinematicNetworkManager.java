@@ -240,9 +240,9 @@ public class KinematicNetworkManager {
             List<Map<?, ?>> list = yaml.getMapList("networks." + key + ".nodes");
             KinematicNetwork network = new KinematicNetwork();
             for (Map<?, ?> entry : list) {
-                int x = (int) entry.getOrDefault("x", 0);
-                int y = (int) entry.getOrDefault("y", 0);
-                int z = (int) entry.getOrDefault("z", 0);
+                int x = entry.get("x") != null ? ((Number) entry.get("x")).intValue() : 0;
+                int y = entry.get("y") != null ? ((Number) entry.get("y")).intValue() : 0;
+                int z = entry.get("z") != null ? ((Number) entry.get("z")).intValue() : 0;
                 String typeStr = (String) entry.get("type");
                 KinematicNodeType type = KinematicNodeType.valueOf(typeStr);
                 Vector3i pos = new Vector3i(x, y, z);

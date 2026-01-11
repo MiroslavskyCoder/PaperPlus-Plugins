@@ -15,11 +15,12 @@ dependencies {
     implementation("org.joml:joml:1.10.5")
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
+// Toolchain disabled - using system JDK instead
+// java {
+//     toolchain {
+//         languageVersion.set(JavaLanguageVersion.of(17))
+//     }
+// }
 
 tasks {
     jar {

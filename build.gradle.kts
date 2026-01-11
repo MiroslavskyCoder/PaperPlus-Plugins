@@ -1,5 +1,3 @@
-// Root build file
-
 plugins {
     base
 }
@@ -212,7 +210,7 @@ tasks.register("listProjects") {
 }
 
 // Wrap clean to clean all subprojects
-tasks.clean {
+tasks.named("clean") {
     dependsOn(
         ":webx-dashboard:clean",
         ":webx-dashboard-panel:clean",
