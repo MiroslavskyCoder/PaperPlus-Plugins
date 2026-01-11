@@ -1,0 +1,115 @@
+# Create2 Configuration
+# Inspired by Creators-of-Create/Create
+
+# Kinematic System Settings
+kinematic:
+  # Maximum network size (blocks connected)
+  max-network-size: 1000
+  
+  # Tick rate for kinematic updates (lower = more frequent)
+  update-tick-rate: 1
+  
+  # Maximum stress capacity per network
+  max-stress: 10000.0
+  
+  # Stress decay per tick when overloaded
+  stress-decay-rate: 0.1
+
+# Rotational Settings
+rotation:
+  # Maximum RPM (rotations per minute)
+  max-rpm: 256.0
+  
+  # Minimum RPM to consider active
+  min-rpm: 0.1
+  
+  # RPM transfer efficiency between components
+  transfer-efficiency: 0.98
+
+# Power Source Settings
+power-sources:
+  # Hand Crank
+  hand-crank:
+    enabled: true
+    rpm: 32.0
+    stress: 0.0  # Doesn't add stress
+  
+  # Water Wheel
+  water-wheel:
+    enabled: true
+    rpm: 16.0
+    stress-capacity: 512.0
+  
+  # Windmill
+  windmill:
+    enabled: true
+    rpm: 8.0
+    stress-capacity: 1024.0
+  
+  # Motor (creative)
+  motor:
+    enabled: true
+    rpm: 128.0
+    stress-capacity: 99999.0
+
+# Component Settings
+components:
+  # Shaft (straight rotational transmission)
+  shaft:
+    enabled: true
+    stress-impact: 1.0
+  
+  # Cogwheel (gear ratio changes)
+  cogwheel:
+    enabled: true
+    small-ratio: 1.0
+    large-ratio: 2.0
+    stress-impact: 2.0
+  
+  # Gearbox (rotation direction change)
+  gearbox:
+    enabled: true
+    stress-impact: 1.5
+  
+  # Mechanical Press
+  press:
+    enabled: true
+    stress-impact: 8.0
+    processing-time: 40  # ticks
+  
+  # Mechanical Mixer
+  mixer:
+    enabled: true
+    stress-impact: 12.0
+    processing-time: 60
+  
+  # Millstone
+  millstone:
+    enabled: true
+    stress-impact: 4.0
+    processing-time: 100
+
+# Performance Settings
+performance:
+  # Enable async network calculations
+  async-calculations: true
+  
+  # Cache kinematic networks
+  cache-networks: true
+  
+  # Maximum tick time for kinematic updates (ms)
+  max-tick-time: 10
+
+# Debug Settings
+debug:
+  # Show kinematic network visualizations
+  show-networks: false
+  
+  # Log stress calculations
+  log-stress: false
+  
+  # Log RPM changes
+  log-rpm: false
+  
+  # Particle effects for debugging
+  debug-particles: false

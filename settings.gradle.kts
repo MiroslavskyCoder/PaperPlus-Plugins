@@ -212,3 +212,6 @@ project(":ranks").projectDir = File("packages/ranks")
 
 include(":modernfix")
 project(":modernfix").projectDir = File("packages/modernfix")
+
+include(":create2")
+project(":create2").projectDir = File("packages/create2")
