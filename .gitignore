@@ -138,7 +138,7 @@ dist
 .stylelintcache
 
 # WebX Dashboard resources
-webx-dashboard/src/main/resources/web
-
+packages/webx-dashboard/src/main/resources/web
+    
 # WebX Dashboard build output
-webx-dashboard/bin
+packages/webx-dashboard/bin
