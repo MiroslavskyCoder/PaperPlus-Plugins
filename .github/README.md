@@ -5,26 +5,49 @@ Complete guide to automated building, testing, and deployment of Minecraft plugi
 ## 📖 Documentation Index
 
 ### 🎯 Quick Start (Start here!)
-- **[SETUP.md](SETUP.md)** - 5-minute setup guide
-  - Enable GitHub Actions
-  - Configure SSH deployment (optional)
-  - Run first workflow
-  - Quick examples
+- **[QUICKSTART.md](QUICKSTART.md)** - 30-second setup guide
+  - Enable GitHub Actions in 3 steps
+  - Run first build
+  - Download results
+  
+- **[SETUP.md](SETUP.md)** - 5-minute detailed setup guide
+  - Step-by-step enable instructions
+  - SSH key generation (for optional server deploy)
+  - GitHub Secrets configuration
+  - Usage examples and troubleshooting
 
-### 📚 Detailed Guides
-- **[GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)** - Complete reference
-  - All 3 workflows explained
-  - Trigger types and inputs
-  - Security & secrets
-  - Troubleshooting
-  - Best practices
+### 🎓 Learning Resources
+- **[VISUAL_GUIDE.md](VISUAL_GUIDE.md)** - Diagrams and flowcharts
+  - Three workflows at a glance
+  - Complete build flow diagram
+  - Step-by-step execution flows
+  - Time estimates
+  - File location map
 
 - **[EXAMPLES.md](EXAMPLES.md)** - Real-world examples
-  - Step-by-step workflows
-  - Deployment strategies
-  - Release process
-  - Timeline example
-  - Debugging tips
+  - Push and build example
+  - Server deployment walkthrough
+  - Release creation process
+  - Complete release timeline
+  - Debugging workflow issues
+
+### 📚 Complete Reference
+- **[GITHUB_ACTIONS.md](GITHUB_ACTIONS.md)** - Full documentation
+  - All 3 workflows explained in detail
+  - Trigger types and inputs
+  - Output artifacts and retention
+  - Security & Secrets setup
+  - Troubleshooting guide
+  - Best practices
+  - Performance statistics
+
+### 📋 Implementation Details
+- **[IMPLEMENTATION.md](IMPLEMENTATION.md)** - What was added
+  - Summary of all new files
+  - How each workflow works
+  - Feature comparison table
+  - File structure overview
+  - Next steps checklist
 
 ---
 
