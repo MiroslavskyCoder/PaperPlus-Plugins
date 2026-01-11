@@ -1,184 +1,285 @@
-# Settings Implementation Summary
+# ✅ Реализованная интеграция плагинов - Краткое резюме
 
-## Overview
-Added comprehensive settings management for Auth Player, SQL Database, and Redis configuration through a full-stack API implementation.
+## 🎯 Что было сделано
 
-## Changes Made
+### 1. 💰 Начисление монет за убийство монстров
 
-### Frontend (TypeScript/React)
+**Плагины:** Combat + Economy
 
-#### File: `frontend-panel/src/components/dashboard/settings-tab.tsx`
-- **Refactored `useSettingsApi` hook**: 
-  - Now fetches from API on mount
-  - Implements error handling with fallback defaults
-  - Includes connection testing functionality
-  
-- **Enhanced UI with three sections**:
-  1. **Auth Player Settings** - Toggle and input mask configuration
-  2. **SQL Configuration** - Database connection parameters (host, port, database, username, password, SSL)
-  3. **Redis Configuration** - Cache server parameters (host, port, password, database number)
+✅ **Реализовано:**
+- Listener в Combat плагине отслеживает убийства монстров
+- При убийстве монстра игроком начисляется +1 монета
+- Интеграция с Economy плагином через API
+- Уведомление игрока о получении монет
+- Исключение PvP (не начисляются монеты за убийство игроков)
 
-- **New Features**:
-  - Automatic settings persistence via API
-  - Connection status badges (✓ Connected / ✗ Connection Error)
-  - Test connection buttons for both SQL and Redis
-  - Real-time error messages
-  - Responsive grid layout (1 column mobile, 2 columns desktop)
+**Файлы:**
+- [packages/combat/src/main/java/com/webx/combat/listeners/MobKillRewardListener.java](packages/combat/src/main/java/com/webx/combat/listeners/MobKillRewardListener.java)
+- [packages/economy/src/main/java/com/webx/economy/managers/AccountManager.java](packages/economy/src/main/java/com/webx/economy/managers/AccountManager.java)
 
-- **Imports Added**:
-  - `Button` from shadcn/ui
-  - `Input` from shadcn/ui
+---
 
-### Backend (Java/Bukkit)
+### 2. 🌐 Web Dashboard - Просмотр монет игроков
 
-#### File: `webx-dashboard/src/main/java/com/webx/api/models/SettingsConfig.java` (NEW)
-- Created `SettingsConfig` class with nested configuration classes:
-  - `AuthPlayerSettings` - Player authentication configuration
-  - `SQLConfig` - PostgreSQL connection settings
-  - `RedisConfig` - Redis server settings
+**Плагин:** WebX Dashboard + Economy
 
-#### File: `webx-dashboard/src/main/java/com/webx/services/SettingsService.java` (NEW)
-- Implements settings management with:
-  - Load/save functionality (JSON file-based persistence)
-  - Connection testing for SQL (PostgreSQL JDBC)
-  - Connection testing for Redis (Jedis client)
-  - Automatic fallback to defaults if file missing
-  - Logging for all operations
+✅ **Реализовано:**
+- API endpoint для получения монет игрока по UUID
+- API endpoint для получения топа игроков по балансу
+- Интеграция с Economy плагином
+- Возврат данных о балансе, банке и общей сумме
 
-#### File: `webx-dashboard/src/main/java/com/webx/api/RouterProvider.java` (MODIFIED)
-- Added three new REST API endpoints:
-  1. `GET /api/settings` - Retrieve all settings
-  2. `PUT /api/settings` - Update all settings
-  3. `POST /api/settings/test-connection` - Test database/cache connections
+**Endpoints:**
+- `GET /api/player/{uuid}/coins` - Получить информацию о монетах
+- `GET /api/players/top?limit=10` - Топ игроков
 
-- Added helper classes:
-  - `TestConnectionRequest` - Request payload for connection testing
-  - `TestConnectionResponse` - Response payload for connection test results
+**Файлы:**
+- [packages/webx-dashboard/src/main/java/com/webx/api/endpoints/EconomyEndpoint.java](packages/webx-dashboard/src/main/java/com/webx/api/endpoints/EconomyEndpoint.java)
 
-- Integrated `SettingsService` instance for all settings operations
+---
 
-## API Endpoints
+### 3. 🛒 Управление Shop через Web Dashboard
 
-### Retrieve Settings
+**Плагин:** WebX Dashboard + Shop
+
+✅ **Реализовано:**
+- API для получения всех товаров
+- API для добавления нового товара
+- API для обновления существующего товара
+- API для удаления товара
+- Сохранение конфигурации в JSON файл
+- Автоматическое создание дефолтных товаров
+
+**Endpoints:**
+- `GET /api/shop` - Получить все товары
+- `POST /api/shop` - Добавить товар
+- `GET /api/shop/{id}` - Получить товар по ID
+- `PUT /api/shop/{id}` - Обновить товар
+- `DELETE /api/shop/{id}` - Удалить товар
+
+**Конфигурация:** `plugins/Shop/shop.json`
+
+**Файлы:**
+- [packages/webx-dashboard/src/main/java/com/webx/api/endpoints/ShopEndpoint.java](packages/webx-dashboard/src/main/java/com/webx/api/endpoints/ShopEndpoint.java)
+
+---
+
+### 4. 💤 Управление AFK системой через Web Dashboard
+
+**Плагин:** WebX Dashboard + AFK
+
+✅ **Реализовано:**
+- API для получения настроек AFK
+- API для обновления настроек AFK
+- Настройка таймаута до AFK
+- Включение/выключение автокика
+- Настройка префикса/суффикса
+- Настройка оповещений
+- Автоматическое создание дефолтной конфигурации
+
+**Endpoints:**
+- `GET /api/afk` - Получить настройки
+- `PUT /api/afk` - Обновить настройки
+- `GET /api/afk/players` - Список AFK игроков
+
+**Конфигурация:** `plugins/AFK/afk.json`
+
+**Параметры:**
+- `timeout` - минуты до AFK
+- `kickEnabled` - включить автокик
+- `kickTimeout` - минуты до кика после AFK
+- `prefix` - префикс для AFK игроков
+- `broadcastEnabled` - оповещать о статусе AFK
+- `autoResumeEnabled` - автовозобновление при активности
+
+**Файлы:**
+- [packages/webx-dashboard/src/main/java/com/webx/api/endpoints/AfkEndpoint.java](packages/webx-dashboard/src/main/java/com/webx/api/endpoints/AfkEndpoint.java)
+
+---
+
+## 📊 Технические детали
+
+### Зависимости между плагинами
+
 ```
-GET /api/settings
+┌─────────────────────┐
+│  Economy (Core)     │
+│  - Хранение монет   │
+│  - JSON storage     │
+└──────────┬──────────┘
+           │
+           ├──────────┐
+           │          │
+┌──────────▼────────┐ │
+│  Combat           │ │
+│  - Убийства       │ │
+│  - +1 монета      │ │
+└───────────────────┘ │
+                      │
+           ┌──────────▼────────────┐
+           │  WebX Dashboard       │
+           │  - Economy API        │
+           │  - Shop API           │
+           │  - AFK API            │
+           │  - Web Interface      │
+           └───────────────────────┘
+                      │
+           ┌──────────┴──────────┐
+           │                     │
+    ┌──────▼────────┐   ┌───────▼──────┐
+    │  Shop         │   │  AFK         │
+    │  - shop.json  │   │  - afk.json  │
+    └───────────────┘   └──────────────┘
 ```
 
-### Update Settings
-```
-PUT /api/settings
-Content-Type: application/json
-Body: {authPlayer, sqlConfig, redisConfig}
-```
+### Порядок загрузки плагинов
 
-### Test Connection
-```
-POST /api/settings/test-connection
-Content-Type: application/json
-Body: {type: "sql" | "redis", config: {...}}
-```
+1. **Economy** (первым - базовая зависимость)
+2. **Combat** (зависит от Economy)
+3. **Shop**
+4. **AFK**
+5. **WebX Dashboard** (последним - зависит от всех)
 
-## File Structure
+### Формат данных
 
-```
-frontend-panel/src/components/dashboard/
-├── settings-tab.tsx (UPDATED)
-
-webx-dashboard/src/main/java/com/webx/
-├── api/
-│   ├── models/
-│   │   └── SettingsConfig.java (NEW)
-│   └── RouterProvider.java (UPDATED)
-└── services/
-    └── SettingsService.java (NEW)
-
-Documentation/
-├── SETTINGS_API_DOCUMENTATION.md (NEW)
-```
-
-## Data Persistence
-
-Settings are stored in:
-```
-plugins/PolyglotPlugin/settings.json
-```
-
-Format:
+#### Economy - accounts.json
 ```json
 {
-  "authPlayer": {
-    "isAuthPlayerEnabled": boolean,
-    "inputMask": string
-  },
-  "sqlConfig": {
-    "host": string,
-    "port": number,
-    "database": string,
-    "username": string,
-    "password": string,
-    "ssl": boolean
-  },
-  "redisConfig": {
-    "host": string,
-    "port": number,
-    "password": string,
-    "db": number
-  }
+  "accounts": [
+    {
+      "uuid": "player-uuid",
+      "balance": 1523.5,
+      "bankBalance": 500.0
+    }
+  ]
 }
 ```
 
-## Dependencies Required
+#### Shop - shop.json
+```json
+[
+  {
+    "id": "1",
+    "name": "Diamond Sword",
+    "material": "DIAMOND_SWORD",
+    "price": 100.0,
+    "icon": null
+  }
+]
+```
 
-### Frontend
-- React (already included)
-- TypeScript (already included)
-- shadcn/ui components (already in use)
+#### AFK - afk.json
+```json
+{
+  "timeout": 10,
+  "kickEnabled": false,
+  "kickTimeout": 30,
+  "prefix": "§7[AFK] ",
+  "suffix": "",
+  "broadcastEnabled": true,
+  "autoResumeEnabled": true
+}
+```
 
-### Backend
-- Javalin (HTTP framework - already in use)
-- Jackson (JSON processing - already in use)
-- PostgreSQL JDBC Driver (required for SQL connection testing)
-- Jedis (Redis client - required for Redis connection testing)
+---
 
-## Configuration Features
+## 🚀 Быстрый старт
 
-### Auth Player
-- Enable/disable player authentication
-- Set custom input mask format
+### 1. Компиляция
+```bash
+./gradlew build
+```
 
-### SQL Database
-- Configure PostgreSQL connection
-- Support for SSL/TLS
-- Connection testing before save
+### 2. Установка
+Скопируйте JAR файлы в `plugins/`:
+- economy-0.1.0.jar
+- combat-1.0.0.jar
+- shop-1.0.0.jar
+- afk-1.0.0.jar
+- webx-dashboard-1.0.0.jar
 
-### Redis Cache
-- Configure Redis server connection
-- Support for password authentication
-- Database selection (0-15)
-- Connection testing before save
+### 3. Запуск
+Запустите сервер и проверьте логи.
 
-## Error Handling
+### 4. Тестирование
+Откройте [API_DEMO.html](API_DEMO.html) в браузере.
 
-- Invalid JSON format returns 400 error
-- Failed connection tests return false in response
-- Missing drivers logged to console
-- Fallback to default settings if file missing or corrupted
+---
 
-## Next Steps (Optional Enhancements)
+## 📚 Документация
 
-1. Add encryption for password storage
-2. Implement role-based access control for settings API
-3. Add database migration when SQL config changes
-4. Add Redis cache warming/initialization
-5. Implement audit logging for settings changes
-6. Add backup/restore functionality for settings
-7. Add advanced SQL options (connection pool size, timeout, etc.)
+| Файл | Описание |
+|------|----------|
+| [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) | Полное руководство по интеграции |
+| [QUICK_TEST_GUIDE.md](QUICK_TEST_GUIDE.md) | Быстрый старт и тестирование |
+| [API_USAGE_EXAMPLES.md](API_USAGE_EXAMPLES.md) | Примеры использования API |
+| [API_DEMO.html](API_DEMO.html) | Интерактивное демо |
 
-## Testing Recommendations
+---
 
-1. Test each endpoint with valid/invalid data
-2. Test connection buttons with invalid credentials
-3. Test JSON deserialization with malformed data
-4. Verify settings persistence across server restart
-5. Test concurrent API requests
-6. Test with actual SQL and Redis servers
+## ✨ Особенности
+
+- ✅ Автоматическое начисление монет за убийства
+- ✅ RESTful API для всех операций
+- ✅ JSON конфигурация для Shop и AFK
+- ✅ Автоматическое создание дефолтных конфигураций
+- ✅ Валидация данных на уровне API
+- ✅ Удобный Web интерфейс для управления
+- ✅ Полная документация и примеры кода
+
+---
+
+## 🔧 Дополнительные возможности
+
+### Расширение Economy API
+
+Можно добавить:
+- Перевод монет между игроками
+- История транзакций
+- Банковские операции
+
+### Расширение Shop API
+
+Можно добавить:
+- Категории товаров
+- Скидки и акции
+- История покупок
+
+### Расширение AFK API
+
+Можно добавить:
+- Статистика AFK времени
+- Персональные настройки для игроков
+- События при переходе в AFK
+
+---
+
+## 🎯 Итоги
+
+### Реализовано 100%
+
+- ✅ Связь между плагинами (Combat → Economy)
+- ✅ Начисление монет за убийство монстров
+- ✅ Web Dashboard API для Economy
+- ✅ Web Dashboard API для Shop
+- ✅ Web Dashboard API для AFK
+- ✅ JSON конфигурация
+- ✅ Web интерфейс
+- ✅ Полная документация
+
+### Технологии
+
+- Java 17+
+- Bukkit/Paper API
+- Javalin (Web Framework)
+- Gson (JSON)
+- REST API
+
+### Готово к использованию
+
+Все компоненты протестированы и готовы к развертыванию на production сервере.
+
+---
+
+**Дата завершения:** 11 января 2026
+**Статус:** ✅ Полностью реализовано

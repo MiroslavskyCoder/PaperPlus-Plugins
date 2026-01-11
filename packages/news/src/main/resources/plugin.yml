@@ -1,0 +1,10 @@
+name: News
+version: 1.0.0
+main: com.webx.news.NewsPlugin
+description: Server news and announcements
+authors:
+  - LXXV
+commands:
+  news:
+    description: Show or manage server news
+    usage: /news [add/remove]

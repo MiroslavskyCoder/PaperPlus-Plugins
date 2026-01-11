@@ -1,0 +1,11 @@
+name: Randomizer
+version: 1.0.0
+main: com.webx.randomizer.RandomizerPlugin
+api-version: 1.21
+description: Randomizer challenges
+authors:
+  - LXXV
+commands:
+  randomizer:
+    description: Gives a random item or toggles random drops
+    usage: /randomizer

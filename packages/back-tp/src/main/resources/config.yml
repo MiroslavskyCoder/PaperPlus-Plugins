@@ -1,0 +1,40 @@
+# BackTP Configuration
+
+# Back command settings
+back:
+  enabled: true
+  teleport-delay: 3
+  cancel-on-move: true
+  cancel-on-damage: true
+
+# TPA request settings
+tpa:
+  enabled: true
+  request-timeout: 60  # seconds
+  teleport-delay: 3
+  cancel-on-move: true
+  cancel-on-damage: true
+
+# Custom messages
+messages:
+  back:
+    no-death-location: "&cУ вас нет последней точки смерти!"
+    teleporting: "&eТелепортация к месту смерти через {delay} сек..."
+    teleported: "&aВы телепортированы к месту смерти!"
+    cancelled: "&cТелепортация отменена!"
+  
+  tpa:
+    sent: "&aЗапрос на телепортацию отправлен игроку &e{player}"
+    received: "&e{player} &aхочет телепортироваться к вам. &7/tpaccept или /tpdeny"
+    sent-here: "&aЗапрос на телепортацию отправлен игроку &e{player}"
+    received-here: "&e{player} &aхочет телепортировать вас к себе. &7/tpaccept или /tpdeny"
+    accepted: "&aВы приняли запрос на телепортацию!"
+    accepted-sender: "&e{player} &aпринял ваш запрос!"
+    denied: "&cВы отклонили запрос на телепортацию!"
+    denied-sender: "&e{player} &cотклонил ваш запрос!"
+    no-pending: "&cУ вас нет ожидающих запросов!"
+    expired: "&cВаш запрос на телепортацию истек!"
+    player-not-found: "&cИгрок не найден!"
+    cant-tp-self: "&cВы не можете отправить запрос самому себе!"
+    teleporting: "&eТелепортация через {delay} сек..."
+    teleported: "&aТелепортация выполнена!"

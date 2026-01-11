@@ -1,0 +1,37 @@
+# FriendFeed Configuration
+
+# Enable friend feeding
+enabled: true
+
+# Require permission
+require-permission: false
+permission: friendfeed.use
+
+# Feeding settings
+restore-hunger: 10  # Amount of hunger to restore (max 20)
+restore-saturation: 5.0  # Amount of saturation to restore
+
+# Effects given to fed player
+give-effects: true
+effects:
+  - type: REGENERATION
+    duration: 100  # in ticks (5 seconds)
+    amplifier: 0
+  - type: ABSORPTION
+    duration: 200  # in ticks (10 seconds)
+    amplifier: 0
+
+# Cooldown in seconds
+cooldown: 30
+
+# Feeding range (blocks)
+range: 5.0
+
+# Messages
+messages:
+  fed-player: "§aYou fed %player%!"
+  fed-by: "§aYou were fed by %feeder%!"
+  too-far: "§cPlayer is too far away!"
+  on-cooldown: "§cCooldown: %time% seconds"
+  no-permission: "§cYou don't have permission!"
+  player-full: "§c%player% is not hungry!"

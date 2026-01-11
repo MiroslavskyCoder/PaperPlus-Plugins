@@ -1,0 +1,11 @@
+name: BedwarsEvent
+version: 1.0.0
+main: com.webx.bedwarsevent.BedWarsEventPlugin
+api-version: 1.21
+description: Bedwars event system
+authors:
+  - LXXV
+commands:
+  bedwars:
+    description: Start a BedWars event
+    usage: /bedwars

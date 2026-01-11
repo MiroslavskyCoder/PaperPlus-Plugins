@@ -1,0 +1,40 @@
+# MobCatch Configuration
+
+# Enable mob catching
+enabled: true
+
+# Allowed mobs to catch
+allowed-mobs:
+  - COW
+  - PIG
+  - SHEEP
+  - CHICKEN
+  - HORSE
+  - WOLF
+  - CAT
+  - VILLAGER
+  - ZOMBIE
+  - SKELETON
+  - CREEPER
+  - SPIDER
+  - ENDERMAN
+
+# Blacklisted mobs (cannot be caught)
+blacklisted-mobs:
+  - ENDER_DRAGON
+  - WITHER
+
+# Permission required to catch mobs
+require-permission: true
+permission: mobcatch.use
+
+# Messages
+messages:
+  caught: "§aMob caught! Right-click to release."
+  released: "§aMob released!"
+  cannot-catch: "§cYou cannot catch this mob!"
+  no-permission: "§cYou don't have permission to catch mobs!"
+  inventory-full: "§cYour inventory is full!"
+  
+# Egg item name format
+egg-name: "§6Captured %mob%"

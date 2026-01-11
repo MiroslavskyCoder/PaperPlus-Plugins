@@ -1,0 +1,126 @@
+name: 🏷️ Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+      changelog:
+        description: 'Changelog text'
+        required: false
+        default: 'Bug fixes and improvements'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Create Release v${{ github.event.inputs.version }}
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: gradle
+
+      - name: 🔨 Build all plugins
+        run: |
+          chmod +x gradlew
+          ./gradlew buildAllPlugins --no-daemon
+
+      - name: 📦 Create ZIP archive
+        run: |
+          cd out/plugins
+          zip -r ../../plugins-v${{ github.event.inputs.version }}.zip *.jar
+          cd ../..
+          sha256sum plugins-v${{ github.event.inputs.version }}.zip > plugins-v${{ github.event.inputs.version }}.zip.sha256
+
+      - name: 📝 Generate release notes
+        run: |
+          cat > release-notes.md << 'EOF'
+          # Plugins Release v${{ github.event.inputs.version }}
+          
+          **Release Date**: $(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          ## 📦 What's Included
+          
+          - 59 production-ready Minecraft plugins
+          - REST API for server management
+          - React-based Web Dashboard
+          - Loose-coupling architecture
+          - JSON-based data storage
+          
+          ## 📋 Changelog
+          
+          ${{ github.event.inputs.changelog }}
+          
+          ## 🚀 Quick Start
+          
+          1. Download `plugins-v${{ github.event.inputs.version }}.zip`
+          2. Extract to your server's `plugins/` directory
+          3. Start/restart server with Java 21+
+          
+          ## 📊 Statistics
+          
+          - **Total Plugins**: 59
+          - **Paper Version**: 1.21.11
+          - **Java Version**: 21+
+          - **Build Status**: ✅ Successful
+          
+          ## 🔗 Resources
+          
+          - [README](README.md)
+          - [Quick Start](QUICK_START.md)
+          - [Documentation Index](DOCUMENTATION_INDEX.md)
+          - [API Documentation](packages/webx-dashboard/API_DOCUMENTATION.md)
+          
+          ## ✅ Verification
+          
+          Verify the integrity of the downloaded file:
+          
+          ```bash
+          sha256sum -c plugins-v${{ github.event.inputs.version }}.zip.sha256
+          ```
+          
+          EOF
+          cat release-notes.md
+
+      - name: 🏷️ Create Git tag
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git tag -a v${{ github.event.inputs.version }} -m "Release v${{ github.event.inputs.version }}"
+          git push origin v${{ github.event.inputs.version }}
+
+      - name: 📌 Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: Release v${{ github.event.inputs.version }}
+          files: |
+            plugins-v${{ github.event.inputs.version }}.zip
+            plugins-v${{ github.event.inputs.version }}.zip.sha256
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ✅ Release created
+        run: |
+          echo "🎉 Release v${{ github.event.inputs.version }} created successfully!"
+          echo ""
+          echo "📦 Files:"
+          echo "  - plugins-v${{ github.event.inputs.version }}.zip"
+          echo "  - plugins-v${{ github.event.inputs.version }}.zip.sha256"
+          echo ""
+          echo "🔗 URL: https://github.com/${{ github.repository }}/releases/tag/v${{ github.event.inputs.version }}"

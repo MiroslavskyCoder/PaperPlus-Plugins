@@ -1,0 +1,11 @@
+name: Speedrun
+version: 1.0.0
+main: com.webx.speedrun.SpeedRunPlugin
+api-version: 1.21
+description: Speedrun challenges system
+authors:
+  - LXXV
+commands:
+  speedrun:
+    description: Speedrun commands
+    usage: /speedrun <start|stop|time>

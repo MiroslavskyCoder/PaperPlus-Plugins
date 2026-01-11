@@ -1,0 +1,5 @@
+name: FriendFeed
+version: 1.0.0
+main: com.webx.friendfeed.FriendFeedPlugin
+description: Feed friends by sneaking and right-clicking
+author: LXXV

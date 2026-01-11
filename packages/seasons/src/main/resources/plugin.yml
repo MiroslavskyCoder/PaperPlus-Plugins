@@ -1,0 +1,6 @@
+name: Seasons
+version: 1.0.0
+main: com.webx.seasons.SeasonsPlugin
+description: Seasonal events system
+authors:
+  - LXXV

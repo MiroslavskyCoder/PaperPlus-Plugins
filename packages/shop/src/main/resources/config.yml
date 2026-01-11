@@ -1,0 +1,22 @@
+shop:
+  max-shops: 100
+  max-items-per-shop: 54
+  
+gui:
+  title: '&6Shop Menu'
+  rows: 6
+  
+item-cost:
+  min: 0.01
+  max: 1000000.0
+  
+messages:
+  prefix: '&8[&6Shop&8]&r '
+  shop-opened: '&aOpened shop: &6{shop}'
+  shop-created: '&aShop created: &6{name}'
+  shop-deleted: '&aShop deleted: &6{name}'
+  item-bought: '&aYou bought &6{item}x{amount} &afor &6{price}'
+  item-sold: '&aYou sold &6{item}x{amount} &afor &6{price}'
+  insufficient-funds: '&cInsufficient funds!'
+  invalid-price: '&cInvalid price!'
+  shop-not-found: '&cShop not found!'

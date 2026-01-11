@@ -1,0 +1,14 @@
+name: RegionigroksMap
+version: ${version}
+main: com.webx.regionigroks.RegionigroksMapPlugin
+api-version: "1.20"
+authors:
+  - WebX
+description: Region map plugin providing region visualization.
+commands:
+  regionmap:
+    description: Give a live minimap map item
+    usage: /regionmap
+  region:
+    description: Region management
+    usage: /region create | join <name> | leave <name> | invite <player> <name> | setprivacy <open|closed> <name>

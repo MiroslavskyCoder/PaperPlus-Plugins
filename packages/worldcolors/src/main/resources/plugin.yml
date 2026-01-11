@@ -1,0 +1,9 @@
+name: WorldColors
+version: 1.0.0
+main: com.webx.worldcolors.WorldColorsPlugin
+description: Adds color to player Tab and Chat based on their world
+author: LXXV
+commands:
+  worldcolors:
+    description: Reload WorldColors configuration
+    usage: /worldcolors reload

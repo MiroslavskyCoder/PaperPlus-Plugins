@@ -1,0 +1,24 @@
+name: Clans
+version: 0.1.0
+main: com.webx.clans.ClansPlugin
+api-version: '1.20'
+author: WebX
+description: Full-featured clan system with territories and ranks
+
+commands:
+  clan:
+    description: Clan commands
+    usage: /<command> <create|disband|invite|kick|rank|info|list|territory>
+    aliases: [c, cl]
+  topclans:
+    description: View top clans by power
+    usage: /<command> [limit]
+    aliases: [clantop, topclan]
+
+permissions:
+  clans.use:
+    description: Use clan commands
+    default: true
+  clans.admin:
+    description: Manage all clans
+    default: op

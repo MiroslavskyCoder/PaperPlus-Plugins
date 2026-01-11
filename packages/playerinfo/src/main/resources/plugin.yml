@@ -1,0 +1,6 @@
+name: PlayerInfo
+version: 1.0.0
+main: com.webx.playerinfo.PlayerInfoPlugin
+description: Display player information (Money, Level, Username) in-game
+authors:
+  - LXXV

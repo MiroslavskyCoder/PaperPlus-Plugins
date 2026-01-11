@@ -1,0 +1,11 @@
+name: SkyesSurvival
+version: 1.0.0
+main: com.webx.skyesurvival.SkyeSurvivalPlugin
+api-version: 1.21
+description: Skye's Survival mode
+authors:
+  - LXXV
+commands:
+  survival:
+    description: Skyes Survival commands
+    usage: /survival

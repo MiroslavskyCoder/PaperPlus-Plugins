@@ -1,0 +1,10 @@
+name: DungeonRaids
+version: 1.0.0
+main: com.webx.dungeonraids.DungeonRaidsPlugin
+description: Dungeon raiding system
+authors:
+  - LXXV
+commands:
+  dungeon:
+    description: List or join dungeons
+    usage: /dungeon <list|join>

@@ -1,0 +1,10 @@
+name: PetSystem
+version: 1.0.0
+main: com.webx.petsystem.PetSystemPlugin
+description: Pet management system
+authors:
+  - LXXV
+commands:
+  pet:
+    description: Manage your pet
+    usage: /pet <spawn|call|despawn>

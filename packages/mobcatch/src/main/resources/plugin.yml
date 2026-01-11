@@ -1,0 +1,5 @@
+name: MobCatch
+version: 1.0.0
+main: com.webx.mobcatch.MobCatchPlugin
+description: Catch mobs with shift-click
+author: LXXV

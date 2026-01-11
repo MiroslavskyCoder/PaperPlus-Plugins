@@ -1,0 +1,41 @@
+name: Economy
+version: 0.1.0
+main: com.webx.economy.EconomyPlugin
+api-version: '1.20'
+author: WebX
+description: Full-featured economy system with banks and transactions
+
+commands:
+  balance:
+    description: Check your balance
+    usage: /<command> [player]
+    aliases: [bal, money]
+  pay:
+    description: Pay another player
+    usage: /<command> <player> <amount>
+  baltop:
+    description: Show richest players
+    usage: /<command> [page]
+    aliases: [balancetop]
+  bank:
+    description: Access bank system
+    usage: /<command> <deposit|withdraw|balance> [amount]
+  eco:
+    description: Admin economy commands
+    usage: /<command> <give|take|set|reset> <player> <amount>
+    permission: economy.admin
+  topcoins:
+    description: Show top players by coins
+    usage: /<command> [limit]
+    aliases: [coinleaders, richtop]
+
+permissions:
+  economy.use:
+    description: Use economy commands
+    default: true
+  economy.admin:
+    description: Admin economy commands
+    default: op
+  economy.bypass.transaction-fee:
+    description: Bypass transaction fees
+    default: op

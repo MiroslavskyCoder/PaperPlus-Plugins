@@ -1,0 +1,18 @@
+# WorldColors Configuration
+# Colors for each world (ChatColor codes: AQUA, GOLD, GREEN, RED, BLUE, etc.)
+
+worlds:
+  world:
+    color: "GREEN"
+    prefix: "§a[Overworld]§r"
+  world_nether:
+    color: "RED"
+    prefix: "§c[Nether]§r"
+  world_the_end:
+    color: "LIGHT_PURPLE"
+    prefix: "§d[The End]§r"
+  
+# Default color for unknown worlds
+default:
+  color: "WHITE"
+  prefix: "§f[World]§r"

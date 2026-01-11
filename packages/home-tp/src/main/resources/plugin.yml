@@ -1,0 +1,20 @@
+name: HomeTP
+version: 0.1.0
+main: com.webx.hometp.HomeTpPlugin
+api-version: 1.20
+author: WebX
+description: Home teleportation system
+
+commands:
+  sethome:
+    description: Set a home location
+    usage: /sethome <name>
+  delhome:
+    description: Delete a home location
+    usage: /delhome <name>
+  home:
+    description: Teleport to a home location
+    usage: /home <name>
+  homes:
+    description: List all your homes
+    usage: /homes
