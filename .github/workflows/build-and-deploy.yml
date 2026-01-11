@@ -98,8 +98,10 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git tag -a ${{ github.sha }} -m "Build tag for commit ${{ github.sha }}"
-          git push origin ${{ github.sha }}
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-8)
+          TAG_NAME="build-$(date +%Y%m%d-%H%M%S)-${SHORT_SHA}"
+          git tag -a "$TAG_NAME" -m "Build tag for commit ${{ github.sha }}"
+          git push origin "$TAG_NAME"
 
   release:
     needs: build
