@@ -207,3 +207,5 @@ project(":mobcatch").projectDir = File("packages/mobcatch")
 
 include(":friendfeed")
 project(":friendfeed").projectDir = File("packages/friendfeed")
+include(":ranks")
+project(":ranks").projectDir = File("packages/ranks")
