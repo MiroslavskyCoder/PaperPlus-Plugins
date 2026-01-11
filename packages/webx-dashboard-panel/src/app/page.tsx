@@ -19,6 +19,12 @@ import { SettingsTab } from '@/components/dashboard/settings-tab';
 import { EconomyTab } from '@/components/dashboard/economy-tab';
 import { ShopTab } from '@/components/dashboard/shop-tab';
 import { AfkTab } from '@/components/dashboard/afk-tab';
+import { WorldColorsTab } from '@/components/dashboard/worldcolors-tab';
+import { AutoShutdownTab } from '@/components/dashboard/autoshutdown-tab';
+import { SimpleHealTab } from '@/components/dashboard/simpleheal-tab';
+import { DeathMessageTab } from '@/components/dashboard/deathmessage-tab';
+import { MobCatchTab } from '@/components/dashboard/mobcatch-tab';
+import { FriendFeedTab } from '@/components/dashboard/friendfeed-tab';
 
 interface Stats {
   cpu: number;
@@ -67,13 +73,19 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="home" className="w-full">
-          <TabsList className="grid w-full grid-cols-10 mb-8 bg-card/50 backdrop-blur-sm border-none">
+          <TabsList className="grid w-full grid-cols-8 lg:grid-cols-16 mb-8 bg-card/50 backdrop-blur-sm border-none gap-1">
             <TabsTrigger value="home" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Home</TabsTrigger>
             <TabsTrigger value="server" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Server</TabsTrigger>
             <TabsTrigger value="players" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Players</TabsTrigger>
             <TabsTrigger value="economy" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Economy</TabsTrigger>
             <TabsTrigger value="shop" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Shop</TabsTrigger>
             <TabsTrigger value="afk" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">AFK</TabsTrigger>
+            <TabsTrigger value="worldcolors" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Colors</TabsTrigger>
+            <TabsTrigger value="autoshutdown" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Shutdown</TabsTrigger>
+            <TabsTrigger value="simpleheal" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Heal</TabsTrigger>
+            <TabsTrigger value="deathmessage" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Death</TabsTrigger>
+            <TabsTrigger value="mobcatch" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Mobs</TabsTrigger>
+            <TabsTrigger value="friendfeed" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Feed</TabsTrigger>
             <TabsTrigger value="map" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Map</TabsTrigger>
             <TabsTrigger value="config" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Config</TabsTrigger>
             <TabsTrigger value="plugins" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Plugins</TabsTrigger>
@@ -103,6 +115,30 @@ export default function Dashboard() {
 
             <TabsContent value="afk" className="space-y-6 animate-fade-in">
               <AfkTab />
+            </TabsContent>
+
+            <TabsContent value="worldcolors" className="space-y-6 animate-fade-in">
+              <WorldColorsTab />
+            </TabsContent>
+
+            <TabsContent value="autoshutdown" className="space-y-6 animate-fade-in">
+              <AutoShutdownTab />
+            </TabsContent>
+
+            <TabsContent value="simpleheal" className="space-y-6 animate-fade-in">
+              <SimpleHealTab />
+            </TabsContent>
+
+            <TabsContent value="deathmessage" className="space-y-6 animate-fade-in">
+              <DeathMessageTab />
+            </TabsContent>
+
+            <TabsContent value="mobcatch" className="space-y-6 animate-fade-in">
+              <MobCatchTab />
+            </TabsContent>
+
+            <TabsContent value="friendfeed" className="space-y-6 animate-fade-in">
+              <FriendFeedTab />
             </TabsContent>
 
             <TabsContent value="map" className="space-y-6 animate-fade-in">

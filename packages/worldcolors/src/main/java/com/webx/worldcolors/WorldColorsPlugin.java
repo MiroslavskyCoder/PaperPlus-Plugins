@@ -1,28 +1,36 @@
 package com.webx.worldcolors;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.ChatColor;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class WorldColorsPlugin extends JavaPlugin {
     
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private Map<String, WorldColorConfig> worldColors = new HashMap<>();
     private WorldColorConfig defaultConfig;
+    private PluginConfig config;
     
     @Override
     public void onEnable() {
-        saveDefaultConfig();
-        loadWorldColors();
+        loadConfiguration();
         
         getServer().getPluginManager().registerEvents(new WorldColorListener(this), this);
         getCommand("worldcolors").setExecutor(new WorldColorsCommand(this));
         
-        // Update player names every 20 ticks
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, this::updateAllPlayerNames, 0L, 20L);
+        // Update player names every configured interval
+        int interval = config != null && config.updateInterval > 0 ? config.updateInterval : 20;
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, this::updateAllPlayerNames, 0L, interval);
         
         getLogger().info("WorldColors plugin enabled!");
     }
@@ -32,24 +40,60 @@ public class WorldColorsPlugin extends JavaPlugin {
         getLogger().info("WorldColors plugin disabled!");
     }
     
-    public void loadWorldColors() {
-        worldColors.clear();
-        reloadConfig();
+    public void loadConfiguration() {
+        File configDir = new File("plugins/WebX/configs");
+        if (!configDir.exists()) {
+            configDir.mkdirs();
+        }
         
-        var worldsSection = getConfig().getConfigurationSection("worlds");
-        if (worldsSection != null) {
-            for (String worldName : worldsSection.getKeys(false)) {
-                String colorName = getConfig().getString("worlds." + worldName + ".color", "WHITE");
-                String prefix = getConfig().getString("worlds." + worldName + ".prefix", "");
-                
-                ChatColor color = ChatColor.valueOf(colorName.toUpperCase());
-                worldColors.put(worldName, new WorldColorConfig(color, prefix));
+        File configFile = new File(configDir, "worldcolors.json");
+        
+        if (!configFile.exists()) {
+            // Create default config
+            config = new PluginConfig();
+            config.enabled = true;
+            config.updateInterval = 20;
+            config.worldColors = new HashMap<>();
+            config.worldColors.put("world", "GREEN");
+            config.worldColors.put("world_nether", "RED");
+            config.worldColors.put("world_the_end", "LIGHT_PURPLE");
+            saveConfiguration();
+        } else {
+            try (FileReader reader = new FileReader(configFile)) {
+                config = GSON.fromJson(reader, PluginConfig.class);
+            } catch (IOException e) {
+                getLogger().severe("Failed to load config: " + e.getMessage());
+                config = new PluginConfig();
             }
         }
         
-        String defaultColor = getConfig().getString("default.color", "WHITE");
-        String defaultPrefix = getConfig().getString("default.prefix", "");
-        defaultConfig = new WorldColorConfig(ChatColor.valueOf(defaultColor), defaultPrefix);
+        loadWorldColors();
+    }
+    
+    private void saveConfiguration() {
+        File configFile = new File("plugins/WebX/configs/worldcolors.json");
+        try (FileWriter writer = new FileWriter(configFile)) {
+            GSON.toJson(config, writer);
+        } catch (IOException e) {
+            getLogger().severe("Failed to save config: " + e.getMessage());
+        }
+    }
+    
+    public void loadWorldColors() {
+        worldColors.clear();
+        
+        if (config.worldColors != null) {
+            for (Map.Entry<String, String> entry : config.worldColors.entrySet()) {
+                try {
+                    ChatColor color = ChatColor.valueOf(entry.getValue().toUpperCase());
+                    worldColors.put(entry.getKey(), new WorldColorConfig(color, ""));
+                } catch (IllegalArgumentException e) {
+                    getLogger().warning("Invalid color for world " + entry.getKey() + ": " + entry.getValue());
+                }
+            }
+        }
+        
+        defaultConfig = new WorldColorConfig(ChatColor.WHITE, "");
     }
     
     public WorldColorConfig getWorldConfig(String worldName) {
@@ -57,18 +101,28 @@ public class WorldColorsPlugin extends JavaPlugin {
     }
     
     private void updateAllPlayerNames() {
+        if (config == null || !config.enabled) return;
+        
         for (Player player : Bukkit.getOnlinePlayers()) {
             updatePlayerDisplay(player);
         }
     }
     
     public void updatePlayerDisplay(Player player) {
-        String worldName = player.getWorld().getName();
-        WorldColorConfig config = getWorldConfig(worldName);
+        if (config == null || !config.enabled) return;
         
-        String displayName = config.getColor() + player.getName() + ChatColor.RESET;
+        String worldName = player.getWorld().getName();
+        WorldColorConfig worldConfig = getWorldConfig(worldName);
+        
+        String displayName = worldConfig.getColor() + player.getName() + ChatColor.RESET;
         player.setDisplayName(displayName);
-        player.setPlayerListName(config.getPrefix() + " " + displayName);
+        player.setPlayerListName(worldConfig.getPrefix() + " " + displayName);
+    }
+    
+    public static class PluginConfig {
+        public boolean enabled;
+        public Map<String, String> worldColors;
+        public int updateInterval;
     }
     
     public static class WorldColorConfig {

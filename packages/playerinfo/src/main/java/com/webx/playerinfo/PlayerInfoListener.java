@@ -12,14 +12,17 @@ import net.kyori.adventure.text.format.TextDecoration;
 public class PlayerInfoListener implements Listener {
     
     private final EconomyDataManager economyDataManager;
+    private final SidebarManager sidebarManager;
     
-    public PlayerInfoListener(EconomyDataManager economyDataManager) {
+    public PlayerInfoListener(EconomyDataManager economyDataManager, SidebarManager sidebarManager) {
         this.economyDataManager = economyDataManager;
+        this.sidebarManager = sidebarManager;
     }
     
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        sidebarManager.ensureSidebar(player);
         player.sendMessage(
             Component.text()
                 .append(Component.text("💰 PlayerInfo", NamedTextColor.GOLD, TextDecoration.BOLD))
@@ -41,6 +44,9 @@ public class PlayerInfoListener implements Listener {
         double health = Math.round(player.getHealth() * 10.0) / 10.0;
         int maxHealth = (int) player.getMaxHealth();
         int food = player.getFoodLevel();
+        int ping = player.getPing();
+        int online = Bukkit.getOnlinePlayers().size();
+        String world = player.getWorld().getName();
         
         // Get money from Economy plugin
         double money = economyDataManager.getBalance(player);
@@ -61,5 +67,18 @@ public class PlayerInfoListener implements Listener {
             .build();
         
         player.sendActionBar(actionBar);
+
+        // Sidebar update
+        sidebarManager.ensureSidebar(player);
+        SidebarManager.SidebarValues values = new SidebarManager.SidebarValues();
+        values.playerName = playerName;
+        values.level = level;
+        values.money = String.format("$%.2f", money);
+        values.health = health + "/" + maxHealth;
+        values.food = food + "/20";
+        values.ping = ping;
+        values.online = online;
+        values.world = world;
+        sidebarManager.updateSidebar(player, values);
     }
 }

@@ -7,15 +7,17 @@ public class PlayerInfoPlugin extends JavaPlugin {
     
     private PlayerInfoListener playerInfoListener;
     private EconomyDataManager economyDataManager;
+    private SidebarManager sidebarManager;
     
     @Override
     public void onEnable() {
         getLogger().info("PlayerInfo plugin enabled!");
         
-        // Initialize Economy data manager
+        // Initialize managers
         economyDataManager = new EconomyDataManager(getDataFolder());
+        sidebarManager = new SidebarManager(this);
         
-        playerInfoListener = new PlayerInfoListener(economyDataManager);
+        playerInfoListener = new PlayerInfoListener(economyDataManager, sidebarManager);
         getServer().getPluginManager().registerEvents(playerInfoListener, this);
         
         // Update player info every 5 ticks (4 times per second)
