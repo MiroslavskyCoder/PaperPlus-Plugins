@@ -626,6 +626,58 @@ gradle clean buildAllPlugins      # Чистая сборка
 
 ---
 
+## 🚀 GitHub Actions CI/CD
+
+### Автоматизированные Workflows
+
+**Три готовых workflow:**
+
+| Workflow | Триггер | Функции |
+|----------|---------|---------|
+| **Build & Deploy ZIP** | Push, Tag, PR | Собирает плагины → ZIP архив → Артефакты |
+| **Deploy to Server** | Manual (workflow_dispatch) | Загружает плагины на сервер по SSH |
+| **Create Release** | Manual (workflow_dispatch) | Создаёт GitHub Release с версией и SHA256 |
+
+### Быстрый старт
+
+**1. Автоматическая сборка при push:**
+```bash
+git push origin main
+# GitHub Actions автоматически:
+# ✅ Собирает все 59 плагинов
+# ✅ Создаёт ZIP архив
+# ✅ Загружает артефакт (90 дней)
+```
+
+**2. Создание Release при теге:**
+```bash
+git tag -a v1.0.0 -m "Release 1.0.0"
+git push origin v1.0.0
+# GitHub Actions автоматически создаст Release
+```
+
+**3. Развёртывание на сервер:**
+```
+GitHub Actions → Deploy to Server → Run workflow
+→ Заполнить: hostname, deploy path, restart?
+→ Workflow развернёт плагины на сервер
+```
+
+### Настройка Deploy на Server
+
+**Требуемые Secrets:**
+1. `DEPLOY_SSH_KEY` - SSH приватный ключ
+2. `DEPLOY_USER` - SSH юзер
+
+**Как добавить:**
+```
+Settings → Secrets and variables → Actions → New secret
+```
+
+[📖 Полная документация](.github/GITHUB_ACTIONS.md)
+
+---
+
 ## 🔄 Cross-Plugin Communication (Рефлексия)
 
 Плагины общаются через рефлексию без hard dependencies:
