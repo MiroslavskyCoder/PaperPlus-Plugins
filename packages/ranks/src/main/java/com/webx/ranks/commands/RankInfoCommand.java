@@ -1,6 +1,7 @@
 package com.webx.ranks.commands;
 
 import com.webx.ranks.managers.RankManager;
+import com.webx.ranks.managers.PlayerRankManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,11 +10,13 @@ import org.bukkit.command.CommandSender;
 /**
  * Command handler for listing all available ranks: /ranklist
  */
-public class RankListCommand implements CommandExecutor {
+public class RankInfoCommand implements CommandExecutor {
     private final RankManager rankManager;
+    private final PlayerRankManager playerRankManager;
 
-    public RankListCommand(RankManager rankManager) {
+    public RankInfoCommand(RankManager rankManager, PlayerRankManager playerRankManager) {
         this.rankManager = rankManager;
+        this.playerRankManager = playerRankManager;
     }
 
     @Override

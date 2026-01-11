@@ -11,13 +11,11 @@ import org.bukkit.command.CommandSender;
 /**
  * Command handler for displaying rank information: /rankinfo
  */
-public class RankInfoCommand implements CommandExecutor {
+public class RankListCommand implements CommandExecutor {
     private final RankManager rankManager;
-    private final PlayerRankManager playerRankManager;
 
-    public RankInfoCommand(RankManager rankManager, PlayerRankManager playerRankManager) {
+    public RankListCommand(RankManager rankManager) {
         this.rankManager = rankManager;
-        this.playerRankManager = playerRankManager;
     }
 
     @Override
