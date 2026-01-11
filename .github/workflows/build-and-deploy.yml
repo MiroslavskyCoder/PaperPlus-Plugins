@@ -94,6 +94,13 @@ jobs:
           echo "=== Top Plugins ===" 
           cd .. && du -h plugins/*.jar | sort -h | tail -10 | awk '{print $2 " (" $1 ")"}'
 
+      - name: 🏷️ Create and push build tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag -a ${{ github.sha }} -m "Build tag for commit ${{ github.sha }}"
+          git push origin ${{ github.sha }}
+
   release:
     needs: build
     runs-on: ubuntu-latest
