@@ -79,11 +79,11 @@ public class AutoShutdownPlugin extends JavaPlugin {
         }
     }
     
-    public boolean isEnabled() {
+    public boolean isAutoShutdownEnabled() {
         return enabled;
     }
     
-    public void setEnabled(boolean enabled) {
+    public void setAutoShutdownEnabled(boolean enabled) {
         this.enabled = enabled;
         if (!enabled) {
             emptyServerSince = -1;
