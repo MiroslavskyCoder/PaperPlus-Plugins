@@ -79,6 +79,7 @@ interface DashboardContextType {
   fetchMap: () => Promise<void>;
   fetchChartData: () => Promise<void>;
   fetchServerStatus: () => Promise<void>;
+  fetchPlugins: () => Promise<void>;
   runCommand: (cmd: string) => Promise<void>;
 }
 
@@ -230,16 +231,8 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, []);
 
-  // Initialize plugins data
   useEffect(() => {
-    setPlugins([
-      { name: 'WorldEdit', version: '7.2.15', description: 'In-game map editor and world manipulation tool', status: 'enabled', author: 'EngineHub' },
-      { name: 'WorldGuard', version: '7.0.8', description: 'World protection and region management', status: 'enabled', author: 'EngineHub' },
-      { name: 'Essentials', version: '2.20.1', description: 'Essential commands and features for servers', status: 'enabled', author: 'Essentials Team' },
-      { name: 'LuckPerms', version: '5.4.102', description: 'Advanced permissions management system', status: 'enabled', author: 'Luck' },
-      { name: 'Vault', version: '1.7.3', description: 'Economy and permissions API', status: 'enabled', author: 'Sleaker' },
-      { name: 'PlaceholderAPI', version: '2.11.5', description: 'Placeholder system for other plugins', status: 'enabled', author: 'HelpChat' },
-    ]);
+    fetchPlugins();
   }, []);
 
   const fetchPlayers = async () => {
@@ -264,6 +257,20 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setServerStatus(data);
       }
     } catch (e) { console.error('Error fetching server status:', e); }
+  };
+
+  const fetchPlugins = async () => {
+    try {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const res = await fetch(`${protocol}//${host}/api/plugins`);
+      if (res.ok) {
+        const data = await res.json();
+        setPlugins(data);
+      }
+    } catch (e) {
+      console.error('Error fetching plugins:', e);
+    }
   };
 
   const fetchMap = async () => {
@@ -320,6 +327,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       fetchMap,
       fetchChartData,
       fetchServerStatus,
+      fetchPlugins,
       runCommand
     }}>
       {children}

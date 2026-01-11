@@ -46,6 +46,15 @@ public class SettingsService {
             this.config = new SettingsConfig();
             saveSettings();
         }
+        
+        // Load CurseForge API key from config.yml
+        String curseforgeApiKey = plugin.getConfig().getString("CurseForge.ApiKey", null);
+        if (curseforgeApiKey != null && !curseforgeApiKey.isEmpty()) {
+            this.config.curseforgeApiKey = curseforgeApiKey;
+            plugin.getLogger().info("CurseForge API key loaded from config.yml");
+        } else {
+            plugin.getLogger().warning("CurseForge API key not configured in config.yml");
+        }
     }
     
     public void saveSettings() {
