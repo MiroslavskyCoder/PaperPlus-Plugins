@@ -1,0 +1,5 @@
+# AntiSpam settings
+max-messages-per-second: 3
+warn-threshold: 5
+min-word-length: 3
+spam-pattern: "[a-zA-Z]{5,}"
