@@ -1,0 +1,4 @@
+# AFK settings
+afk-timeout-minutes: 5
+afk-prefix: "&7[AFK] &r"
+afk-suffix: " &7(AFK)"

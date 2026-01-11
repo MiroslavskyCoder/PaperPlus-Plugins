@@ -1,6 +1,7 @@
 name: AFK
 version: 1.0.0
-main: com.webx.afk.AfkPlugin
+main: com.webx.afk.AFKPlugin
+api-version: 1.21
 description: AFK detection and management system
 authors:
   - LXXV

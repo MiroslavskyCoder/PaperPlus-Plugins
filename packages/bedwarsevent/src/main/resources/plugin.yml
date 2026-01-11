@@ -1,6 +1,7 @@
 name: BedwarsEvent
 version: 1.0.0
-main: com.webx.bedwarsevent.BedwarsEventPlugin
+main: com.webx.bedwarsevent.BedWarsEventPlugin
+api-version: 1.21
 description: Bedwars event system
 authors:
   - LXXV

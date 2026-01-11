@@ -1,6 +1,7 @@
 name: Speedrun
 version: 1.0.0
-main: com.webx.speedrun.SpeedrunPlugin
+main: com.webx.speedrun.SpeedRunPlugin
+api-version: 1.21
 description: Speedrun challenges system
 authors:
   - LXXV
