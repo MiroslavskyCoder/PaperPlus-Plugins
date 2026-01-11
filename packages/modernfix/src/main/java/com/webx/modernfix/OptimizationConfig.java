@@ -21,6 +21,10 @@ public class OptimizationConfig {
         return config.getInt("optimizations.entity.max-item-lifetime", 6000); // 5 minutes
     }
 
+    public int getEntityMaxAge() {
+        return config.getInt("optimizations.entity.max-age", 6000); // 5 minutes
+    }
+
     public boolean isReduceEntityAI() {
         return config.getBoolean("optimizations.entity.reduce-ai", true);
     }

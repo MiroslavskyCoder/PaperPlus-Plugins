@@ -1,6 +1,7 @@
 package com.webx.modernfix.util;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Smart thread factory with priority management
