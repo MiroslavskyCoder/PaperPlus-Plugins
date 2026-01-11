@@ -57,7 +57,7 @@ public class SoundPhysicsEngine {
 
             // Simple reverb tail
             if (reverbProfile.isEnabled()) {
-                int delay = reverbProfile.computeDelayTicks(source, listener);
+                int delay = reverbProfile.computeDelayTicks(source, listener.getLocation());
                 float wet = reverbProfile.computeWetVolume(volume);
                 if (wet > config.getMinAudibleVolume()) {
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {

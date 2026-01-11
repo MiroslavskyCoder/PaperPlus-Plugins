@@ -93,10 +93,6 @@ public class PhysicsConfig {
         return minAudibleVolume;
     }
 
-    public double getMinAudibleVolume() {
-        return minAudibleVolume;
-    }
-
     public boolean isReverbEnabled() {
         return reverbEnabled;
     }
