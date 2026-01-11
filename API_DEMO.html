@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebX Dashboard - API Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .tab:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .panel {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .panel.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        .item-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+        }
+        .item-card h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ WebX Dashboard</h1>
+            <p>Управление плагинами Minecraft сервера</p>
+            <p><small>API: <code id="apiUrl">http://localhost:9092/api</code></small></p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('economy')">💰 Economy</button>
+            <button class="tab" onclick="showTab('shop')">🛒 Shop</button>
+            <button class="tab" onclick="showTab('afk')">💤 AFK</button>
+        </div>
+        
+        <!-- Economy Panel -->
+        <div id="economy" class="panel active">
+            <h2>Economy - Монеты игроков</h2>
+            <div id="economyMessage" class="message"></div>
+            
+            <div class="form-group">
+                <label>UUID игрока</label>
+                <input type="text" id="playerUuid" placeholder="Введите UUID игрока">
+            </div>
+            <button class="btn" onclick="searchPlayer()">🔍 Поиск</button>
+            
+            <div id="playerResult" style="margin-top: 20px;"></div>
+            
+            <hr style="margin: 30px 0;">
+            
+            <h3>Топ игроков</h3>
+            <button class="btn" onclick="getTopPlayers()">📊 Показать топ-10</button>
+            <div id="topPlayersResult" style="margin-top: 20px;"></div>
+        </div>
+        
+        <!-- Shop Panel -->
+        <div id="shop" class="panel">
+            <h2>Shop - Управление магазином</h2>
+            <div id="shopMessage" class="message"></div>
+            
+            <h3>Товары в магазине</h3>
+            <button class="btn" onclick="loadShopItems()">🔄 Обновить</button>
+            <div id="shopItems" class="grid" style="margin-top: 20px;"></div>
+            
+            <hr style="margin: 30px 0;">
+            
+            <h3>Добавить товар</h3>
+            <form onsubmit="addShopItem(event)">
+                <div class="form-group">
+                    <label>Название</label>
+                    <input type="text" id="itemName" placeholder="Diamond Sword" required>
+                </div>
+                <div class="form-group">
+                    <label>Material (Minecraft ID)</label>
+                    <input type="text" id="itemMaterial" placeholder="DIAMOND_SWORD" required>
+                </div>
+                <div class="form-group">
+                    <label>Цена (монеты)</label>
+                    <input type="number" id="itemPrice" step="0.01" placeholder="100" required>
+                </div>
+                <div class="form-group">
+                    <label>Иконка (URL, опционально)</label>
+                    <input type="url" id="itemIcon" placeholder="https://example.com/icon.png">
+                </div>
+                <button type="submit" class="btn">➕ Добавить товар</button>
+            </form>
+        </div>
+        
+        <!-- AFK Panel -->
+        <div id="afk" class="panel">
+            <h2>AFK - Настройка AFK системы</h2>
+            <div id="afkMessage" class="message"></div>
+            
+            <form onsubmit="updateAfkConfig(event)">
+                <div class="form-group">
+                    <label>Таймаут AFK (минуты)</label>
+                    <input type="number" id="afkTimeout" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Кик при AFK</label>
+                    <select id="afkKick">
+                        <option value="false">Нет</option>
+                        <option value="true">Да</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Таймаут кика (минуты)</label>
+                    <input type="number" id="afkKickTimeout" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Префикс AFK</label>
+                    <input type="text" id="afkPrefix" placeholder="[AFK] ">
+                </div>
+                <div class="form-group">
+                    <label>Оповещать о AFK</label>
+                    <select id="afkBroadcast">
+                        <option value="true">Да</option>
+                        <option value="false">Нет</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">💾 Сохранить настройки</button>
+            </form>
+            
+            <hr style="margin: 30px 0;">
+            
+            <button class="btn" onclick="loadAfkConfig()">🔄 Загрузить текущие настройки</button>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:9092/api';
+        document.getElementById('apiUrl').textContent = API_URL;
+        
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tab).classList.add('active');
+            
+            if (tab === 'shop') loadShopItems();
+            if (tab === 'afk') loadAfkConfig();
+        }
+        
+        function showMessage(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'message ' + (isSuccess ? 'success' : 'error');
+            element.style.display = 'block';
+            setTimeout(() => element.style.display = 'none', 5000);
+        }
+        
+        // ECONOMY FUNCTIONS
+        async function searchPlayer() {
+            const uuid = document.getElementById('playerUuid').value.trim();
+            const result = document.getElementById('playerResult');
+            
+            if (!uuid) {
+                showMessage('economyMessage', 'Введите UUID игрока', false);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/player/${uuid}/coins`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = `
+                        <div class="item-card">
+                            <h3>Информация о игроке</h3>
+                            <p><strong>UUID:</strong> ${data.data.uuid}</p>
+                            <p><strong>💰 Монеты:</strong> ${data.data.coins}</p>
+                            <p><strong>🏦 Банк:</strong> ${data.data.bankBalance || 0}</p>
+                            <p><strong>📊 Всего:</strong> ${data.data.total}</p>
+                        </div>
+                    `;
+                } else {
+                    result.innerHTML = `<div class="message error" style="display:block;">${data.message}</div>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="message error" style="display:block;">Ошибка: ${error.message}</div>`;
+            }
+        }
+        
+        async function getTopPlayers() {
+            const result = document.getElementById('topPlayersResult');
+            
+            try {
+                const response = await fetch(`${API_URL}/players/top?limit=10`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    result.innerHTML = '<div class="grid">' + data.data.map((player, index) => `
+                        <div class="item-card">
+                            <h3>#${index + 1}</h3>
+                            <p><strong>UUID:</strong> <small>${player.uuid}</small></p>
+                            <p><strong>💰 Монеты:</strong> ${player.coins}</p>
+                            <p><strong>🏦 Банк:</strong> ${player.bankBalance || 0}</p>
+                            <p><strong>📊 Всего:</strong> ${player.total}</p>
+                        </div>
+                    `).join('') + '</div>';
+                } else {
+                    showMessage('economyMessage', data.message, false);
+                }
+            } catch (error) {
+                showMessage('economyMessage', 'Ошибка: ' + error.message, false);
+            }
+        }
+        
+        // SHOP FUNCTIONS
+        async function loadShopItems() {
+            const container = document.getElementById('shopItems');
+            
+            try {
+                const response = await fetch(`${API_URL}/shop`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    container.innerHTML = data.data.map(item => `
+                        <div class="item-card">
+                            <h3>${item.name}</h3>
+                            <p><strong>Material:</strong> ${item.material}</p>
+                            <p><strong>💰 Цена:</strong> ${item.price} монет</p>
+                            ${item.icon ? `<p><strong>Иконка:</strong> <a href="${item.icon}" target="_blank">Просмотр</a></p>` : ''}
+                            <button class="btn btn-danger" onclick="deleteShopItem('${item.id}')">🗑️ Удалить</button>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<p>Нет товаров</p>';
+                }
+            } catch (error) {
+                showMessage('shopMessage', 'Ошибка загрузки: ' + error.message, false);
+            }
+        }
+        
+        async function addShopItem(event) {
+            event.preventDefault();
+            
+            const item = {
+                id: Date.now().toString(),
+                name: document.getElementById('itemName').value,
+                material: document.getElementById('itemMaterial').value,
+                price: parseFloat(document.getElementById('itemPrice').value),
+                icon: document.getElementById('itemIcon').value || null
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/shop`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(item)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('shopMessage', '✅ Товар добавлен!', true);
+                    event.target.reset();
+                    loadShopItems();
+                } else {
+                    showMessage('shopMessage', 'Ошибка: ' + data.message, false);
+                }
+            } catch (error) {
+                showMessage('shopMessage', 'Ошибка: ' + error.message, false);
+            }
+        }
+        
+        async function deleteShopItem(id) {
+            if (!confirm('Удалить этот товар?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/shop/${id}`, { method: 'DELETE' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('shopMessage', '✅ Товар удален!', true);
+                    loadShopItems();
+                } else {
+                    showMessage('shopMessage', 'Ошибка: ' + data.message, false);
+                }
+            } catch (error) {
+                showMessage('shopMessage', 'Ошибка: ' + error.message, false);
+            }
+        }
+        
+        // AFK FUNCTIONS
+        async function loadAfkConfig() {
+            try {
+                const response = await fetch(`${API_URL}/afk`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    document.getElementById('afkTimeout').value = data.data.timeout || 10;
+                    document.getElementById('afkKick').value = data.data.kickEnabled ? 'true' : 'false';
+                    document.getElementById('afkKickTimeout').value = data.data.kickTimeout || 30;
+                    document.getElementById('afkPrefix').value = data.data.prefix || '[AFK] ';
+                    document.getElementById('afkBroadcast').value = data.data.broadcastEnabled ? 'true' : 'false';
+                    
+                    showMessage('afkMessage', '✅ Настройки загружены', true);
+                } else {
+                    showMessage('afkMessage', 'Ошибка: ' + data.message, false);
+                }
+            } catch (error) {
+                showMessage('afkMessage', 'Ошибка загрузки: ' + error.message, false);
+            }
+        }
+        
+        async function updateAfkConfig(event) {
+            event.preventDefault();
+            
+            const config = {
+                timeout: parseInt(document.getElementById('afkTimeout').value),
+                kickEnabled: document.getElementById('afkKick').value === 'true',
+                kickTimeout: parseInt(document.getElementById('afkKickTimeout').value),
+                prefix: document.getElementById('afkPrefix').value,
+                suffix: '',
+                broadcastEnabled: document.getElementById('afkBroadcast').value === 'true',
+                autoResumeEnabled: true
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/afk`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('afkMessage', '✅ Настройки сохранены!', true);
+                } else {
+                    showMessage('afkMessage', 'Ошибка: ' + data.message, false);
+                }
+            } catch (error) {
+                showMessage('afkMessage', 'Ошибка: ' + error.message, false);
+            }
+        }
+        
+        // Auto-load on page load
+        window.onload = function() {
+            loadAfkConfig();
+        };
+    </script>
+</body>
+</html>
