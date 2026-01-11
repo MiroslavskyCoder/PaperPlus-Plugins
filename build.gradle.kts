@@ -70,7 +70,18 @@ tasks.register("buildAllPlugins") {
         ":fishing:build",
         ":cooking:build",
         ":combat:build",
-        ":guilds-advanced:build"
+        ":guilds-advanced:build",
+        ":playerinfo:build",
+        ":worldcolors:build",
+        ":autoshutdown:build",
+        ":simpleheal:build",
+        ":deathmessage:build",
+        ":mobcatch:build",
+        ":friendfeed:build",
+        ":ranks:build",
+        ":modernfix:build",
+        ":hdphysicssound:build",
+        ":create2:build"
     )
     finalizedBy("copyPlugins")
 }
@@ -148,6 +159,17 @@ tasks.register<Copy>("copyPlugins") {
     from("packages/cooking/build/libs")
     from("packages/combat/build/libs")
     from("packages/guilds-advanced/build/libs")
+    from("packages/playerinfo/build/libs")
+    from("packages/worldcolors/build/libs")
+    from("packages/autoshutdown/build/libs")
+    from("packages/simpleheal/build/libs")
+    from("packages/deathmessage/build/libs")
+    from("packages/mobcatch/build/libs")
+    from("packages/friendfeed/build/libs")
+    from("packages/ranks/build/libs")
+    from("packages/modernfix/build/libs")
+    from("packages/hdphysicssound/build/libs")
+    from("packages/create2/build/libs")
     into("out/plugins")
     
     include("*.jar")
@@ -253,7 +275,18 @@ tasks.clean {
         ":fishing:clean",
         ":cooking:clean",
         ":combat:clean",
-        ":guilds-advanced:clean"
+        ":guilds-advanced:clean",
+        ":playerinfo:clean",
+        ":worldcolors:clean",
+        ":autoshutdown:clean",
+        ":simpleheal:clean",
+        ":deathmessage:clean",
+        ":mobcatch:clean",
+        ":friendfeed:clean",
+        ":ranks:clean",
+        ":modernfix:clean",
+        ":hdphysicssound:clean",
+        ":create2:clean"
     )
 }
 
