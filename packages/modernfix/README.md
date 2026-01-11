@@ -149,31 +149,144 @@ tick-optimization:
 
 ## 📚 Технические детали
 
-### Архитектура кэширования
+### Архитектура системы
 
-Вдохновлена `PackResourcesCacheEngine` и `CachingStructureManager`:
+ModernFix построен на модульной архитектуре с разделением ответственности:
+
+```
+modernfix/
+├── cache/
+│   └── ChunkCacheManager      # Кэширование чанков с WeakReference
+├── optimization/
+│   ├── EntityOptimizer        # Оптимизация сущностей
+│   └── MemoryOptimizer        # Управление памятью
+├── profiler/
+│   └── PerformanceProfiler    # Профилирование производительности
+└── util/
+    ├── SmartThreadFactory     # Умное управление потоками
+    └── TimeUtil               # Утилиты времени и измерений
+```
+
+### 1. ChunkCacheManager - Кэш чанков
+
+Вдохновлён `PackResourcesCacheEngine` и `CachingStructureManager`:
 
 ```java
-Map<String, WeakReference<Chunk>> chunkCache
-// Key format: "worldname:x:z"
-// WeakReference позволяет GC автоматически очищать неиспользуемые чанки
+public class ChunkCacheManager {
+    private final Map<String, WeakReference<Chunk>> cache;
+    
+    // Статистика кэша
+    - Hit rate tracking
+    - Automatic eviction counting
+    - Cache cleanup on demand
+    
+    // Методы
+    put(world, x, z, chunk)    // Кэширование
+    get(world, x, z)           // Получение
+    cleanup()                  // Очистка мёртвых ссылок
+    getStats()                 // Статистика (hits/misses/evictions)
+}
+```
+
+**Ключевые особенности:**
+- WeakReference позволяет GC автоматически очищать неиспользуемые чанки
+- Hit rate tracking для мониторинга эффективности
+- Thread-safe через ConcurrentHashMap
+
+### 2. EntityOptimizer - Оптимизация сущностей
+
+Вдохновлён `faster_item_rendering` и `ticking_chunk_alloc/BatMixin`:
+
+```java
+public class EntityOptimizer {
+    // Удаление старых сущностей
+    - Items (> maxAge)
+    - Arrows (> maxAge / 2)
+    - Experience orbs (> maxAge)
+    
+    // Статистика по типам
+    Map<EntityType, EntityStats> entityStats;
+    
+    // Результаты оптимизации
+    OptimizationResult {
+        int scanned;
+        int removed;
+        long durationMs;
+    }
+}
+```
+
+### 3. MemoryOptimizer - Управление памятью
+
+Вдохновлён `DFUBlaster` и техниками управления памятью:
+
+```java
+public class MemoryOptimizer {
+    // Мониторинг через MemoryMXBean
+    - Heap usage tracking
+    - Non-heap usage tracking
+    - GC execution counting
+    
+    // Умная оптимизация
+    needsOptimization()  // Проверка по порогу
+    optimize()           // GC + измерения
+    getMemoryInfo()      // Текущее состояние
+}
+```
+
+**Измерения:**
+```java
+MemoryUsage before = memoryBean.getHeapMemoryUsage();
+System.gc();  // GC hint
+Thread.sleep(100);  // Wait for GC
+MemoryUsage after = memoryBean.getHeapMemoryUsage();
+long freed = before.getUsed() - after.getUsed();
+```
+
+### 4. PerformanceProfiler - Профилирование
+
+Вдохновлён `SparkLaunchProfiler`:
+
+```java
+public class PerformanceProfiler {
+    // Профилирование операций
+    long start(operationName)
+    void stop(operationName, startTime, itemsProcessed)
+    
+    // ProfilerEntry статистика
+    - Average, Min, Max duration
+    - Total executions
+    - Items/second rate
+    - Time span tracking
+}
+```
+
+### 5. SmartThreadFactory - Управление потоками
+
+Вдохновлён `UtilMixin (thread_priorities)`:
+
+```java
+public class SmartThreadFactory {
+    // Настройки потоков
+    - Custom name prefix
+    - Priority management
+    - Daemon threads
+    - ThreadGroup isolation
+    - Uncaught exception handling
+    
+    // Auto-sizing
+    int poolSize = max(2, CPU_cores / 4);
+}
 ```
 
 ### Асинхронная обработка
 
 ```java
-ExecutorService asyncExecutor = Executors.newFixedThreadPool(
-    Math.max(2, Runtime.getRuntime().availableProcessors() / 4)
-);
-// Оптимизации чанков и памяти выполняются асинхронно
-```
-
-### Мониторинг памяти
-
-```java
-MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
-long heapUsage = memoryBean.getHeapMemoryUsage().getUsed();
-// Точное измерение использования heap до и после GC
+ExecutorService asyncExecutor = SmartThreadFactory.createAutoSizedExecutor("ModernFix");
+// - ThreadPoolExecutor с оптимальным размером
+// - LinkedBlockingQueue для задач
+// - CallerRunsPolicy для обработки перегрузок
+// - Daemon threads для автоматического завершения
 ```
 
 ## 🔍 Сравнение с оригинальным ModernFix
