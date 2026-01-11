@@ -1,13 +1,9 @@
-rootProject.name = "webx-dashboard"
-
-// Enable Gradle toolchain auto-download (e.g., JDK 17) if not installed locally
-toolchainManagement {
-	jvm {
-		javaRepositories {
-			jdkDownload()
-		}
-	}
+plugins {
+	// Auto-download JDK toolchains via Foojay resolver
+	id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
+
+rootProject.name = "webx-dashboard"
 
 include("webx-dashboard-panel")
 project(":webx-dashboard-panel").projectDir = file("packages/webx-dashboard-panel")
