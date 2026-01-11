@@ -1,0 +1,88 @@
+[
+  {
+    "id": "diamond_sword",
+    "name": "Diamond Sword",
+    "material": "DIAMOND_SWORD",
+    "amount": 1,
+    "price": 50.0,
+    "lore": [
+      "A sharp diamond sword",
+      "Perfect for combat!"
+    ]
+  },
+  {
+    "id": "iron_armor_set",
+    "name": "Iron Armor Set",
+    "material": "IRON_CHESTPLATE",
+    "amount": 1,
+    "price": 100.0,
+    "lore": [
+      "Complete iron armor protection",
+      "Includes helmet, chestplate, leggings, boots"
+    ]
+  },
+  {
+    "id": "golden_apple",
+    "name": "Golden Apple",
+    "material": "GOLDEN_APPLE",
+    "amount": 5,
+    "price": 25.0,
+    "lore": [
+      "Restores health and gives buffs"
+    ]
+  },
+  {
+    "id": "ender_pearls",
+    "name": "Ender Pearls",
+    "material": "ENDER_PEARL",
+    "amount": 16,
+    "price": 30.0,
+    "lore": [
+      "Teleport anywhere you throw them"
+    ]
+  },
+  {
+    "id": "enchanted_book",
+    "name": "Random Enchanted Book",
+    "material": "ENCHANTED_BOOK",
+    "amount": 1,
+    "price": 75.0,
+    "lore": [
+      "A book with random enchantments"
+    ]
+  },
+  {
+    "id": "elytra",
+    "name": "Elytra Wings",
+    "material": "ELYTRA",
+    "amount": 1,
+    "price": 500.0,
+    "lore": [
+      "Fly through the skies!",
+      "Requires firework rockets"
+    ],
+    "permission": "shop.vip"
+  },
+  {
+    "id": "netherite_ingot",
+    "name": "Netherite Ingot",
+    "material": "NETHERITE_INGOT",
+    "amount": 1,
+    "price": 200.0,
+    "lore": [
+      "Upgrade your diamond gear",
+      "The strongest material"
+    ]
+  },
+  {
+    "id": "totem",
+    "name": "Totem of Undying",
+    "material": "TOTEM_OF_UNDYING",
+    "amount": 1,
+    "price": 300.0,
+    "lore": [
+      "Save yourself from death",
+      "One time use"
+    ]
+  }
+]

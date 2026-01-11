@@ -24,6 +24,10 @@ commands:
     description: Admin economy commands
     usage: /<command> <give|take|set|reset> <player> <amount>
     permission: economy.admin
+  topcoins:
+    description: Show top players by coins
+    usage: /<command> [limit]
+    aliases: [coinleaders, richtop]
 
 permissions:
   economy.use:

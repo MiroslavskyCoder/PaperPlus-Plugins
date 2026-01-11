@@ -10,6 +10,10 @@ commands:
     description: Clan commands
     usage: /<command> <create|disband|invite|kick|rank|info|list|territory>
     aliases: [c, cl]
+  topclans:
+    description: View top clans by power
+    usage: /<command> [limit]
+    aliases: [clantop, topclan]
 
 permissions:
   clans.use:

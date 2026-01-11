@@ -90,6 +90,7 @@ public class EconomyPlugin extends JavaPlugin {
         getCommand("baltop").setExecutor(new BalTopCommand(this));
         getCommand("bank").setExecutor(new BankCommand(this));
         getCommand("eco").setExecutor(new EcoCommand(this));
+        getCommand("topcoins").setExecutor(new TopCoinsCommand(this, accountManager));
     }
 
     private void registerListeners() {

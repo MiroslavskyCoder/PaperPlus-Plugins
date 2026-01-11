@@ -8,6 +8,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class BackupsPlugin extends JavaPlugin {
     private static BackupsPlugin instance;
@@ -29,7 +30,7 @@ public class BackupsPlugin extends JavaPlugin {
             getLogger().severe("Failed to create backup directory!");
         }
         
-        getCommand("backup").setExecutor((sender, cmd, label, args) -> {
+        Objects.requireNonNull(getCommand("backup"), "backup command not defined in plugin.yml").setExecutor((sender, cmd, label, args) -> {
             if (!sender.hasPermission("backup.create")) {
                 sender.sendMessage("§cNo permission!");
                 return true;

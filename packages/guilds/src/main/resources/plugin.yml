@@ -4,3 +4,8 @@ main: com.webx.guilds.GuildsPlugin
 description: Guild system for player organizations
 authors:
   - LXXV
+commands:
+  guild:
+    description: Guild commands
+    usage: /guild <create|invite|accept|leave|list>
+api-version: 1.21

@@ -4,3 +4,8 @@ main: com.webx.backups.BackupsPlugin
 description: Server backup management
 authors:
   - LXXV
+commands:
+  backup:
+    description: Manage backups
+    usage: /backup <create|list|restore>
+api-version: 1.21

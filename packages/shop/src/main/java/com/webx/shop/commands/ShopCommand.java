@@ -1,13 +1,14 @@
 package com.webx.shop.commands;
 
 import com.webx.shop.ShopPlugin;
-import com.webx.shop.models.Shop;
+import com.webx.shop.gui.ShopGUI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.Map;
+import org.jetbrains.annotations.NotNull;
 
 public class ShopCommand implements CommandExecutor {
     private final ShopPlugin plugin;
@@ -17,32 +18,21 @@ public class ShopCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can use this command!");
+            sender.sendMessage(Component.text("Only players can use this command!", NamedTextColor.RED));
             return true;
         }
 
-        if (args.length == 0) {
-            player.openInventory(plugin.getInventoryManager().createShopListInventory());
+        if (plugin.getShopManager().getShopItems().isEmpty()) {
+            player.sendMessage(Component.text("Shop is currently empty!", NamedTextColor.RED));
             return true;
         }
 
-        String shopName = args[0];
-        Shop shop = plugin.getShopManager().getShop(shopName);
-
-        if (shop == null) {
-            plugin.getMessageManager().send(player, "shop-not-found",
-                    Map.of("name", shopName));
-            return true;
-        }
-
-        if (!shop.isEnabled()) {
-            player.sendMessage("§cThis shop is disabled!");
-            return true;
-        }
-
-        player.openInventory(plugin.getInventoryManager().createShopInventory(shop));
+        ShopGUI shopGUI = new ShopGUI(plugin, plugin.getShopManager().getShopItems());
+        shopGUI.open(player);
+        
+        player.sendMessage(Component.text("Opening shop...", NamedTextColor.GREEN));
         return true;
     }
 }

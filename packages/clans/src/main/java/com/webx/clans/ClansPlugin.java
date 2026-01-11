@@ -15,8 +15,10 @@ public class ClansPlugin extends JavaPlugin {
     private TerritoryManager territoryManager;
     private RankManager rankManager;
     private InviteManager inviteManager;
+    private ClanPowerManager clanPowerManager;
     private ConfigManager configManager;
     private MessageManager messageManager;
+    private ClanDisplayListener clanDisplayListener;
 
     @Override
     public void onEnable() {
@@ -32,11 +34,16 @@ public class ClansPlugin extends JavaPlugin {
         territoryManager = new TerritoryManager(this);
         rankManager = new RankManager(this);
         inviteManager = new InviteManager(this);
+        clanPowerManager = new ClanPowerManager(this, clanManager);
+        clanDisplayListener = new ClanDisplayListener(this, clanManager);
         
         registerCommands();
         registerListeners();
         
         clanManager.loadClans();
+        
+        // Start clan power updates
+        clanPowerManager.startUpdateTask();
         
         getLogger().info("Clans plugin enabled!");
     }
@@ -52,6 +59,7 @@ public class ClansPlugin extends JavaPlugin {
 
     private void registerCommands() {
         getCommand("clan").setExecutor(new ClanCommand(this));
+        getCommand("topclans").setExecutor(new TopClansCommand(this, clanManager));
     }
 
     private void registerListeners() {
@@ -59,6 +67,7 @@ public class ClansPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerMoveListener(this), this);
         getServer().getPluginManager().registerEvents(new BlockBreakListener(this), this);
         getServer().getPluginManager().registerEvents(new EntityDamageListener(this), this);
+        getServer().getPluginManager().registerEvents(clanDisplayListener, this);
     }
 
     public static ClansPlugin getInstance() {
@@ -83,6 +92,10 @@ public class ClansPlugin extends JavaPlugin {
 
     public InviteManager getInviteManager() {
         return inviteManager;
+    }
+
+    public ClanPowerManager getClanPowerManager() {
+        return clanPowerManager;
     }
 
     public ConfigManager getConfigManager() {

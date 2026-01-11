@@ -34,6 +34,8 @@ public class RouterProvider {
     private ShopEndpoint shopEndpoint;
     private AfkEndpoint afkEndpoint;
     private PluginConfigEndpoint pluginConfigEndpoint;
+    private ClanService clanService;
+    private LeaderboardService leaderboardService;
 
     public RouterProvider(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -47,6 +49,8 @@ public class RouterProvider {
         this.shopEndpoint = new ShopEndpoint(plugin, gson);
         this.afkEndpoint = new AfkEndpoint(plugin, gson);
         this.pluginConfigEndpoint = new PluginConfigEndpoint(plugin, gson);
+        this.clanService = new ClanService();
+        this.leaderboardService = new LeaderboardService();
         
         this.startWebServer();
         this.registerRoutes();
@@ -83,6 +87,12 @@ public class RouterProvider {
         
         // ===== NEW PLUGINS CONFIG ENDPOINTS =====
         registerPluginConfigRoutes();
+        
+        // ===== CLAN ENDPOINTS =====
+        registerClanRoutes();
+        
+        // ===== LEADERBOARD ENDPOINTS =====
+        registerLeaderboardRoutes();
     }
     
     private void registerMetricsWebSocket() {
@@ -603,6 +613,20 @@ public class RouterProvider {
         app.put(API.getFullPath("config/friendfeed"), pluginConfigEndpoint::updateFriendFeedConfig);
         
         plugin.getLogger().info("✅ Plugin config API routes registered");
+    }
+    
+    private void registerClanRoutes() {
+        app.get(API.getFullPath("clans"), clanService::getAllClans);
+        app.get(API.getFullPath("clans/{name}"), clanService::getClan);
+        app.get(API.getFullPath("clans/player/{uuid}"), clanService::getClanByPlayer);
+        app.get(API.getFullPath("leaderboards/clans"), clanService::getTopClans);
+        plugin.getLogger().info("✅ Clan API routes registered");
+    }
+    
+    private void registerLeaderboardRoutes() {
+        app.get(API.getFullPath("leaderboards/players"), leaderboardService::getTopPlayers);
+        app.get(API.getFullPath("leaderboards/stats"), leaderboardService::getCombinedStats);
+        plugin.getLogger().info("✅ Leaderboard API routes registered");
     }
 
     public void stopWebServer() {
