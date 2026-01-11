@@ -16,12 +16,18 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    
+    // Economy plugin dependency for API integration
+    compileOnly(project(":economy"))
 
     // Javalin for embedded Web Server
     implementation("io.javalin:javalin:6.7.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4.2")
     implementation("org.slf4j:slf4j-simple:1.7.36")
+    
+    // Gson for JSON processing
+    implementation("com.google.code.gson:gson:2.10.1")
 
     // PostgreSQL and connection pooling
     implementation("org.postgresql:postgresql:42.6.0")
@@ -34,7 +40,6 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     implementation("redis.clients:jedis:5.1.2") 
-    implementation("org.postgresql:postgresql:42.6.0") 
     implementation("com.zaxxer:HikariCP:5.1.0")
 } 
 tasks.jar {

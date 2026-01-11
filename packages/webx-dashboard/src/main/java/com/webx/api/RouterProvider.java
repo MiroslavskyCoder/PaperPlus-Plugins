@@ -6,6 +6,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.webx.api.endpoints.AfkEndpoint;
+import com.webx.api.endpoints.EconomyEndpoint;
+import com.webx.api.endpoints.ShopEndpoint;
 import com.webx.api.models.SettingsConfig;
 import com.webx.api.services.*;
 import com.webx.helper.SystemHelper;
@@ -17,20 +22,28 @@ public class RouterProvider {
 
     private Javalin app; 
     private ObjectMapper objectMapper = new ObjectMapper();
+    private Gson gson;
     private JavaPlugin plugin;
     private SettingsService settingsService;
     private MetricsService metricsService;
     private PlayerService playerService;
     private PluginService pluginService;
     private CurseForgeService curseForgeService;
+    private EconomyEndpoint economyEndpoint;
+    private ShopEndpoint shopEndpoint;
+    private AfkEndpoint afkEndpoint;
 
     public RouterProvider(JavaPlugin plugin) {
         this.plugin = plugin;
+        this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.settingsService = new SettingsService(plugin);
         this.metricsService = new MetricsService(plugin);
         this.playerService = new PlayerService(plugin);
         this.pluginService = new PluginService(plugin);
         this.curseForgeService = new CurseForgeService(plugin, settingsService);
+        this.economyEndpoint = new EconomyEndpoint(plugin);
+        this.shopEndpoint = new ShopEndpoint(plugin, gson);
+        this.afkEndpoint = new AfkEndpoint(plugin, gson);
         
         this.startWebServer();
         this.registerRoutes();
@@ -537,23 +550,24 @@ public class RouterProvider {
     }
     
     private void registerEconomyRoutes() {
-        app.get(API.getFullPath("economy/player/{uuid}"), EconomyService::getPlayerCoins);
-        app.get(API.getFullPath("economy/top"), EconomyService::getTopPlayers);
-        app.post(API.getFullPath("economy/player/{uuid}/deposit"), EconomyService::depositCoins);
+        app.get(API.getFullPath("player/{uuid}/coins"), economyEndpoint::getPlayerCoins);
+        app.get(API.getFullPath("players/top"), economyEndpoint::getTopPlayers);
         plugin.getLogger().info("✅ Economy API routes registered");
     }
     
     private void registerShopRoutes() {
-        app.get(API.getFullPath("shop/config"), ShopService::getShopConfig);
-        app.put(API.getFullPath("shop/config"), ShopService::updateShopConfig);
-        app.post(API.getFullPath("shop/item"), ShopService::addShopItem);
-        app.delete(API.getFullPath("shop/item/{id}"), ShopService::deleteShopItem);
+        app.get(API.getFullPath("shop"), shopEndpoint::getShopItems);
+        app.post(API.getFullPath("shop"), shopEndpoint::addShopItem);
+        app.get(API.getFullPath("shop/{id}"), shopEndpoint::getShopItem);
+        app.put(API.getFullPath("shop/{id}"), shopEndpoint::updateShopItem);
+        app.delete(API.getFullPath("shop/{id}"), shopEndpoint::deleteShopItem);
         plugin.getLogger().info("✅ Shop config API routes registered");
     }
     
     private void registerAfkRoutes() {
-        app.get(API.getFullPath("afk/config"), AfkService::getAfkConfig);
-        app.put(API.getFullPath("afk/config"), AfkService::updateAfkConfig);
+        app.get(API.getFullPath("afk"), afkEndpoint::getAfkConfig);
+        app.put(API.getFullPath("afk"), afkEndpoint::updateAfkConfig);
+        app.get(API.getFullPath("afk/players"), afkEndpoint::getAfkPlayers);
         plugin.getLogger().info("✅ AFK config API routes registered");
     }
 

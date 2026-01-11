@@ -32,6 +32,12 @@ public class MySQLStorage implements StorageProvider {
     }
 
     @Override
+    public Account loadAccount(UUID uuid) {
+        // TODO: Load single account from MySQL
+        return null;
+    }
+
+    @Override
     public void saveAccounts(List<Account> accounts) {
         // TODO: Save to MySQL
     }

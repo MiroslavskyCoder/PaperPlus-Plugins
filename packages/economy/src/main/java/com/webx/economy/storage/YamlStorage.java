@@ -67,6 +67,24 @@ public class YamlStorage implements StorageProvider {
     }
 
     @Override
+    public Account loadAccount(UUID uuid) {
+        if (accountsConfig == null) return null;
+        
+        ConfigurationSection section = accountsConfig.getConfigurationSection(uuid.toString());
+        if (section == null) return null;
+        
+        try {
+            double balance = section.getDouble("balance", 0.0);
+            double bankBalance = section.getDouble("bank-balance", 0.0);
+            long lastInterest = section.getLong("last-interest", System.currentTimeMillis());
+            return new Account(uuid, balance, bankBalance, lastInterest);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to load account: " + uuid);
+            return null;
+        }
+    }
+
+    @Override
     public void saveAccounts(List<Account> accounts) {
         accountsConfig = new YamlConfiguration();
 
