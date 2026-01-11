@@ -28,10 +28,12 @@
 - 🏪 Исправлена модель ShopItem для корректной работы с JSON
 - ⚙️ Исправлены конфликты методов в AutoShutdown плагине
 - 🔗 Все cross-plugin импорты переделаны на рефлексию
+- 🚀 **NEW:** Добавлены GitHub Actions для автоматической сборки и развёртывания
 
 **✅ Компилируется:**
-- 58+ плагинов успешно собираются без ошибок
+- 59 плагинов успешно собираются без ошибок
 - Все JAR файлы готовы в `out/plugins/`
+- GitHub Actions автоматизирует процесс сборки и релизов
 
 ---
 
@@ -765,6 +767,10 @@ netstat -an | grep 8080
 | [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) | Индекс документов |
 | [IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md) | Список завершённых функций |
 | [API_DOCUMENTATION.md](packages/webx-dashboard/API_DOCUMENTATION.md) | API endpoints |
+| [.github/README.md](.github/README.md) | GitHub Actions документация |
+| [.github/SETUP.md](.github/SETUP.md) | Настройка GitHub Actions (5 мин) |
+| [.github/GITHUB_ACTIONS.md](.github/GITHUB_ACTIONS.md) | Полная справка CI/CD |
+| [.github/EXAMPLES.md](.github/EXAMPLES.md) | Примеры использования workflows |
 
 ---
 
