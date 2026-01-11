@@ -1,6 +1,5 @@
 package com.webx.shop.gui;
 
-import com.webx.economy.managers.AccountManager;
 import com.webx.shop.ShopPlugin;
 import com.webx.shop.models.ShopItem;
 import net.kyori.adventure.text.Component;
@@ -15,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Manages shop GUI inventory
@@ -62,38 +62,27 @@ public class ShopGUI {
     }
 
     private ItemStack createItemStack(ShopItem shopItem) {
-        Material material;
-        try {
-            material = Material.valueOf(shopItem.getMaterial().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            material = Material.STONE;
-            plugin.getLogger().warning("Invalid material: " + shopItem.getMaterial());
-        }
-
-        ItemStack item = new ItemStack(material, shopItem.getAmount());
+        // Get ItemStack from ShopItem
+        ItemStack item = shopItem.getItem().clone();
         ItemMeta meta = item.getItemMeta();
 
-        // Set display name
-        meta.displayName(Component.text(shopItem.getName(), NamedTextColor.YELLOW, TextDecoration.BOLD));
-
-        // Set lore
+        // Update lore with price info
         List<Component> lore = new ArrayList<>();
-        
-        if (shopItem.getLore() != null) {
-            for (String line : shopItem.getLore()) {
-                lore.add(Component.text(line, NamedTextColor.GRAY));
-            }
+        if (meta != null && meta.lore() != null) {
+            lore.addAll(meta.lore());
         }
         
         lore.add(Component.empty());
         lore.add(Component.text("Price: ", NamedTextColor.GOLD)
-                .append(Component.text(String.format("%.2f", shopItem.getPrice()), NamedTextColor.YELLOW))
+                .append(Component.text(String.format("%.2f", shopItem.getBuyPrice()), NamedTextColor.YELLOW))
                 .append(Component.text(" coins", NamedTextColor.GOLD)));
         lore.add(Component.empty());
         lore.add(Component.text("Click to purchase!", NamedTextColor.GREEN));
 
-        meta.lore(lore);
-        item.setItemMeta(meta);
+        if (meta != null) {
+            meta.lore(lore);
+            item.setItemMeta(meta);
+        }
 
         return item;
     }
@@ -117,17 +106,17 @@ public class ShopGUI {
      * Handle item purchase
      */
     public boolean purchaseItem(Player player, ShopItem shopItem) {
-        AccountManager accountManager = getAccountManager();
+        Object accountManager = getAccountManager();
         if (accountManager == null) {
             player.sendMessage(Component.text("Economy system not available!", NamedTextColor.RED));
             return false;
         }
 
-        double balance = accountManager.getBalance(player.getUniqueId());
+        double balance = getPlayerBalance(accountManager, player.getUniqueId());
         
-        if (balance < shopItem.getPrice()) {
+        if (balance < shopItem.getBuyPrice()) {
             player.sendMessage(Component.text("Insufficient funds! You need ", NamedTextColor.RED)
-                    .append(Component.text(String.format("%.2f", shopItem.getPrice() - balance), NamedTextColor.YELLOW))
+                    .append(Component.text(String.format("%.2f", shopItem.getBuyPrice() - balance), NamedTextColor.YELLOW))
                     .append(Component.text(" more coins.", NamedTextColor.RED)));
             return false;
         }
@@ -138,32 +127,58 @@ public class ShopGUI {
             return false;
         }
 
-        // Check permission
-        if (shopItem.getPermission() != null && !shopItem.getPermission().isEmpty()) {
-            if (!player.hasPermission(shopItem.getPermission())) {
-                player.sendMessage(Component.text("You don't have permission to buy this item!", NamedTextColor.RED));
-                return false;
-            }
-        }
-
         // Process purchase
-        accountManager.withdraw(player.getUniqueId(), shopItem.getPrice());
+        withdrawPlayerBalance(accountManager, player.getUniqueId(), shopItem.getBuyPrice());
         
         // Give item to player
-        Material material = Material.valueOf(shopItem.getMaterial().toUpperCase());
-        ItemStack item = new ItemStack(material, shopItem.getAmount());
+        ItemStack item = shopItem.getItem().clone();
         player.getInventory().addItem(item);
 
+        // Get display name safely
+        String itemName = "item";
+        if (item.getItemMeta() != null && item.getItemMeta().displayName() != null) {
+            itemName = item.getItemMeta().displayName().toString();
+        }
+
         player.sendMessage(Component.text("Successfully purchased ", NamedTextColor.GREEN)
-                .append(Component.text(shopItem.getName(), NamedTextColor.YELLOW))
+                .append(Component.text(itemName, NamedTextColor.YELLOW))
                 .append(Component.text(" for ", NamedTextColor.GREEN))
-                .append(Component.text(String.format("%.2f", shopItem.getPrice()), NamedTextColor.GOLD))
+                .append(Component.text(String.format("%.2f", shopItem.getBuyPrice()), NamedTextColor.GOLD))
                 .append(Component.text(" coins!", NamedTextColor.GREEN)));
 
         return true;
     }
 
-    private AccountManager getAccountManager() {
+    /**
+     * Get player balance using reflection
+     */
+    private double getPlayerBalance(Object accountManager, UUID uuid) {
+        try {
+            java.lang.reflect.Method method = accountManager.getClass().getMethod("getBalance", UUID.class);
+            Object result = method.invoke(accountManager, uuid);
+            return result instanceof Number ? ((Number) result).doubleValue() : 0.0;
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to get balance: " + e.getMessage());
+            return 0.0;
+        }
+    }
+
+    /**
+     * Withdraw from player balance using reflection
+     */
+    private void withdrawPlayerBalance(Object accountManager, UUID uuid, double amount) {
+        try {
+            java.lang.reflect.Method method = accountManager.getClass().getMethod("withdraw", UUID.class, double.class);
+            method.invoke(accountManager, uuid, amount);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to withdraw: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get AccountManager from Economy plugin using reflection
+     */
+    private Object getAccountManager() {
         org.bukkit.plugin.Plugin economyPlugin = Bukkit.getPluginManager().getPlugin("Economy");
         if (economyPlugin == null || !economyPlugin.isEnabled()) {
             return null;
@@ -172,7 +187,7 @@ public class ShopGUI {
         try {
             Class<?> economyClass = economyPlugin.getClass();
             java.lang.reflect.Method method = economyClass.getMethod("getAccountManager");
-            return (AccountManager) method.invoke(economyPlugin);
+            return method.invoke(economyPlugin);
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to get AccountManager: " + e.getMessage());
             return null;

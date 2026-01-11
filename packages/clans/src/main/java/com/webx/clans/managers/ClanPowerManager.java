@@ -2,7 +2,6 @@ package com.webx.clans.managers;
 
 import com.webx.clans.ClansPlugin;
 import com.webx.clans.models.Clan;
-import com.webx.economy.managers.AccountManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -33,7 +32,7 @@ public class ClanPowerManager {
      * Update power for all clans
      */
     public void updateAllClanPowers() {
-        AccountManager accountManager = getAccountManager();
+        Object accountManager = getAccountManager();
         if (accountManager == null) {
             plugin.getLogger().warning("Economy plugin not found, cannot update clan powers");
             return;
@@ -53,7 +52,7 @@ public class ClanPowerManager {
      * Update power for a specific clan
      */
     public void updateClanPower(Clan clan) {
-        AccountManager accountManager = getAccountManager();
+        Object accountManager = getAccountManager();
         if (accountManager == null) {
             return;
         }
@@ -65,11 +64,11 @@ public class ClanPowerManager {
     /**
      * Calculate clan power as sum of all member coin balances
      */
-    private double calculateClanPower(Clan clan, AccountManager accountManager) {
+    private double calculateClanPower(Clan clan, Object accountManager) {
         double totalPower = 0;
         
         for (UUID memberUuid : clan.getMembers()) {
-            double balance = accountManager.getBalance(memberUuid);
+            double balance = getPlayerBalance(accountManager, memberUuid);
             totalPower += balance;
         }
 
@@ -77,9 +76,22 @@ public class ClanPowerManager {
     }
 
     /**
-     * Get AccountManager from Economy plugin
+     * Get player balance using reflection
      */
-    private AccountManager getAccountManager() {
+    private double getPlayerBalance(Object accountManager, UUID uuid) {
+        try {
+            java.lang.reflect.Method method = accountManager.getClass().getMethod("getBalance", UUID.class);
+            Object result = method.invoke(accountManager, uuid);
+            return result instanceof Number ? ((Number) result).doubleValue() : 0.0;
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
+
+    /**
+     * Get AccountManager from Economy plugin using reflection
+     */
+    private Object getAccountManager() {
         Plugin economyPlugin = Bukkit.getPluginManager().getPlugin("Economy");
         if (economyPlugin == null || !economyPlugin.isEnabled()) {
             return null;
@@ -88,7 +100,7 @@ public class ClanPowerManager {
         try {
             Class<?> economyClass = economyPlugin.getClass();
             java.lang.reflect.Method method = economyClass.getMethod("getAccountManager");
-            return (AccountManager) method.invoke(economyPlugin);
+            return method.invoke(economyPlugin);
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to get AccountManager: " + e.getMessage());
             return null;

@@ -2,16 +2,16 @@ package com.webx.api.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.webx.economy.managers.AccountManager;
 import io.javalin.http.Context;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
- * REST API service for Leaderboards
+ * REST API service for Leaderboards using reflection
  */
 public class LeaderboardService {
     private final Gson gson;
@@ -29,35 +29,44 @@ public class LeaderboardService {
             limit = 10;
         }
 
-        AccountManager accountManager = getAccountManager();
+        Object accountManager = getAccountManager();
         if (accountManager == null) {
             ctx.status(503).json(Map.of("error", "Economy plugin not available"));
             return;
         }
 
-        List<Map.Entry<UUID, Double>> topAccounts = accountManager.getTopAccounts(limit);
-        List<Map<String, Object>> leaderboard = new ArrayList<>();
+        try {
+            Method getTopAccountsMethod = accountManager.getClass().getMethod("getTopAccounts", int.class);
+            List<?> topAccounts = (List<?>) getTopAccountsMethod.invoke(accountManager, limit);
+            List<Map<String, Object>> leaderboard = new ArrayList<>();
 
-        int position = 1;
-        for (Map.Entry<UUID, Double> entry : topAccounts) {
-            UUID uuid = entry.getKey();
-            double balance = entry.getValue();
-            OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+            int position = 1;
+            for (Object account : topAccounts) {
+                // Account object with getOwner() and getBalance() methods
+                Method getOwnerMethod = account.getClass().getMethod("getOwner");
+                Method getBalanceMethod = account.getClass().getMethod("getBalance");
+                
+                UUID uuid = (UUID) getOwnerMethod.invoke(account);
+                double balance = (double) getBalanceMethod.invoke(account);
+                OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
 
-            Map<String, Object> playerData = new HashMap<>();
-            playerData.put("position", position++);
-            playerData.put("uuid", uuid.toString());
-            playerData.put("name", player.getName() != null ? player.getName() : "Unknown");
-            playerData.put("balance", balance);
-            playerData.put("online", player.isOnline());
+                Map<String, Object> playerData = new HashMap<>();
+                playerData.put("position", position++);
+                playerData.put("uuid", uuid.toString());
+                playerData.put("name", player.getName() != null ? player.getName() : "Unknown");
+                playerData.put("balance", balance);
+                playerData.put("online", player.isOnline());
 
-            leaderboard.add(playerData);
+                leaderboard.add(playerData);
+            }
+
+            ctx.json(Map.of(
+                    "leaderboard", leaderboard,
+                    "total", leaderboard.size()
+            ));
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of("error", "Failed to get leaderboard: " + e.getMessage()));
         }
-
-        ctx.json(Map.of(
-                "leaderboard", leaderboard,
-                "total", leaderboard.size()
-        ));
     }
 
     /**
@@ -80,10 +89,10 @@ public class LeaderboardService {
         if (clansPlugin != null && clansPlugin.isEnabled()) {
             try {
                 Class<?> clansClass = clansPlugin.getClass();
-                java.lang.reflect.Method method = clansClass.getMethod("getClanManager");
+                Method method = clansClass.getMethod("getClanManager");
                 Object clanManager = method.invoke(clansPlugin);
                 
-                java.lang.reflect.Method countMethod = clanManager.getClass().getMethod("getClanCount");
+                Method countMethod = clanManager.getClass().getMethod("getClanCount");
                 int clanCount = (int) countMethod.invoke(clanManager);
                 
                 stats.put("clans", Map.of("total", clanCount));
@@ -95,17 +104,28 @@ public class LeaderboardService {
         }
 
         // Get economy stats
-        AccountManager accountManager = getAccountManager();
+        Object accountManager = getAccountManager();
         if (accountManager != null) {
-            List<Map.Entry<UUID, Double>> topAccounts = accountManager.getTopAccounts(1);
-            if (!topAccounts.isEmpty()) {
-                Map.Entry<UUID, Double> richest = topAccounts.get(0);
-                OfflinePlayer player = Bukkit.getOfflinePlayer(richest.getKey());
+            try {
+                Method getTopAccountsMethod = accountManager.getClass().getMethod("getTopAccounts", int.class);
+                List<?> topAccounts = (List<?>) getTopAccountsMethod.invoke(accountManager, 1);
                 
-                stats.put("economy", Map.of(
-                        "richestPlayer", player.getName() != null ? player.getName() : "Unknown",
-                        "richestBalance", richest.getValue()
-                ));
+                if (!topAccounts.isEmpty()) {
+                    Object richest = topAccounts.get(0);
+                    Method getOwnerMethod = richest.getClass().getMethod("getOwner");
+                    Method getBalanceMethod = richest.getClass().getMethod("getBalance");
+                    
+                    UUID uuid = (UUID) getOwnerMethod.invoke(richest);
+                    double balance = (double) getBalanceMethod.invoke(richest);
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+                    
+                    stats.put("economy", Map.of(
+                            "richestPlayer", player.getName() != null ? player.getName() : "Unknown",
+                            "richestBalance", balance
+                    ));
+                }
+            } catch (Exception e) {
+                // Ignore economy stats if failed
             }
         }
 
@@ -113,9 +133,9 @@ public class LeaderboardService {
     }
 
     /**
-     * Get AccountManager from Economy plugin
+     * Get AccountManager from Economy plugin using reflection
      */
-    private AccountManager getAccountManager() {
+    private Object getAccountManager() {
         Plugin economyPlugin = Bukkit.getPluginManager().getPlugin("Economy");
         if (economyPlugin == null || !economyPlugin.isEnabled()) {
             return null;
@@ -123,8 +143,8 @@ public class LeaderboardService {
 
         try {
             Class<?> economyClass = economyPlugin.getClass();
-            java.lang.reflect.Method method = economyClass.getMethod("getAccountManager");
-            return (AccountManager) method.invoke(economyPlugin);
+            Method method = economyClass.getMethod("getAccountManager");
+            return method.invoke(economyPlugin);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

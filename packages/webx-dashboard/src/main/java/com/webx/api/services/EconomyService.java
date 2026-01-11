@@ -1,16 +1,15 @@
 package com.webx.api.services;
 
-import com.webx.economy.EconomyPlugin;
-import com.webx.economy.models.Account;
 import io.javalin.http.Context;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * REST API service for Economy plugin integration
+ * REST API service for Economy plugin integration using reflection
  * Provides endpoints for player coins and balance information
  */
 public class EconomyService {
@@ -24,7 +23,7 @@ public class EconomyService {
         
         try {
             UUID uuid = UUID.fromString(uuidStr);
-            EconomyPlugin economy = (EconomyPlugin) Bukkit.getPluginManager().getPlugin("Economy");
+            Plugin economy = Bukkit.getPluginManager().getPlugin("Economy");
             
             if (economy == null) {
                 ctx.status(503).json(Map.of(
@@ -34,20 +33,40 @@ public class EconomyService {
                 return;
             }
             
-            Account account = economy.getAccountManager().getAccount(uuid);
+            // Get AccountManager
+            Method getAccountManagerMethod = economy.getClass().getMethod("getAccountManager");
+            Object accountManager = getAccountManagerMethod.invoke(economy);
+            
+            // Get Account
+            Method getAccountMethod = accountManager.getClass().getMethod("getAccount", UUID.class);
+            Object account = getAccountMethod.invoke(accountManager, uuid);
+            
+            // Get balances
+            Method getBalanceMethod = account.getClass().getMethod("getBalance");
+            Method getBankBalanceMethod = account.getClass().getMethod("getBankBalance");
+            Method getTotalBalanceMethod = account.getClass().getMethod("getTotalBalance");
+            
+            double balance = (double) getBalanceMethod.invoke(account);
+            double bankBalance = (double) getBankBalanceMethod.invoke(account);
+            double totalBalance = (double) getTotalBalanceMethod.invoke(account);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("uuid", uuid.toString());
-            response.put("balance", account.getBalance());
-            response.put("bankBalance", account.getBankBalance());
-            response.put("totalBalance", account.getTotalBalance());
+            response.put("balance", balance);
+            response.put("bankBalance", bankBalance);
+            response.put("totalBalance", totalBalance);
             
             ctx.json(response);
             
         } catch (IllegalArgumentException e) {
             ctx.status(400).json(Map.of(
                 "error", "Invalid UUID format",
+                "success", false
+            ));
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of(
+                "error", "Failed to get player coins: " + e.getMessage(),
                 "success", false
             ));
         }
@@ -60,7 +79,7 @@ public class EconomyService {
     public static void getTopPlayers(Context ctx) {
         int limit = ctx.queryParamAsClass("limit", Integer.class).getOrDefault(10);
         
-        EconomyPlugin economy = (EconomyPlugin) Bukkit.getPluginManager().getPlugin("Economy");
+        Plugin economy = Bukkit.getPluginManager().getPlugin("Economy");
         
         if (economy == null) {
             ctx.status(503).json(Map.of(
@@ -70,16 +89,42 @@ public class EconomyService {
             return;
         }
         
-        var topAccounts = economy.getAccountManager().getTopAccounts(limit);
-        
-        ctx.json(Map.of(
-            "success", true,
-            "players", topAccounts.stream().map(acc -> Map.of(
-                "uuid", acc.getOwner().toString(),
-                "balance", acc.getBalance(),
-                "totalBalance", acc.getTotalBalance()
-            )).toList()
-        ));
+        try {
+            // Get AccountManager
+            Method getAccountManagerMethod = economy.getClass().getMethod("getAccountManager");
+            Object accountManager = getAccountManagerMethod.invoke(economy);
+            
+            // Get top accounts
+            Method getTopAccountsMethod = accountManager.getClass().getMethod("getTopAccounts", int.class);
+            List<?> topAccounts = (List<?>) getTopAccountsMethod.invoke(accountManager, limit);
+            
+            List<Map<String, Object>> players = new ArrayList<>();
+            for (Object acc : topAccounts) {
+                Method getOwnerMethod = acc.getClass().getMethod("getOwner");
+                Method getBalanceMethod = acc.getClass().getMethod("getBalance");
+                Method getTotalBalanceMethod = acc.getClass().getMethod("getTotalBalance");
+                
+                UUID uuid = (UUID) getOwnerMethod.invoke(acc);
+                double balance = (double) getBalanceMethod.invoke(acc);
+                double totalBalance = (double) getTotalBalanceMethod.invoke(acc);
+                
+                players.add(Map.of(
+                    "uuid", uuid.toString(),
+                    "balance", balance,
+                    "totalBalance", totalBalance
+                ));
+            }
+            
+            ctx.json(Map.of(
+                "success", true,
+                "players", players
+            ));
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of(
+                "error", "Failed to get top players: " + e.getMessage(),
+                "success", false
+            ));
+        }
     }
     
     /**
@@ -92,14 +137,20 @@ public class EconomyService {
         
         try {
             UUID uuid = UUID.fromString(uuidStr);
-            EconomyPlugin economy = (EconomyPlugin) Bukkit.getPluginManager().getPlugin("Economy");
+            Plugin economy = Bukkit.getPluginManager().getPlugin("Economy");
             
             if (economy == null) {
                 ctx.status(503).json(Map.of("error", "Economy plugin not loaded", "success", false));
                 return;
             }
             
-            boolean success = economy.getAccountManager().deposit(uuid, amount);
+            // Get AccountManager
+            Method getAccountManagerMethod = economy.getClass().getMethod("getAccountManager");
+            Object accountManager = getAccountManagerMethod.invoke(economy);
+            
+            // Deposit
+            Method depositMethod = accountManager.getClass().getMethod("deposit", UUID.class, double.class);
+            boolean success = (boolean) depositMethod.invoke(accountManager, uuid, amount);
             
             ctx.json(Map.of(
                 "success", success,
@@ -108,6 +159,8 @@ public class EconomyService {
             
         } catch (IllegalArgumentException e) {
             ctx.status(400).json(Map.of("error", "Invalid UUID format", "success", false));
+        } catch (Exception e) {
+            ctx.status(500).json(Map.of("error", "Failed to deposit: " + e.getMessage(), "success", false));
         }
     }
     

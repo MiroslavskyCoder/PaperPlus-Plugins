@@ -2,6 +2,8 @@ package com.webx.economy.commands;
 
 import com.webx.economy.EconomyPlugin;
 import com.webx.economy.managers.AccountManager;
+import com.webx.economy.models.Account;
+
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -46,7 +48,7 @@ public class TopCoinsCommand implements CommandExecutor {
         }
 
         // Get top accounts
-        List<Map.Entry<UUID, Double>> topAccounts = accountManager.getTopAccounts(limit);
+        List<Account> topAccounts = accountManager.getTopAccounts(limit);
 
         if (topAccounts.isEmpty()) {
             sender.sendMessage(Component.text("No accounts found", NamedTextColor.YELLOW));
@@ -64,9 +66,9 @@ public class TopCoinsCommand implements CommandExecutor {
 
         // Display top accounts
         int position = 1;
-        for (Map.Entry<UUID, Double> entry : topAccounts) {
-            UUID uuid = entry.getKey();
-            double balance = entry.getValue();
+        for (Account account : topAccounts) {
+            UUID uuid = account.getOwner();
+            double balance = account.getBalance();
             
             OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
             String playerName = player.getName() != null ? player.getName() : uuid.toString().substring(0, 8);
