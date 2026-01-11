@@ -1,0 +1,6 @@
+name: Feed
+version: 1.0.0
+main: com.webx.feed.FeedPlugin
+description: Player feeding system
+authors:
+  - LXXV

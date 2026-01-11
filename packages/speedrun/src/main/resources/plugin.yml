@@ -1,0 +1,6 @@
+name: Speedrun
+version: 1.0.0
+main: com.webx.speedrun.SpeedrunPlugin
+description: Speedrun challenges system
+authors:
+  - LXXV

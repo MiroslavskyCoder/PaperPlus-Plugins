@@ -1,0 +1,6 @@
+name: Statistics
+version: 1.0.0
+main: com.webx.statistics.StatisticsPlugin
+description: Player statistics tracking
+authors:
+  - LXXV

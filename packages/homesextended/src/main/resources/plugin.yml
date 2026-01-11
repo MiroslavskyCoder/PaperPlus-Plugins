@@ -1,0 +1,6 @@
+name: HomesExtended
+version: 1.0.0
+main: com.webx.homesextended.HomesExtendedPlugin
+description: Extended homes system
+authors:
+  - LXXV

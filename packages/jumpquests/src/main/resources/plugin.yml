@@ -1,0 +1,6 @@
+name: JumpQuests
+version: 1.0.0
+main: com.webx.jumpquests.JumpQuestsPlugin
+description: Jump quest challenges
+authors:
+  - LXXV

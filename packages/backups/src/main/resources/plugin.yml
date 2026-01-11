@@ -1,0 +1,6 @@
+name: Backups
+version: 1.0.0
+main: com.webx.backups.BackupsPlugin
+description: Server backup management
+authors:
+  - LXXV

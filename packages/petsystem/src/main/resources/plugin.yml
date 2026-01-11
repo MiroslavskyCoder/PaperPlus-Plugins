@@ -1,0 +1,6 @@
+name: PetSystem
+version: 1.0.0
+main: com.webx.petsystem.PetSystemPlugin
+description: Pet management system
+authors:
+  - LXXV

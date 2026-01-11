@@ -1,0 +1,6 @@
+name: PartySystem
+version: 1.0.0
+main: com.webx.partysystem.PartySystemPlugin
+description: Party system for player groups
+authors:
+  - LXXV

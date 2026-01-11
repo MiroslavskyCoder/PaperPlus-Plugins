@@ -1,0 +1,6 @@
+name: ChatFormatting
+version: 1.0.0
+main: com.webx.chatformatting.ChatFormattingPlugin
+description: Advanced chat formatting system
+authors:
+  - LXXV

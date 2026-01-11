@@ -189,3 +189,6 @@ project(":dungeonraids").projectDir = File("packages/dungeonraids")
 
 include(":homesextended")
 project(":homesextended").projectDir = File("packages/homesextended")
+
+include(":playerinfo")
+project(":playerinfo").projectDir = File("packages/playerinfo")

@@ -1,0 +1,6 @@
+name: Marketplace
+version: 1.0.0
+main: com.webx.marketplace.MarketplacePlugin
+description: Player-to-player trading marketplace
+authors:
+  - LXXV

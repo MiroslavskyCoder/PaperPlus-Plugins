@@ -1,0 +1,6 @@
+name: CustomEnchants
+version: 1.0.0
+main: com.webx.customenchants.CustomEnchantsPlugin
+description: Custom enchantments system
+authors:
+  - LXXV

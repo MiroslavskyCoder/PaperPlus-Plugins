@@ -1,0 +1,6 @@
+name: PvPEvents
+version: 1.0.0
+main: com.webx.pvpevents.PvPEventsPlugin
+description: PvP event challenges
+authors:
+  - LXXV

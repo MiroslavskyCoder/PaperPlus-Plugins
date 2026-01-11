@@ -1,0 +1,6 @@
+name: BedwarsEvent
+version: 1.0.0
+main: com.webx.bedwarsevent.BedwarsEventPlugin
+description: Bedwars event system
+authors:
+  - LXXV

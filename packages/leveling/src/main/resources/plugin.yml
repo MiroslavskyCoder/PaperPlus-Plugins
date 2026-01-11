@@ -1,0 +1,6 @@
+name: Leveling
+version: 1.0.0
+main: com.webx.leveling.LevelingPlugin
+description: Leveling system for players
+authors:
+  - LXXV
