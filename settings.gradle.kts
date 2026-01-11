@@ -209,3 +209,6 @@ include(":friendfeed")
 project(":friendfeed").projectDir = File("packages/friendfeed")
 include(":ranks")
 project(":ranks").projectDir = File("packages/ranks")
+
+include(":modernfix")
+project(":modernfix").projectDir = File("packages/modernfix")

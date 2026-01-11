@@ -1,0 +1,34 @@
+# ModernFix Configuration
+# Server optimization settings
+
+optimizations:
+  # Entity optimization
+  entity:
+    enabled: true
+    max-item-lifetime: 6000  # 5 minutes (in ticks)
+    reduce-ai: true          # Reduce AI calculations for distant entities
+    
+  # Chunk optimization
+  chunk:
+    enabled: true
+    reduce-view-distance: false
+    max-view-distance: 10
+    reduce-simulation-distance: false
+    max-simulation-distance: 8
+    
+  # Memory optimization
+  memory:
+    enabled: true
+    gc-threshold: 85.0       # Suggest GC when memory usage exceeds this %
+    
+  # Tick optimization
+  tick:
+    enabled: true
+
+# Performance monitoring
+monitoring:
+  enabled: true
+  interval: 300              # Seconds between monitoring checks
+
+# Debug mode
+debug: false

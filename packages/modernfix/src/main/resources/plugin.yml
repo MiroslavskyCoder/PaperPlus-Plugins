@@ -1,0 +1,26 @@
+name: ModernFix
+version: 1.0.0
+description: Server optimization plugin - reduces lag and improves performance
+main: com.webx.modernfix.ModernFixPlugin
+authors: [ WebX ]
+api-version: 1.20
+
+commands:
+  modernfix:
+    description: ModernFix command
+    usage: /<command> [stats|reload|gc|optimize|info]
+    aliases: [ mfix, optimize ]
+
+permissions:
+  modernfix.reload:
+    description: Reload ModernFix configuration
+    default: op
+  modernfix.gc:
+    description: Force garbage collection
+    default: op
+  modernfix.optimize:
+    description: Run manual optimizations
+    default: op
+  modernfix.stats:
+    description: View server statistics
+    default: true
