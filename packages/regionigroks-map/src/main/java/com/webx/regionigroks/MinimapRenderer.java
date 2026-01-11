@@ -19,6 +19,7 @@ public class MinimapRenderer extends MapRenderer {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void render(MapView map, MapCanvas canvas, Player player) {
         int width = 128;
         int height = 128;
@@ -79,6 +80,7 @@ public class MinimapRenderer extends MapRenderer {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private byte getBlockColor(Material mat) {
         // Map block types to colors
         if (mat == Material.GRASS_BLOCK || mat == Material.SHORT_GRASS || mat == Material.TALL_GRASS) {
