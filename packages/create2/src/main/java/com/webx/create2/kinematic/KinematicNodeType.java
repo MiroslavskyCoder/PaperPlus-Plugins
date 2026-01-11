@@ -25,7 +25,16 @@ public enum KinematicNodeType {
     MILLSTONE(4.0, 0.0),
     DEPLOYER(4.0, 0.0),
     SAW(4.0, 0.0),
-    DRILL(4.0, 0.0);
+    DRILL(4.0, 0.0),
+
+    // Logistics
+    BELT(2.0, 0.0),
+    FUNNEL(1.0, 0.0),
+
+    // Fluids (driven by rotation for pumps)
+    PUMP(8.0, 0.0),
+    PIPE(0.5, 0.0),
+    TANK(0.0, 0.0);
     
     private final double defaultStressImpact;
     private final double defaultStressCapacity;

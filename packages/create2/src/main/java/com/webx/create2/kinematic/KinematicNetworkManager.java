@@ -2,8 +2,11 @@ package com.webx.create2.kinematic;
 
 import com.webx.create2.Create2Plugin;
 import org.bukkit.World;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.joml.Vector3i;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -190,16 +193,66 @@ public class KinematicNetworkManager {
      * Save all networks to disk
      */
     public void saveAll() {
-        // TODO: Implement persistence
-        plugin.getLogger().info("Saving " + networks.size() + " networks...");
+        if (!plugin.getConfig().getBoolean("persistence.enabled", true)) return;
+
+        File file = new File(plugin.getDataFolder(), plugin.getConfig().getString("persistence.file", "networks.yml"));
+        YamlConfiguration yaml = new YamlConfiguration();
+
+        int idx = 0;
+        for (KinematicNetwork network : networks.values()) {
+            List<Map<String, Object>> list = new ArrayList<>();
+            for (Vector3i pos : network.getComponents()) {
+                Map<String, Object> entry = new HashMap<>();
+                entry.put("x", pos.x);
+                entry.put("y", pos.y);
+                entry.put("z", pos.z);
+                entry.put("type", network.getNode(pos).getType().name());
+                list.add(entry);
+            }
+            yaml.set("networks." + idx + ".nodes", list);
+            idx++;
+        }
+
+        try {
+            yaml.save(file);
+            plugin.getLogger().info("Saved " + networks.size() + " networks to " + file.getName());
+        } catch (IOException e) {
+            plugin.getLogger().warning("Failed to save networks: " + e.getMessage());
+        }
     }
     
     /**
      * Load networks from disk
      */
     public void loadAll() {
-        // TODO: Implement persistence
-        plugin.getLogger().info("Loading networks...");
+        if (!plugin.getConfig().getBoolean("persistence.enabled", true)) return;
+
+        File file = new File(plugin.getDataFolder(), plugin.getConfig().getString("persistence.file", "networks.yml"));
+        if (!file.exists()) return;
+
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+        networks.clear();
+        positionToNetwork.clear();
+
+        if (!yaml.isConfigurationSection("networks")) return;
+
+        for (String key : Objects.requireNonNull(yaml.getConfigurationSection("networks")).getKeys(false)) {
+            List<Map<?, ?>> list = yaml.getMapList("networks." + key + ".nodes");
+            KinematicNetwork network = new KinematicNetwork();
+            for (Map<?, ?> entry : list) {
+                int x = (int) entry.getOrDefault("x", 0);
+                int y = (int) entry.getOrDefault("y", 0);
+                int z = (int) entry.getOrDefault("z", 0);
+                String typeStr = (String) entry.get("type");
+                KinematicNodeType type = KinematicNodeType.valueOf(typeStr);
+                Vector3i pos = new Vector3i(x, y, z);
+                KinematicNode node = new KinematicNode(pos, type);
+                network.addComponent(pos, node);
+                positionToNetwork.put(pos, network.getId());
+            }
+            networks.put(network.getId(), network);
+        }
+        plugin.getLogger().info("Loaded " + networks.size() + " networks from " + file.getName());
     }
     
     /**

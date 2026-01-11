@@ -4,6 +4,8 @@ import com.webx.create2.kinematic.KinematicNetworkManager;
 import com.webx.create2.kinematic.RotationPropagator;
 import com.webx.create2.commands.Create2Command;
 import com.webx.create2.listeners.BlockListener;
+import com.webx.create2.logistics.LogisticsManager;
+import com.webx.create2.fluid.FluidManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -18,6 +20,8 @@ public class Create2Plugin extends JavaPlugin {
     private static Create2Plugin instance;
     private KinematicNetworkManager networkManager;
     private RotationPropagator rotationPropagator;
+    private LogisticsManager logisticsManager;
+    private FluidManager fluidManager;
     
     @Override
     public void onEnable() {
@@ -28,6 +32,9 @@ public class Create2Plugin extends JavaPlugin {
         
         // Initialize managers
         initializeManagers();
+
+        // Load persistence
+        networkManager.loadAll();
         
         // Register commands
         registerCommands();
@@ -60,6 +67,8 @@ public class Create2Plugin extends JavaPlugin {
     private void initializeManagers() {
         this.networkManager = new KinematicNetworkManager(this);
         this.rotationPropagator = new RotationPropagator(this);
+        this.logisticsManager = new LogisticsManager(this, networkManager);
+        this.fluidManager = new FluidManager(this);
         
         getLogger().info("Initialized kinematic systems");
     }
@@ -82,6 +91,16 @@ public class Create2Plugin extends JavaPlugin {
             
             // Update all kinematic networks
             networkManager.tick();
+
+            // Update logistics (belts, funnels, deployers)
+            if (!getServer().getWorlds().isEmpty()) {
+                logisticsManager.tick(getServer().getWorlds().get(0));
+            }
+
+            // Update fluids
+            if (!getServer().getWorlds().isEmpty()) {
+                fluidManager.tick(getServer().getWorlds().get(0));
+            }
             
             long duration = System.nanoTime() - startTime;
             double ms = duration / 1_000_000.0;
@@ -107,6 +126,14 @@ public class Create2Plugin extends JavaPlugin {
     
     public RotationPropagator getRotationPropagator() {
         return rotationPropagator;
+    }
+
+    public LogisticsManager getLogisticsManager() {
+        return logisticsManager;
+    }
+
+    public FluidManager getFluidManager() {
+        return fluidManager;
     }
     
     // Utility methods
