@@ -16,6 +16,9 @@ import { MapTab } from '@/components/dashboard/map-tab';
 import { ConfigTab } from '@/components/dashboard/config-tab';
 import { PluginsTab } from '@/components/dashboard/plugins-tab';
 import { SettingsTab } from '@/components/dashboard/settings-tab';
+import { EconomyTab } from '@/components/dashboard/economy-tab';
+import { ShopTab } from '@/components/dashboard/shop-tab';
+import { AfkTab } from '@/components/dashboard/afk-tab';
 
 interface Stats {
   cpu: number;
@@ -64,10 +67,13 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="home" className="w-full">
-          <TabsList className="grid w-5/6 grid-cols-7 mb-8 bg-card/50 backdrop-blur-sm border-none">
+          <TabsList className="grid w-full grid-cols-10 mb-8 bg-card/50 backdrop-blur-sm border-none">
             <TabsTrigger value="home" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Home</TabsTrigger>
             <TabsTrigger value="server" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Server</TabsTrigger>
             <TabsTrigger value="players" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Players</TabsTrigger>
+            <TabsTrigger value="economy" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Economy</TabsTrigger>
+            <TabsTrigger value="shop" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Shop</TabsTrigger>
+            <TabsTrigger value="afk" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">AFK</TabsTrigger>
             <TabsTrigger value="map" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Map</TabsTrigger>
             <TabsTrigger value="config" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Config</TabsTrigger>
             <TabsTrigger value="plugins" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Plugins</TabsTrigger>
@@ -85,6 +91,18 @@ export default function Dashboard() {
 
             <TabsContent value="players" className="space-y-6 animate-fade-in">
               <PlayersTab players={players} />
+            </TabsContent>
+
+            <TabsContent value="economy" className="space-y-6 animate-fade-in">
+              <EconomyTab />
+            </TabsContent>
+
+            <TabsContent value="shop" className="space-y-6 animate-fade-in">
+              <ShopTab />
+            </TabsContent>
+
+            <TabsContent value="afk" className="space-y-6 animate-fade-in">
+              <AfkTab />
             </TabsContent>
 
             <TabsContent value="map" className="space-y-6 animate-fade-in">
