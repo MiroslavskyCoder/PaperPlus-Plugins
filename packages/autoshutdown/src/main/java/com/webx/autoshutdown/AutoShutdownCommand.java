@@ -28,15 +28,15 @@ public class AutoShutdownCommand implements CommandExecutor {
         
         switch (args[0].toLowerCase()) {
             case "enable":
-                plugin.setEnabled(true);
+                plugin.setAutoShutdownEnabled(true);
                 sender.sendMessage(ChatColor.GREEN + "AutoShutdown enabled!");
                 break;
             case "disable":
-                plugin.setEnabled(false);
+                plugin.setAutoShutdownEnabled(false);
                 sender.sendMessage(ChatColor.YELLOW + "AutoShutdown disabled!");
                 break;
             case "status":
-                if (plugin.isEnabled()) {
+                if (plugin.isAutoShutdownEnabled()) {
                     long emptySince = plugin.getEmptyServerSince();
                     if (emptySince == -1) {
                         sender.sendMessage(ChatColor.GREEN + "AutoShutdown: Active (server has players)");
