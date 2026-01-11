@@ -1,0 +1,34 @@
+# DeathMessage Configuration
+
+# Enable custom death messages
+enabled: true
+
+# Broadcast to all players
+broadcast: true
+
+# Message format
+# Placeholders: %player%, %killer%, %cause%, %world%, %location%
+message-format: "§c☠ §7%player% §cdied"
+
+# Death causes messages
+causes:
+  pvp: "§c☠ §7%player% §cwas killed by §7%killer%"
+  fall: "§c☠ §7%player% §cfell to their death"
+  drowning: "§c☠ §7%player% §cdrowned"
+  fire: "§c☠ §7%player% §cburned to death"
+  lava: "§c☠ §7%player% §ctried to swim in lava"
+  suffocation: "§c☠ §7%player% §csuffocated in a wall"
+  void: "§c☠ §7%player% §cfell into the void"
+  explosion: "§c☠ §7%player% §cwas blown up"
+  magic: "§c☠ §7%player% §cwas killed by magic"
+  wither: "§c☠ §7%player% §cwithered away"
+  falling-block: "§c☠ §7%player% §cwas squashed by a falling block"
+  mob: "§c☠ §7%player% §cwas slain by %killer%"
+  projectile: "§c☠ §7%player% §cwas shot by %killer%"
+  default: "§c☠ §7%player% §cdied from %cause%"
+
+# Show coordinates in death message
+show-location: true
+
+# Show world name in death message
+show-world: false

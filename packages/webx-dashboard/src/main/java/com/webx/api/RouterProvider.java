@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import com.webx.api.endpoints.AfkEndpoint;
 import com.webx.api.endpoints.EconomyEndpoint;
 import com.webx.api.endpoints.ShopEndpoint;
+import com.webx.api.endpoints.PluginConfigEndpoint;
 import com.webx.api.models.SettingsConfig;
 import com.webx.api.services.*;
 import com.webx.helper.SystemHelper;
@@ -32,6 +33,7 @@ public class RouterProvider {
     private EconomyEndpoint economyEndpoint;
     private ShopEndpoint shopEndpoint;
     private AfkEndpoint afkEndpoint;
+    private PluginConfigEndpoint pluginConfigEndpoint;
 
     public RouterProvider(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -44,6 +46,7 @@ public class RouterProvider {
         this.economyEndpoint = new EconomyEndpoint(plugin);
         this.shopEndpoint = new ShopEndpoint(plugin, gson);
         this.afkEndpoint = new AfkEndpoint(plugin, gson);
+        this.pluginConfigEndpoint = new PluginConfigEndpoint(plugin, gson);
         
         this.startWebServer();
         this.registerRoutes();
@@ -77,6 +80,9 @@ public class RouterProvider {
         
         // ===== AFK CONFIG ENDPOINTS =====
         registerAfkRoutes();
+        
+        // ===== NEW PLUGINS CONFIG ENDPOINTS =====
+        registerPluginConfigRoutes();
     }
     
     private void registerMetricsWebSocket() {
@@ -569,6 +575,34 @@ public class RouterProvider {
         app.put(API.getFullPath("afk"), afkEndpoint::updateAfkConfig);
         app.get(API.getFullPath("afk/players"), afkEndpoint::getAfkPlayers);
         plugin.getLogger().info("✅ AFK config API routes registered");
+    }
+    
+    private void registerPluginConfigRoutes() {
+        // WorldColors
+        app.get(API.getFullPath("config/worldcolors"), pluginConfigEndpoint::getWorldColorsConfig);
+        app.put(API.getFullPath("config/worldcolors"), pluginConfigEndpoint::updateWorldColorsConfig);
+        
+        // AutoShutdown
+        app.get(API.getFullPath("config/autoshutdown"), pluginConfigEndpoint::getAutoShutdownConfig);
+        app.put(API.getFullPath("config/autoshutdown"), pluginConfigEndpoint::updateAutoShutdownConfig);
+        
+        // SimpleHeal
+        app.get(API.getFullPath("config/simpleheal"), pluginConfigEndpoint::getSimpleHealConfig);
+        app.put(API.getFullPath("config/simpleheal"), pluginConfigEndpoint::updateSimpleHealConfig);
+        
+        // DeathMessage
+        app.get(API.getFullPath("config/deathmessage"), pluginConfigEndpoint::getDeathMessageConfig);
+        app.put(API.getFullPath("config/deathmessage"), pluginConfigEndpoint::updateDeathMessageConfig);
+        
+        // MobCatch
+        app.get(API.getFullPath("config/mobcatch"), pluginConfigEndpoint::getMobCatchConfig);
+        app.put(API.getFullPath("config/mobcatch"), pluginConfigEndpoint::updateMobCatchConfig);
+        
+        // FriendFeed
+        app.get(API.getFullPath("config/friendfeed"), pluginConfigEndpoint::getFriendFeedConfig);
+        app.put(API.getFullPath("config/friendfeed"), pluginConfigEndpoint::updateFriendFeedConfig);
+        
+        plugin.getLogger().info("✅ Plugin config API routes registered");
     }
 
     public void stopWebServer() {

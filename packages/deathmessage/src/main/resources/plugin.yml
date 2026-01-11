@@ -1,0 +1,5 @@
+name: DeathMessage
+version: 1.0.0
+main: com.webx.deathmessage.DeathMessagePlugin
+description: Custom death messages with detailed information
+author: LXXV

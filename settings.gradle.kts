@@ -192,3 +192,21 @@ project(":homesextended").projectDir = File("packages/homesextended")
 
 include(":playerinfo")
 project(":playerinfo").projectDir = File("packages/playerinfo")
+
+include(":worldcolors")
+project(":worldcolors").projectDir = File("packages/worldcolors")
+
+include(":autoshutdown")
+project(":autoshutdown").projectDir = File("packages/autoshutdown")
+
+include(":simpleheal")
+project(":simpleheal").projectDir = File("packages/simpleheal")
+
+include(":deathmessage")
+project(":deathmessage").projectDir = File("packages/deathmessage")
+
+include(":mobcatch")
+project(":mobcatch").projectDir = File("packages/mobcatch")
+
+include(":friendfeed")
+project(":friendfeed").projectDir = File("packages/friendfeed")

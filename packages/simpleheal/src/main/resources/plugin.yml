@@ -1,0 +1,14 @@
+name: SimpleHeal
+version: 1.0.0
+main: com.webx.simpleheal.SimpleHealPlugin
+description: Simple heal command for players
+author: LXXV
+commands:
+  heal:
+    description: Heal yourself or another player
+    usage: /heal [player]
+    permission: simpleheal.use
+  healall:
+    description: Heal all online players
+    usage: /healall
+    permission: simpleheal.all

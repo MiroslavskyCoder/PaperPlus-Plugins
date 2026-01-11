@@ -1,0 +1,19 @@
+# SimpleHeal Configuration
+
+# Heal settings
+heal-health: true
+heal-food: true
+clear-effects: true
+clear-fire: true
+
+# Messages
+messages:
+  healed-self: "§aYou have been healed!"
+  healed-other: "§a%player% has been healed!"
+  healed-by: "§aYou have been healed by %healer%!"
+  healed-all: "§aAll players have been healed!"
+  player-not-found: "§cPlayer not found!"
+  no-permission: "§cYou don't have permission to use this command!"
+  
+# Cooldown in seconds (0 to disable)
+cooldown: 60

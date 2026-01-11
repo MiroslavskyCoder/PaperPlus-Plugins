@@ -1,0 +1,9 @@
+name: AutoShutdown
+version: 1.0.0
+main: com.webx.autoshutdown.AutoShutdownPlugin
+description: Automatically shutdown server after no players online
+author: LXXV
+commands:
+  autoshutdown:
+    description: Manage AutoShutdown
+    usage: /autoshutdown <enable|disable|status>
