@@ -13,8 +13,7 @@ tasks.register("buildAllPlugins") {
         ":webx-dashboard-panel:bunBuild",
         ":regionigroks-map:build",
         ":pvp-base:build",
-        ":show-health:build",
-        ":abomination:build",
+        ":show-health:build", 
         ":death-mark:build",
         ":home-tp:build",
         ":back-tp:build",
@@ -91,8 +90,7 @@ tasks.register<Copy>("copyPlugins") {
     from("packages/webx-dashboard/build/libs")
     from("packages/regionigroks-map/build/libs")
     from("packages/pvp-base/build/libs")
-    from("packages/show-health/build/libs")
-    from("packages/abomination/build/libs")
+    from("packages/show-health/build/libs") 
     from("packages/death-mark/build/libs")
     from("packages/home-tp/build/libs")
     from("packages/back-tp/build/libs")
@@ -198,8 +196,7 @@ tasks.clean {
         ":webx-dashboard-panel:clean",
         ":regionigroks-map:clean",
         ":pvp-base:clean",
-        ":show-health:clean",
-        ":abomination:clean",
+        ":show-health:clean", 
         ":death-mark:clean",
         ":home-tp:clean",
         ":warps:clean",
