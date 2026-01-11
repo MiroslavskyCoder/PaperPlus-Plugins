@@ -19,8 +19,7 @@ public class InventoryManager {
                 "§6" + shop.getName());
 
         shop.getItems().forEach(item -> {
-            ItemStack stack = item.getItem().clone();
-            stack.setAmount(1);
+            ItemStack stack = item.toItemStack();
             inventory.addItem(stack);
         });
 
