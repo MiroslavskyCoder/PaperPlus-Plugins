@@ -62,14 +62,21 @@ public class ShopGUI {
     }
 
     private ItemStack createItemStack(ShopItem shopItem) {
-        // Get ItemStack from ShopItem
-        ItemStack item = shopItem.getItem().clone();
+        // Create ItemStack from ShopItem
+        ItemStack item = shopItem.toItemStack();
         ItemMeta meta = item.getItemMeta();
 
         // Update lore with price info
         List<Component> lore = new ArrayList<>();
         if (meta != null && meta.lore() != null) {
             lore.addAll(meta.lore());
+        }
+        
+        // Add custom lore from ShopItem
+        if (shopItem.getLore() != null) {
+            for (String line : shopItem.getLore()) {
+                lore.add(Component.text(line, NamedTextColor.GRAY));
+            }
         }
         
         lore.add(Component.empty());
@@ -81,6 +88,7 @@ public class ShopGUI {
 
         if (meta != null) {
             meta.lore(lore);
+            meta.displayName(Component.text(shopItem.getName(), NamedTextColor.YELLOW, TextDecoration.BOLD));
             item.setItemMeta(meta);
         }
 
@@ -131,17 +139,11 @@ public class ShopGUI {
         withdrawPlayerBalance(accountManager, player.getUniqueId(), shopItem.getBuyPrice());
         
         // Give item to player
-        ItemStack item = shopItem.getItem().clone();
+        ItemStack item = shopItem.toItemStack();
         player.getInventory().addItem(item);
 
-        // Get display name safely
-        String itemName = "item";
-        if (item.getItemMeta() != null && item.getItemMeta().displayName() != null) {
-            itemName = item.getItemMeta().displayName().toString();
-        }
-
         player.sendMessage(Component.text("Successfully purchased ", NamedTextColor.GREEN)
-                .append(Component.text(itemName, NamedTextColor.YELLOW))
+                .append(Component.text(shopItem.getName(), NamedTextColor.YELLOW))
                 .append(Component.text(" for ", NamedTextColor.GREEN))
                 .append(Component.text(String.format("%.2f", shopItem.getBuyPrice()), NamedTextColor.GOLD))
                 .append(Component.text(" coins!", NamedTextColor.GREEN)));

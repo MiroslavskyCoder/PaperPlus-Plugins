@@ -1,17 +1,24 @@
 package com.webx.shop.models;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 public class ShopItem {
     private final String id;
-    private final ItemStack item;
+    private final String name;
+    private final String material;
+    private final int amount;
     private double buyPrice;
     private double sellPrice;
     private int stock;
+    private String[] lore;
+    private String permission;
 
-    public ShopItem(String id, ItemStack item, double buyPrice, double sellPrice, int stock) {
+    public ShopItem(String id, String name, String material, int amount, double buyPrice, double sellPrice, int stock) {
         this.id = id;
-        this.item = item;
+        this.name = name;
+        this.material = material;
+        this.amount = amount;
         this.buyPrice = buyPrice;
         this.sellPrice = sellPrice;
         this.stock = stock;
@@ -21,8 +28,16 @@ public class ShopItem {
         return id;
     }
 
-    public ItemStack getItem() {
-        return item;
+    public String getName() {
+        return name;
+    }
+
+    public String getMaterial() {
+        return material;
+    }
+
+    public int getAmount() {
+        return amount;
     }
 
     public double getBuyPrice() {
@@ -65,5 +80,34 @@ public class ShopItem {
 
     public boolean canSell() {
         return sellPrice > 0;
+    }
+
+    public String[] getLore() {
+        return lore;
+    }
+
+    public void setLore(String[] lore) {
+        this.lore = lore;
+    }
+
+    public String getPermission() {
+        return permission;
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
+    }
+
+    /**
+     * Create an ItemStack from this ShopItem
+     */
+    public ItemStack toItemStack() {
+        Material mat;
+        try {
+            mat = Material.valueOf(material.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            mat = Material.STONE;
+        }
+        return new ItemStack(mat, amount);
     }
 }
