@@ -14,9 +14,6 @@ project(":pvp-base").projectDir = file("packages/pvp-base")
 
 include("show-health")
 project(":show-health").projectDir = file("packages/show-health")
- 
-include(":abomination")
-project(":abomination").projectDir = File("packages/abomination")
 
 include(":death-mark")
 project(":death-mark").projectDir = File("packages/death-mark")
