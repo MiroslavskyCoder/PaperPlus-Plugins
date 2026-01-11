@@ -52,7 +52,7 @@ public class ModernFixCommand implements CommandExecutor {
         }
     }
 
-    private void showUsage(sender) {
+    private void showUsage(CommandSender sender) {
         sender.sendMessage("§6╔═══════════════════════════════════╗");
         sender.sendMessage("§6║   §eModernFix §7Commands          §6║");
         sender.sendMessage("§6╠═══════════════════════════════════╣");
