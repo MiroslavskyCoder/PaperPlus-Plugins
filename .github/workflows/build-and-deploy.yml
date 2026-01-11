@@ -1,0 +1,121 @@
+name: 📦 Build & Deploy Plugins ZIP
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create GitHub Release'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  JAVA_VERSION: '21'
+  GRADLE_VERSION: '9.2.1'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build All Plugins
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: 🔨 Build all plugins
+        run: |
+          chmod +x gradlew
+          ./gradlew buildAllPlugins --no-daemon
+
+      - name: 📦 Create ZIP archive
+        run: |
+          cd out/plugins
+          zip -r ../../plugins-${{ github.sha }}.zip *.jar
+          cd ../..
+          ls -lh plugins-${{ github.sha }}.zip
+
+      - name: 📝 Generate build report
+        run: |
+          echo "# Build Report" > build-report.md
+          echo "" >> build-report.md
+          echo "**Build Date**: $(date)" >> build-report.md
+          echo "**Commit**: ${{ github.sha }}" >> build-report.md
+          echo "**Branch**: ${{ github.ref_name }}" >> build-report.md
+          echo "" >> build-report.md
+          echo "## Plugins" >> build-report.md
+          echo "" >> build-report.md
+          cd out/plugins
+          echo '```' >> ../../build-report.md
+          ls -1 *.jar | sed 's/^/- /' >> ../../build-report.md
+          echo '```' >> ../../build-report.md
+          echo "" >> ../../build-report.md
+          echo "**Total Plugins**: $(ls -1 *.jar | wc -l)" >> ../../build-report.md
+          echo "**Archive Size**: $(du -h ../../plugins-${{ github.sha }}.zip | cut -f1)" >> ../../build-report.md
+
+      - name: 📤 Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugins-archive-${{ github.sha }}
+          path: |
+            plugins-${{ github.sha }}.zip
+            build-report.md
+          retention-days: 90
+
+      - name: 📊 Print build info
+        run: |
+          echo "✅ Build Status: SUCCESS"
+          echo "📦 Archive: plugins-${{ github.sha }}.zip"
+          echo "📂 Location: out/plugins/"
+          echo ""
+          echo "=== Plugin Statistics ==="
+          cd out/plugins && ls -1 *.jar | wc -l | xargs echo "Total Plugins:"
+          du -sh . | awk '{print "Total Size: " $1}'
+          echo ""
+          echo "=== Top Plugins ===" 
+          cd .. && du -h plugins/*.jar | sort -h | tail -10 | awk '{print $2 " (" $1 ")"}'
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Create GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.create_release == 'true'
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⬇️ Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: plugins-archive-${{ github.sha }}
+
+      - name: 📌 Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: plugins-${{ github.sha }}.zip
+          body_path: build-report.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ✅ Release created
+        run: |
+          echo "🎉 Release created successfully!"
+          echo "📦 ZIP: plugins-${{ github.sha }}.zip"
+          echo "🔗 URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"

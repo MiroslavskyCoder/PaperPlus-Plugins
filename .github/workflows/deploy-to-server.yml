@@ -1,0 +1,78 @@
+name: 🚀 Deploy to Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      server_host:
+        description: 'Server hostname/IP'
+        required: true
+        default: 'play.example.com'
+      deploy_path:
+        description: 'Deploy path on server'
+        required: true
+        default: '/opt/minecraft/plugins'
+      restart_server:
+        description: 'Restart server after deploy'
+        required: false
+        default: 'true'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Plugins
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: gradle
+
+      - name: 🔨 Build all plugins
+        run: |
+          chmod +x gradlew
+          ./gradlew buildAllPlugins --no-daemon
+
+      - name: 📦 Create ZIP archive
+        run: |
+          cd out/plugins
+          zip -r ../../plugins-deploy.zip *.jar
+          cd ../..
+
+      - name: 🔑 Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ github.event.inputs.server_host }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: 📤 Upload plugins to server
+        run: |
+          scp -i ~/.ssh/deploy_key plugins-deploy.zip \
+            ${{ secrets.DEPLOY_USER }}@${{ github.event.inputs.server_host }}:${{ github.event.inputs.deploy_path }}/plugins-backup-$(date +%Y%m%d-%H%M%S).zip || echo "First deploy, no backup needed"
+          
+          scp -i ~/.ssh/deploy_key plugins-deploy.zip \
+            ${{ secrets.DEPLOY_USER }}@${{ github.event.inputs.server_host }}:${{ github.event.inputs.deploy_path }}/plugins-latest.zip
+          
+          ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ github.event.inputs.server_host }} \
+            "cd ${{ github.event.inputs.deploy_path }} && unzip -o plugins-latest.zip && rm plugins-latest.zip"
+
+      - name: 🔄 Restart server
+        if: github.event.inputs.restart_server == 'true'
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.DEPLOY_USER }}@${{ github.event.inputs.server_host }} \
+            "systemctl restart minecraft || service minecraft restart || /opt/minecraft/restart.sh"
+
+      - name: ✅ Deploy complete
+        run: |
+          echo "✅ Deployment completed!"
+          echo "📦 Plugins deployed to: ${{ github.event.inputs.deploy_path }}"
+          echo "🖥️ Server: ${{ github.event.inputs.server_host }}"
+          echo "🔄 Server restart: ${{ github.event.inputs.restart_server }}"
