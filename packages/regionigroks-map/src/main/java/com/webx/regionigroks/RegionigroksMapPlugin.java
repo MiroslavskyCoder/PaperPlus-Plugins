@@ -52,6 +52,14 @@ public class RegionigroksMapPlugin extends JavaPlugin {
             getLogger().warning("Command 'region' not found in plugin.yml");
         }
 
+        // Register /safezone command for teleportation
+        PluginCommand safeZoneCmd = getCommand("safezone");
+        if (safeZoneCmd != null) {
+            safeZoneCmd.setExecutor(new SafeZoneTeleportCommand(this));
+        } else {
+            getLogger().warning("Command 'safezone' not found in plugin.yml");
+        }
+
         // Register listeners
         getServer().getPluginManager().registerEvents(new CreateRegionListener(this), this);
         getServer().getPluginManager().registerEvents(new ProtectionListener(this), this);
