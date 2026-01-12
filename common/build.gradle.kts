@@ -22,6 +22,9 @@ dependencies {
     // Javet - Java + V8 JavaScript Engine (cross-platform)
     implementation("com.caoccao.javet:javet:3.1.3")
     
+    // swc4j - SWC for Java (TypeScript/JSX transpilation, minification)
+    implementation("com.caoccao.javet:swc4j:0.8.0")
+    
     // GraalVM JavaScript (fallback)
     implementation("org.graalvm.js:js:22.3.0")
     implementation("org.graalvm.js:js-scriptengine:22.3.0")
@@ -48,9 +51,9 @@ java {
 sourceSets {
     main {
         java {
-            srcDirs("lxxv")
+            srcDirs("src/main/java")
         }
     }
 }
 
-description = "LXXV Shared Database - Centralized JSON storage library for all plugins"
+description = "LXXV Common - JavaScript Engine, Database Library, and Server Integration"

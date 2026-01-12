@@ -1,7 +1,8 @@
 package lxxv.shared.javascript;
 
 /**
- * Exception thrown when JavaScript execution fails
+ * JavaScript Exception
+ * Thrown when JavaScript execution fails
  */
 public class JavaScriptException extends Exception {
     public JavaScriptException(String message) {
@@ -10,9 +11,5 @@ public class JavaScriptException extends Exception {
 
     public JavaScriptException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public JavaScriptException(Throwable cause) {
-        super(cause);
     }
 }
