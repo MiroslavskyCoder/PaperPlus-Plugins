@@ -25,7 +25,7 @@ export function ScriptConsoleTab() {
     setResult(null)
 
     try {
-      const endpoint = executeMode === 'sync' 
+      const endpoint = executeMode === 'sync'
         ? '/api/script/execute'
         : '/api/script/execute-async'
 
@@ -36,7 +36,17 @@ export function ScriptConsoleTab() {
       })
 
       const data = await response.json()
-      setResult(data)
+
+      if (!response.ok || data.success === false) {
+        throw new Error(data.error || 'Не удалось выполнить скрипт')
+      }
+
+      setResult({
+        success: true,
+        result: data.result,
+        error: undefined,
+        timestamp: Date.now()
+      })
     } catch (error) {
       setResult({
         success: false,

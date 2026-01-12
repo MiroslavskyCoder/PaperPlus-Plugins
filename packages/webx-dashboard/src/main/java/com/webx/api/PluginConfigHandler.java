@@ -1,4 +1,4 @@
-package com.webx.dashboard.api;
+package com.webx.api;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;

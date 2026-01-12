@@ -18,7 +18,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Home, Server, Users, DollarSign, ShoppingCart, Clock, Palette, Power, Heart, Skull, Bug, Utensils, Map, Settings as SettingsIcon, Plug, Sliders } from "lucide-react";
+import { Home, Server, Users, DollarSign, ShoppingCart, Clock, Palette, Power, Heart, Skull, Bug, Utensils, Map, Settings as SettingsIcon, Plug, Sliders, Code2, Sparkles, Radio, CalendarClock } from "lucide-react";
 import { StatCard } from '@/components/dashboard/stat-card';
 import { ChartsGrid } from '@/components/dashboard/charts-grid';
 import { HomeTab } from '@/components/dashboard/home-tab';
@@ -37,6 +37,10 @@ import { SimpleHealTab } from '@/components/dashboard/simpleheal-tab';
 import { DeathMessageTab } from '@/components/dashboard/deathmessage-tab';
 import { MobCatchTab } from '@/components/dashboard/mobcatch-tab';
 import { FriendFeedTab } from '@/components/dashboard/friendfeed-tab';
+import { ScriptConsoleTab } from '@/components/dashboard/script-console-tab';
+import { EventSystemTab } from '@/components/dashboard/event-system-tab';
+import { TaskSchedulerTab } from '@/components/dashboard/task-scheduler-tab';
+import { ScriptTranspilerTab } from '@/components/dashboard/script-transpiler-tab';
 
 interface Stats {
   cpu: number;
@@ -80,6 +84,10 @@ const menuItems = [
   { id: 'map', label: 'Map', icon: Map },
   { id: 'config', label: 'Config', icon: Sliders },
   { id: 'plugins', label: 'Plugins', icon: Plug },
+  { id: 'script-console', label: 'JS Console', icon: Code2 },
+  { id: 'script-transpiler', label: 'TS/JSX', icon: Sparkles },
+  { id: 'events', label: 'Events', icon: Radio },
+  { id: 'scheduler', label: 'Scheduler', icon: CalendarClock },
   { id: 'settings', label: 'Settings', icon: SettingsIcon },
 ];
 
@@ -104,6 +112,10 @@ export default function Dashboard() {
       case 'map': return <MapTab entities={entities} mapImage={mapImage} />;
       case 'config': return <ConfigTab runCommand={runCommand} />;
       case 'plugins': return <PluginsTab />;
+      case 'script-console': return <ScriptConsoleTab />;
+      case 'script-transpiler': return <ScriptTranspilerTab />;
+      case 'events': return <EventSystemTab />;
+      case 'scheduler': return <TaskSchedulerTab />;
       case 'settings': return <SettingsTab />;
       default: return <HomeTab stats={stats} />;
     }

@@ -30,20 +30,28 @@ export function EventSystemTab() {
       const response = await fetch('/api/script/events')
       const data = await response.json()
 
-      if (data.success && Array.isArray(data.events)) {
-        const eventsList = await Promise.all(
-          data.events.map(async (name: string) => {
-            const listenerResponse = await fetch(`/api/script/listeners/${name}`)
-            const listenerData = await listenerResponse.json()
-            return {
-              name,
-              listenerCount: listenerData.listenerCount || 0,
-              timestamp: Date.now()
-            }
-          })
-        )
-        setEvents(eventsList)
+      if (!response.ok || !data.success || !Array.isArray(data.events)) {
+        throw new Error(data.error || 'Не удалось получить список событий')
       }
+
+      const eventsList = await Promise.all(
+        data.events.map(async (name: string) => {
+          const listenerResponse = await fetch(`/api/script/listeners/${name}`)
+          const listenerData = await listenerResponse.json()
+
+          if (!listenerResponse.ok || listenerData.success === false) {
+            return { name, listenerCount: 0, timestamp: Date.now() }
+          }
+
+          return {
+            name,
+            listenerCount: listenerData.listeners ?? listenerData.listenerCount ?? 0,
+            timestamp: Date.now()
+          }
+        })
+      )
+
+      setEvents(eventsList)
     } catch (error) {
       console.error('Failed to load events:', error)
     }
@@ -63,11 +71,15 @@ export function EventSystemTab() {
         }
       }
 
-      await fetch(`/api/script/event/${eventName}`, {
+      const response = await fetch(`/api/script/event/${eventName}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ args, async: false })
       })
+
+      if (!response.ok) {
+        throw new Error('Не удалось отправить событие')
+      }
 
       setEventName('')
       setEventArgs('')

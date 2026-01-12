@@ -8,16 +8,10 @@ import { Trash2, RefreshCw } from 'lucide-react'
 
 interface Task {
   id: string
-  active: boolean
-  cancelled: boolean
-  remainingTime: number
-  scheduledTime: number
-}
-
-interface TaskInfo {
-  success: boolean
-  count: number
-  tasks: string[]
+  type: string
+  delay: number
+  createdAt: number
+  remaining: number
 }
 
 export function TaskSchedulerTab() {
@@ -33,23 +27,31 @@ export function TaskSchedulerTab() {
   const loadTasks = async () => {
     try {
       const response = await fetch('/api/script/tasks')
-      const data: TaskInfo = await response.json()
-      
-      if (data.success) {
-        // Получить детали каждой задачи
-        const taskMap = new Map<string, Task>()
-        for (const taskId of data.tasks) {
-          // Здесь должен быть получение информации о каждой задаче
-          taskMap.set(taskId, {
-            id: taskId,
-            active: true,
-            cancelled: false,
-            remainingTime: 0,
-            scheduledTime: Date.now()
-          })
-        }
-        setTasks(taskMap)
+      const data = await response.json()
+
+      if (!response.ok || data.success === false) {
+        throw new Error(data.error || 'Не удалось получить задачи')
       }
+
+      const taskMap = new Map<string, Task>()
+      const now = Date.now()
+      const tasksObj = data.tasks || {}
+
+      Object.values(tasksObj).forEach((task: any) => {
+        if (!task || !task.id) return
+        const elapsed = now - (task.createdAt || now)
+        const remaining = Math.max(0, (task.delay || 0) - elapsed)
+
+        taskMap.set(task.id, {
+          id: task.id,
+          type: task.type || 'unknown',
+          delay: task.delay || 0,
+          createdAt: task.createdAt || now,
+          remaining,
+        })
+      })
+
+      setTasks(taskMap)
     } catch (error) {
       console.error('Failed to load tasks:', error)
     }
@@ -58,9 +60,16 @@ export function TaskSchedulerTab() {
   const handleCancelTask = async (taskId: string) => {
     setLoading(true)
     try {
-      await fetch(`/api/script/task/${taskId}`, {
+      const response = await fetch(`/api/script/task/${taskId}`, {
         method: 'DELETE'
       })
+
+      const data = await response.json()
+
+      if (!response.ok || data.success === false) {
+        throw new Error(data.error || 'Не удалось отменить задачу')
+      }
+
       setTasks(prev => {
         const newMap = new Map(prev)
         newMap.delete(taskId)
@@ -104,18 +113,18 @@ export function TaskSchedulerTab() {
                   <div className="flex-1">
                     <div className="font-mono text-sm font-medium">{taskId}</div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      Осталось: {Math.round(task.remainingTime / 1000)}сек
+                      Тип: {task.type} • Период: {Math.round(task.delay / 1000)}с
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant={task.active ? 'default' : 'secondary'}>
-                      {task.active ? 'Активна' : 'Завершена'}
+                    <Badge variant={task.remaining > 0 ? 'default' : 'secondary'}>
+                      {task.remaining > 0 ? `Осталось ~${Math.round(task.remaining / 1000)}с` : 'Выполняется/циклично'}
                     </Badge>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleCancelTask(taskId)}
-                      disabled={!task.active || loading}
+                      disabled={loading}
                     >
                       <Trash2 className="w-4 h-4 text-red-500" />
                     </Button>
