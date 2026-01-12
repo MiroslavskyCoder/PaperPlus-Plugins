@@ -104,4 +104,3 @@ public class QuestProgress {
         this.lastUpdateTime = System.currentTimeMillis();
     }
 }
-}
