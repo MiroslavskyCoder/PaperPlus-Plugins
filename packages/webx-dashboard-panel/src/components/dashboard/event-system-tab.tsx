@@ -118,7 +118,6 @@ export function EventSystemTab() {
               placeholder="Аргументы (JSON): 'hello', 42, true"
               value={eventArgs}
               onChange={(e) => setEventArgs(e.target.value)}
-              size="sm"
               className="text-xs"
             />
           </div>

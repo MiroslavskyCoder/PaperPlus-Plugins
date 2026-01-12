@@ -1,8 +1,8 @@
 package com.webx.quests.integration;
 
+import com.google.gson.Gson;
 import io.javalin.Javalin;
 import lxxv.shared.javascript.JavaScriptEngine;
-import lxxv.shared.javascript.JavaScriptScriptManager;
 import lxxv.shared.javascript.advanced.*;
 import lxxv.shared.server.LXXVServer;
 import lxxv.shared.server.script.ServerScriptController;
@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,21 +27,22 @@ import java.util.Map;
 public class JavaScriptIntegration {
     private final JavaPlugin plugin;
     private final JavaScriptEngine jsEngine;
-    private final JavaScriptScriptManager scriptManager;
     private final JavaScriptEventSystem eventSystem;
     private final JavaScriptScheduler scheduler;
     private final JavaScriptModuleManager moduleManager;
+    private final File scriptsDir;
+    private final Gson gson;
     private Javalin apiServer;
 
     public JavaScriptIntegration(JavaPlugin plugin) {
         this.plugin = plugin;
         this.jsEngine = JavaScriptEngine.getInstance();
-        this.scriptManager = new JavaScriptScriptManager(
-                new File(plugin.getDataFolder(), "scripts")
-        );
         this.eventSystem = new JavaScriptEventSystem();
         this.scheduler = new JavaScriptScheduler();
         this.moduleManager = new JavaScriptModuleManager(jsEngine);
+        this.scriptsDir = new File(plugin.getDataFolder(), "scripts");
+        this.scriptsDir.mkdirs();
+        this.gson = new Gson();
     }
 
     /**
@@ -49,9 +52,6 @@ public class JavaScriptIntegration {
         try {
             // Инициализировать LXXVServer
             LXXVServer.initialize(Bukkit.getServer(), jsEngine);
-
-            // Загрузить все скрипты
-            scriptManager.loadAllScripts();
 
             // Запустить API сервер
             startApiServer();
@@ -78,7 +78,6 @@ public class JavaScriptIntegration {
             // Регистрировать контроллер
             ServerScriptController controller = new ServerScriptController(
                     jsEngine,
-                    scriptManager,
                     eventSystem,
                     scheduler,
                     moduleManager
@@ -157,8 +156,9 @@ public class JavaScriptIntegration {
     private void registerQuestEvents() {
         // Событие: Квест начат
         eventSystem.addEventListener("questStarted", event -> {
-            Player player = Bukkit.getPlayer(event.getArg(0).toString());
-            String questId = event.getArg(1).toString();
+            if (event.length < 2) return;
+            Player player = Bukkit.getPlayer(String.valueOf(event[0]));
+            String questId = String.valueOf(event[1]);
 
             if (player != null) {
                 player.sendMessage("§aВы начали квест: " + questId);
@@ -167,8 +167,9 @@ public class JavaScriptIntegration {
 
         // Событие: Квест завершен
         eventSystem.addEventListener("questCompleted", event -> {
-            Player player = Bukkit.getPlayer(event.getArg(0).toString());
-            String questId = event.getArg(1).toString();
+            if (event.length < 2) return;
+            Player player = Bukkit.getPlayer(String.valueOf(event[0]));
+            String questId = String.valueOf(event[1]);
 
             if (player != null) {
                 player.sendMessage("§eВы завершили квест: " + questId);
@@ -177,9 +178,10 @@ public class JavaScriptIntegration {
 
         // Событие: Прогресс квеста обновлён
         eventSystem.addEventListener("questProgressUpdated", event -> {
-            Player player = Bukkit.getPlayer(event.getArg(0).toString());
-            String questId = event.getArg(1).toString();
-            int progress = ((Number) event.getArg(2)).intValue();
+            if (event.length < 3) return;
+            Player player = Bukkit.getPlayer(String.valueOf(event[0]));
+            String questId = String.valueOf(event[1]);
+            int progress = ((Number) event[2]).intValue();
 
             if (player != null) {
                 player.sendMessage("§bПрогресс: " + progress + "%");
@@ -197,7 +199,12 @@ public class JavaScriptIntegration {
             fullContext.put("playerName", player.getName());
             fullContext.put("playerLevel", player.getLevel());
 
-            return scriptManager.executeScript(scriptName, fullContext);
+            String code = loadScript(scriptName);
+            if (code == null) return null;
+            if (isTypeScript(scriptName)) {
+                code = jsEngine.transpile(code, scriptName);
+            }
+            return jsEngine.execute(code, fullContext);
         } catch (Exception e) {
             plugin.getLogger().warning("Ошибка при выполнении скрипта: " + e.getMessage());
             return null;
@@ -212,8 +219,16 @@ public class JavaScriptIntegration {
             Object[] fullArgs = new Object[args.length + 1];
             fullArgs[0] = player;
             System.arraycopy(args, 0, fullArgs, 1, args.length);
-
-            return scriptManager.executeScriptFunction(scriptName, functionName, fullArgs);
+            String code = loadScript(scriptName);
+            if (code == null) return null;
+            if (isTypeScript(scriptName)) {
+                code = jsEngine.transpile(code, scriptName);
+            }
+            String invoke = code + "\nif (typeof " + functionName + " === 'function') { " +
+                    "module.exports = " + functionName + "; }";
+            Map<String, Object> ctx = new HashMap<>();
+            ctx.put("args", fullArgs);
+            return jsEngine.execute(invoke + "\nmodule.exports.apply(null, args);", ctx);
         } catch (Exception e) {
             plugin.getLogger().warning("Ошибка при вызове функции: " + e.getMessage());
             return null;
@@ -247,8 +262,7 @@ public class JavaScriptIntegration {
      */
     public void shutdown() {
         try {
-            scriptManager.clearAllScripts();
-            eventSystem.clear();
+            eventSystem.shutdown();
             scheduler.shutdown();
 
             if (apiServer != null) {
@@ -312,10 +326,6 @@ public class JavaScriptIntegration {
     /**
      * Получить менеджер скриптов
      */
-    public JavaScriptScriptManager getScriptManager() {
-        return scriptManager;
-    }
-
     /**
      * Получить систему событий
      */
@@ -335,5 +345,21 @@ public class JavaScriptIntegration {
      */
     public JavaScriptModuleManager getModuleManager() {
         return moduleManager;
+    }
+
+    private String loadScript(String scriptName) {
+        try {
+            File file = new File(scriptsDir, scriptName);
+            if (!file.exists()) return null;
+            return Files.readString(file.toPath(), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Не удалось прочитать скрипт " + scriptName + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    private boolean isTypeScript(String name) {
+        String lower = name.toLowerCase();
+        return lower.endsWith(".ts") || lower.endsWith(".tsx");
     }
 }
