@@ -26,6 +26,9 @@ dependencies {
     implementation("org.graalvm.js:js:22.3.0")
     implementation("org.graalvm.js:js-scriptengine:22.3.0")
     
+    // Javalin for REST API
+    implementation("io.javalin:javalin:5.6.2")
+    
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.5")
     implementation("org.slf4j:slf4j-simple:2.0.5")
@@ -38,8 +41,8 @@ tasks {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 sourceSets {
