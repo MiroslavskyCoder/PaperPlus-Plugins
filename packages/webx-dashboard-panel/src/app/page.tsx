@@ -6,8 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { BorderTrail } from '@/components/motion-primitives/border-trail';
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger, DrawerClose } from "@/components/ui/drawer";
-import { Menu, X, Home, Server, Users, DollarSign, ShoppingCart, Clock, Palette, Power, Heart, Skull, Bug, Utensils, Map, Settings as SettingsIcon, Plug, Sliders } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Home, Server, Users, DollarSign, ShoppingCart, Clock, Palette, Power, Heart, Skull, Bug, Utensils, Map, Settings as SettingsIcon, Plug, Sliders } from "lucide-react";
 import { StatCard } from '@/components/dashboard/stat-card';
 import { ChartsGrid } from '@/components/dashboard/charts-grid';
 import { HomeTab } from '@/components/dashboard/home-tab';
@@ -75,7 +86,6 @@ const menuItems = [
 export default function Dashboard() {
   const { stats, statsHistory, players, entities, mapImage, chartData, fetchPlayers, fetchMap, fetchChartData, runCommand } = useDashboard();
   const [activeTab, setActiveTab] = useState('home');
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -100,93 +110,74 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 text-foreground">
-      <div className="container mx-auto p-4 md:p-8">
-        <div className="mb-8 text-center animate-fade-in">
-          <div className="flex items-center justify-between mb-4">
-            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-              <DrawerTrigger asChild>
-                <Button variant="outline" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="h-[80vh]">
-                <DrawerHeader className="border-b">
-                  <div className="flex items-center justify-between">
-                    <DrawerTitle>Navigation</DrawerTitle>
-                    <DrawerClose asChild>
-                      <Button variant="ghost" size="icon">
-                        <X className="h-5 w-5" />
-                      </Button>
-                    </DrawerClose>
-                  </div>
-                </DrawerHeader>
-                <div className="p-4 overflow-y-auto">
-                  <nav className="space-y-2">
-                    {menuItems.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <Button
-                          key={item.id}
-                          variant={activeTab === item.id ? "default" : "ghost"}
-                          className="w-full justify-start gap-2"
-                          onClick={() => {
-                            setActiveTab(item.id);
-                            setIsDrawerOpen(false);
-                          }}
-                        >
-                          <Icon className="h-4 w-4" />
-                          {item.label}
-                        </Button>
-                      );
-                    })}
-                  </nav>
-                </div>
-              </DrawerContent>
-            </Drawer>
+    <SidebarProvider defaultOpen={true}>
+      <Sidebar>
+        <SidebarContent className="pt-6">
+          <SidebarGroup>
+            <div className="px-4 mb-4">
+              <h2 className="text-lg font-bold text-primary">MC Panel</h2>
+              <p className="text-xs text-muted-foreground">Server Manager</p>
+            </div>
+          </SidebarGroup>
 
-            <div className="flex-1">
-              <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent mb-2">
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menuItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={activeTab === item.id}
+                        onClick={() => setActiveTab(item.id)}
+                        className="cursor-pointer"
+                      >
+                        <span>
+                          <Icon className="h-4 w-4" />
+                          <span>{item.label}</span>
+                        </span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          <div className="mt-auto px-4 py-4 border-t border-sidebar-border space-y-3">
+            <div className="flex items-center gap-2 px-3 py-2 bg-green-500/10 text-green-500 rounded-lg text-xs font-medium border border-green-500/20">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              Connected
+            </div>
+            <ThemeToggle />
+          </div>
+        </SidebarContent>
+      </Sidebar>
+
+      <SidebarInset>
+        {/* Top Header */}
+        <header className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-20 flex items-center justify-between p-4 md:p-6">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="hidden lg:flex" />
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
                 Minecraft Server Control Panel
               </h1>
-              <p className="text-sm md:text-base text-muted-foreground">Monitor and manage your Minecraft server in real-time</p>
-            </div>
-
-            <div className="flex items-center gap-2 md:gap-4">
-              <ThemeToggle />
-              <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-sm font-medium border border-green-500/20">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Connected
-              </div>
+              <p className="text-xs md:text-sm text-muted-foreground">Monitor and manage your Minecraft server in real-time</p>
             </div>
           </div>
+          <ThemeToggle />
+        </header>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex gap-2 flex-wrap justify-center mt-6">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Button
-                  key={item.id}
-                  variant={activeTab === item.id ? "default" : "outline"}
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => setActiveTab(item.id)}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Button>
-              );
-            })}
+        {/* Page Content */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div className="space-y-6 animate-fade-in">
+            {renderContent()}
           </div>
         </div>
-
-        {/* Content */}
-        <div className="space-y-6 animate-fade-in">
-          {renderContent()}
-        </div>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
 
