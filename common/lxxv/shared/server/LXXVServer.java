@@ -89,9 +89,10 @@ public class LXXVServer {
             return server.getVersion();
         });
 
-        // Получить время работы сервера
+        // Получить время работы сервера (в миллисекундах)
         jsEngine.registerFunction("getUptime", args -> {
-            return System.currentTimeMillis() - server.getTickCount() * 50;
+            // В Paper API нет getTickCount(), используем текущее время сервера
+            return server.getWorlds().isEmpty() ? 0L : server.getWorlds().get(0).getFullTime() * 50L;
         });
 
         // Перезагрузить сервер
