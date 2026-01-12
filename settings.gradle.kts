@@ -6,6 +6,14 @@ plugins {
 
 rootProject.name = "webx-dashboard"
 
+// Common shared utilities
+include("common")
+project(":common").projectDir = file("common")
+
+// Shared Plugin Database (legacy - use common instead)
+include("shared-database")
+project(":shared-database").projectDir = file("packages/shared-database")
+
 include("webx-dashboard-panel")
 project(":webx-dashboard-panel").projectDir = file("packages/webx-dashboard-panel")
 

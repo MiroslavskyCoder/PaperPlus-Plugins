@@ -28,6 +28,9 @@ dependencies {
     
     // Gson for JSON processing
     implementation("com.google.code.gson:gson:2.10.1")
+    
+    // Shared database library
+    implementation(project(":common"))
 
     // PostgreSQL and connection pooling
     implementation("org.postgresql:postgresql:42.6.0")

@@ -7,6 +7,8 @@ tasks.register("buildAllPlugins") {
     group = "build"
     description = "Build all plugins"
     dependsOn(
+        ":common:build",
+        ":shared-database:build",
         ":webx-dashboard:build",
         ":webx-dashboard-panel:bunBuild",
         ":regionigroks-map:build",

@@ -13,6 +13,9 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     implementation("org.joml:joml:1.10.5")
+    
+    // Shared database library
+    implementation(project(":common"))
 }
 
 // Toolchain disabled - using system JDK instead

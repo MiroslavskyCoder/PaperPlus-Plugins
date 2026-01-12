@@ -15,6 +15,9 @@ dependencies {
     
     // Gson for JSON processing
     implementation("com.google.code.gson:gson:2.10.1")
+    
+    // Shared database library
+    implementation(project(":common"))
 }
 
 tasks.jar {
