@@ -1,6 +1,5 @@
 plugins {
     java
-    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.webx"
@@ -26,10 +25,6 @@ dependencies {
 tasks {
     withType<JavaCompile> {
         options.encoding = "UTF-8"
-    }
-
-    shadowJar {
-        relocate("com.google.gson", "com.webx.shade.gson")
     }
 }
 
