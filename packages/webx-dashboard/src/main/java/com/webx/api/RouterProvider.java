@@ -16,6 +16,7 @@ import com.webx.api.models.SettingsConfig;
 import com.webx.api.services.*;
 import com.webx.helper.SystemHelper;
 import com.webx.services.SettingsService;
+import com.webx.loaderscript.integration.LoaderScriptDashboardIntegration;
 
 import io.javalin.Javalin;
 
@@ -93,6 +94,9 @@ public class RouterProvider {
         
         // ===== LEADERBOARD ENDPOINTS =====
         registerLeaderboardRoutes();
+        
+        // ===== LOADERSCRIPT ENDPOINTS =====
+        registerLoaderScriptRoutes();
     }
     
     private void registerMetricsWebSocket() {
@@ -627,6 +631,19 @@ public class RouterProvider {
         app.get(API.getFullPath("leaderboards/players"), leaderboardService::getTopPlayers);
         app.get(API.getFullPath("leaderboards/stats"), leaderboardService::getCombinedStats);
         plugin.getLogger().info("✅ Leaderboard API routes registered");
+    }
+
+    private void registerLoaderScriptRoutes() {
+        try {
+            if (LoaderScriptDashboardIntegration.isLoaderScriptAvailable()) {
+                LoaderScriptDashboardIntegration.registerWithDashboard(app);
+                plugin.getLogger().info("✅ LoaderScript API routes registered");
+            } else {
+                plugin.getLogger().info("⚠️ LoaderScript plugin not found - skipping LoaderScript routes");
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("⚠️ Error registering LoaderScript routes: " + e.getMessage());
+        }
     }
 
     public void stopWebServer() {

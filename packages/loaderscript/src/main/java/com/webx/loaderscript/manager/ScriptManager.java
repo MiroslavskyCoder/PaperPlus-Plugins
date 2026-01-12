@@ -75,10 +75,12 @@ public class ScriptManager {
             String content = Files.readString(scriptFile.toPath(), StandardCharsets.UTF_8);
             
             // Check if TypeScript/JSX - transpile first
-            String executableCode = content;
+            final String executableCode;
             if (isTypeScriptFile(scriptName)) {
                 plugin.getLogger().info("Transpiling TypeScript: " + scriptName);
                 executableCode = jsEngine.transpile(content, scriptName);
+            } else {
+                executableCode = content;
             }
             
             // Execute script in sync context (main thread)

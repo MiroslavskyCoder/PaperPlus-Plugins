@@ -19,6 +19,9 @@ dependencies {
     
     // Economy plugin dependency for API integration
     compileOnly(project(":economy"))
+    
+    // LoaderScript plugin dependency for API integration
+    compileOnly(project(":loaderscript"))
 
     // Javalin for embedded Web Server
     implementation("io.javalin:javalin:6.7.0")

@@ -26,9 +26,10 @@ public class ScriptAPIController {
     }
     
     /**
-     * Register all API routes
+     * Register all API routes on Javalin app
+     * Called by WebX Dashboard when initializing
      */
-    public void register(Javalin app) {
+    public void registerRoutes(Javalin app) {
         // Script management
         app.get("/api/loaderscript/scripts", this::listScripts);
         app.get("/api/loaderscript/scripts/:name", this::getScript);

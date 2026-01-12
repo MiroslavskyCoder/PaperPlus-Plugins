@@ -17,8 +17,32 @@ JavaScript script loader for Minecraft Paper/Spigot servers with hot-reload and 
 
 1. Copy `LoaderScript.jar` to `plugins/` folder
 2. Install `common.jar` (LXXV Common module) to `plugins/` folder
-3. Restart server
-4. Scripts folder will be created at: `scripts/` (in server root)
+3. Install `webx-dashboard.jar` (WebX Dashboard) to `plugins/` folder for web UI
+4. Restart server
+5. Scripts folder will be created at: `scripts/` (in server root)
+
+## How It Works
+
+### Architecture
+
+```
+LoaderScript Plugin
+├── ScriptManager (load/reload/unload scripts)
+├── ScriptAPIController (REST API endpoints)
+└── LoaderScriptDashboardIntegration (WebX Dashboard integration)
+    └── Registers API routes on WebX Dashboard Javalin server
+```
+
+### Plugin Registration
+
+LoaderScript **does NOT** start its own REST API server. Instead, it provides API routes that are registered with **WebX Dashboard's** Javalin server.
+
+When WebX Dashboard initializes, it calls:
+```java
+LoaderScriptDashboardIntegration.registerWithDashboard(javalinApp);
+```
+
+This registers all LoaderScript API routes on the WebX Dashboard Javalin instance.
 
 ## Usage
 
@@ -39,7 +63,9 @@ JavaScript script loader for Minecraft Paper/Spigot servers with hot-reload and 
 
 ### Web Dashboard
 
-Access the script manager at: `http://localhost:7072/api/loaderscript`
+Access the script manager at: `http://localhost:8080/dashboard` (WebX Dashboard)
+
+**API Endpoints** (on WebX Dashboard port, not separate):
 
 **API Endpoints:**
 
@@ -143,9 +169,6 @@ See `scripts/README.md` for full API documentation.
 Edit `plugins/LoaderScript/config.yml`:
 
 ```yaml
-# API Server Port
-api-port: 7072
-
 # Auto-load scripts on startup
 auto-load: true
 
@@ -166,6 +189,43 @@ Example scripts are available in `scripts/` folder:
 - `auto-restart.js` - Automatic server restart scheduler
 - `scoreboard-manager.js` - Dynamic player scoreboards
 
+## Integration with WebX Dashboard
+
+### For WebX Dashboard Developers
+
+To integrate LoaderScript API with WebX Dashboard:
+
+```java
+import com.webx.loaderscript.integration.LoaderScriptDashboardIntegration;
+import io.javalin.Javalin;
+
+// When initializing WebX Dashboard Javalin server
+Javalin app = Javalin.create().start(8080);
+
+// Register LoaderScript API routes if available
+if (LoaderScriptDashboardIntegration.isLoaderScriptAvailable()) {
+    LoaderScriptDashboardIntegration.registerWithDashboard(app);
+    logger.info("LoaderScript API registered with WebX Dashboard");
+}
+```
+
+### API Controller Access
+
+```java
+LoaderScriptPlugin loaderScript = LoaderScriptDashboardIntegration.getLoaderScript();
+if (loaderScript != null) {
+    // Access script manager
+    ScriptManager manager = loaderScript.getScriptManager();
+    
+    // Access JavaScript engine
+    JavaScriptEngine engine = loaderScript.getJavaScriptEngine();
+    
+    // Access API controller
+    ScriptAPIController controller = loaderScript.getAPIController();
+    controller.registerRoutes(app); // Register routes
+}
+```
+
 ## Permissions
 
 ```
@@ -178,6 +238,7 @@ loaderscript.user   - Basic user commands (default: true)
 - **Paper API** 1.20.4+
 - **LXXV Common** (included in build)
 - **Vault** (optional, for economy/permissions)
+- **WebX Dashboard** (optional, for web UI)
 
 ## Building
 
