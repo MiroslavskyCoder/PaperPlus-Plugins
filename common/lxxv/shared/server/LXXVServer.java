@@ -57,58 +57,58 @@ public class LXXVServer {
      */
     private static void registerServerFunctions() {
         // Трансляция сообщения всем игрокам
-        jsEngine.registerFunction("broadcast", args -> {
+        jsEngine.registerFunctionLambda("broadcast", args -> {
             String message = args[0].toString();
             server.broadcastMessage(message);
             return null;
         });
 
         // Получить количество игроков онлайн
-        jsEngine.registerFunction("getOnlinePlayers", args -> {
+        jsEngine.registerFunctionLambda("getOnlinePlayers", args -> {
             return server.getOnlinePlayers().size();
         });
 
         // Получить максимальное количество игроков
-        jsEngine.registerFunction("getMaxPlayers", args -> {
+        jsEngine.registerFunctionLambda("getMaxPlayers", args -> {
             return server.getMaxPlayers();
         });
 
         // Получить MOTD сервера
-        jsEngine.registerFunction("getMotd", args -> {
+        jsEngine.registerFunctionLambda("getMotd", args -> {
             return server.getMotd();
         });
 
         // Установить MOTD
-        jsEngine.registerFunction("setMotd", args -> {
+        jsEngine.registerFunctionLambda("setMotd", args -> {
             server.setMotd(args[0].toString());
             return null;
         });
 
         // Получить версию сервера
-        jsEngine.registerFunction("getVersion", args -> {
+        jsEngine.registerFunctionLambda("getVersion", args -> {
             return server.getVersion();
         });
 
         // Получить время работы сервера (в миллисекундах)
-        jsEngine.registerFunction("getUptime", args -> {
+        jsEngine.registerFunctionLambda("getUptime", args -> {
             // В Paper API нет getTickCount(), используем текущее время сервера
             return server.getWorlds().isEmpty() ? 0L : server.getWorlds().get(0).getFullTime() * 50L;
         });
 
         // Перезагрузить сервер
-        jsEngine.registerFunction("reload", args -> {
+        jsEngine.registerFunctionLambda("reload", args -> {
             server.reload();
             return null;
         });
 
         // Остановить сервер
-        jsEngine.registerFunction("shutdown", args -> {
+        jsEngine.registerFunctionLambda("shutdown", args -> {
             server.shutdown();
             return null;
         });
 
         // Выполнить команду от сервера
-        jsEngine.registerFunction("executeCommand", args -> {
+        jsEngine.registerFunctionLambda("executeCommand", args -> {
             String command = args[0].toString();
             return server.dispatchCommand(server.getConsoleSender(), command);
         });
@@ -119,24 +119,24 @@ public class LXXVServer {
      */
     private static void registerPlayerFunctions() {
         // Получить игрока по имени
-        jsEngine.registerFunction("getPlayer", args -> {
+        jsEngine.registerFunctionLambda("getPlayer", args -> {
             String name = args[0].toString();
             return server.getPlayerExact(name);
         });
 
         // Получить всех игроков онлайн
-        jsEngine.registerFunction("getPlayers", args -> {
+        jsEngine.registerFunctionLambda("getPlayers", args -> {
             return server.getOnlinePlayers().toArray();
         });
 
         // Получить игрока по UUID
-        jsEngine.registerFunction("getPlayerByUUID", args -> {
+        jsEngine.registerFunctionLambda("getPlayerByUUID", args -> {
             UUID uuid = UUID.fromString(args[0].toString());
             return server.getPlayer(uuid);
         });
 
         // Отправить сообщение игроку
-        jsEngine.registerFunction("sendMessage", args -> {
+        jsEngine.registerFunctionLambda("sendMessage", args -> {
             Player player = (Player) args[0];
             String message = args[1].toString();
             player.sendMessage(message);
@@ -144,7 +144,7 @@ public class LXXVServer {
         });
 
         // Дать предмет игроку
-        jsEngine.registerFunction("giveItem", args -> {
+        jsEngine.registerFunctionLambda("giveItem", args -> {
             Player player = (Player) args[0];
             String itemName = args[1].toString();
             int amount = ((Number) args[2]).intValue();
@@ -154,7 +154,7 @@ public class LXXVServer {
         });
 
         // Телепортировать игрока
-        jsEngine.registerFunction("teleportPlayer", args -> {
+        jsEngine.registerFunctionLambda("teleportPlayer", args -> {
             Player player = (Player) args[0];
             double x = ((Number) args[1]).doubleValue();
             double y = ((Number) args[2]).doubleValue();
@@ -169,13 +169,13 @@ public class LXXVServer {
         });
 
         // Получить здоровье игрока
-        jsEngine.registerFunction("getPlayerHealth", args -> {
+        jsEngine.registerFunctionLambda("getPlayerHealth", args -> {
             Player player = (Player) args[0];
             return player.getHealth();
         });
 
         // Установить здоровье игрока
-        jsEngine.registerFunction("setPlayerHealth", args -> {
+        jsEngine.registerFunctionLambda("setPlayerHealth", args -> {
             Player player = (Player) args[0];
             double health = ((Number) args[1]).doubleValue();
             player.setHealth(Math.min(health, player.getMaxHealth()));
@@ -183,13 +183,13 @@ public class LXXVServer {
         });
 
         // Получить голод игрока
-        jsEngine.registerFunction("getPlayerFood", args -> {
+        jsEngine.registerFunctionLambda("getPlayerFood", args -> {
             Player player = (Player) args[0];
             return player.getFoodLevel();
         });
 
         // Установить голод игрока
-        jsEngine.registerFunction("setPlayerFood", args -> {
+        jsEngine.registerFunctionLambda("setPlayerFood", args -> {
             Player player = (Player) args[0];
             int food = ((Number) args[1]).intValue();
             player.setFoodLevel(Math.min(food, 20));
@@ -197,13 +197,13 @@ public class LXXVServer {
         });
 
         // Получить уровень опыта
-        jsEngine.registerFunction("getPlayerExpLevel", args -> {
+        jsEngine.registerFunctionLambda("getPlayerExpLevel", args -> {
             Player player = (Player) args[0];
             return player.getLevel();
         });
 
         // Дать опыт игроку
-        jsEngine.registerFunction("giveExp", args -> {
+        jsEngine.registerFunctionLambda("giveExp", args -> {
             Player player = (Player) args[0];
             int amount = ((Number) args[1]).intValue();
             player.giveExp(amount);
@@ -211,20 +211,20 @@ public class LXXVServer {
         });
 
         // Проверить есть ли разрешение
-        jsEngine.registerFunction("hasPermission", args -> {
+        jsEngine.registerFunctionLambda("hasPermission", args -> {
             Player player = (Player) args[0];
             String permission = args[1].toString();
             return player.hasPermission(permission);
         });
 
         // Получить мир игрока
-        jsEngine.registerFunction("getPlayerWorld", args -> {
+        jsEngine.registerFunctionLambda("getPlayerWorld", args -> {
             Player player = (Player) args[0];
             return player.getWorld().getName();
         });
 
         // Получить позицию игрока
-        jsEngine.registerFunction("getPlayerLocation", args -> {
+        jsEngine.registerFunctionLambda("getPlayerLocation", args -> {
             Player player = (Player) args[0];
             Location loc = player.getLocation();
             Map<String, Object> locMap = new HashMap<>();
@@ -236,13 +236,13 @@ public class LXXVServer {
         });
 
         // Получить режим игры
-        jsEngine.registerFunction("getGameMode", args -> {
+        jsEngine.registerFunctionLambda("getGameMode", args -> {
             Player player = (Player) args[0];
             return player.getGameMode().toString();
         });
 
         // Установить режим игры
-        jsEngine.registerFunction("setGameMode", args -> {
+        jsEngine.registerFunctionLambda("setGameMode", args -> {
             Player player = (Player) args[0];
             String modeStr = args[1].toString().toUpperCase();
             GameMode mode = GameMode.valueOf(modeStr);
@@ -256,14 +256,14 @@ public class LXXVServer {
      */
     private static void registerCommandFunctions() {
         // Выполнить команду от игрока
-        jsEngine.registerFunction("playerExecuteCommand", args -> {
+        jsEngine.registerFunctionLambda("playerExecuteCommand", args -> {
             Player player = (Player) args[0];
             String command = args[1].toString();
             return player.performCommand(command);
         });
 
         // Получить таблицу коммунд
-        jsEngine.registerFunction("getCommands", args -> {
+        jsEngine.registerFunctionLambda("getCommands", args -> {
             return server.getCommandMap().getKnownCommands().keySet().toArray();
         });
     }
@@ -273,26 +273,26 @@ public class LXXVServer {
      */
     private static void registerWorldFunctions() {
         // Получить мир по имени
-        jsEngine.registerFunction("getWorld", args -> {
+        jsEngine.registerFunctionLambda("getWorld", args -> {
             String worldName = args[0].toString();
             return server.getWorld(worldName);
         });
 
         // Получить список миров
-        jsEngine.registerFunction("getWorlds", args -> {
+        jsEngine.registerFunctionLambda("getWorlds", args -> {
             return server.getWorlds().stream()
                     .map(World::getName)
                     .toArray();
         });
 
         // Получить время суток в мире
-        jsEngine.registerFunction("getTime", args -> {
+        jsEngine.registerFunctionLambda("getTime", args -> {
             World world = (World) args[0];
             return world.getTime();
         });
 
         // Установить время суток
-        jsEngine.registerFunction("setTime", args -> {
+        jsEngine.registerFunctionLambda("setTime", args -> {
             World world = (World) args[0];
             long time = ((Number) args[1]).longValue();
             world.setTime(time);
@@ -300,13 +300,13 @@ public class LXXVServer {
         });
 
         // Получить погоду (true - идёт дождь)
-        jsEngine.registerFunction("hasStorm", args -> {
+        jsEngine.registerFunctionLambda("hasStorm", args -> {
             World world = (World) args[0];
             return world.hasStorm();
         });
 
         // Установить погоду
-        jsEngine.registerFunction("setStorm", args -> {
+        jsEngine.registerFunctionLambda("setStorm", args -> {
             World world = (World) args[0];
             boolean storm = (boolean) args[1];
             world.setStorm(storm);
@@ -314,7 +314,7 @@ public class LXXVServer {
         });
 
         // Получить сложность мира
-        jsEngine.registerFunction("getDifficulty", args -> {
+        jsEngine.registerFunctionLambda("getDifficulty", args -> {
             World world = (World) args[0];
             return world.getDifficulty().toString();
         });
@@ -325,7 +325,7 @@ public class LXXVServer {
      */
     private static void registerEventFunctions() {
         // Зарегистрировать слушателя события
-        jsEngine.registerFunction("addEventListener", args -> {
+        jsEngine.registerFunctionLambda("addEventListener", args -> {
             String eventName = args[0].toString();
             // Java код будет вызывать emit, а JS слушатели будут обработаны
             eventSystem.addEventListener(eventName, event -> {
@@ -335,7 +335,7 @@ public class LXXVServer {
         });
 
         // Запустить событие
-        jsEngine.registerFunction("emit", args -> {
+        jsEngine.registerFunctionLambda("emit", args -> {
             String eventName = args[0].toString();
             Object[] eventArgs = new Object[args.length - 1];
             System.arraycopy(args, 1, eventArgs, 0, args.length - 1);
@@ -344,7 +344,7 @@ public class LXXVServer {
         });
 
         // Запустить событие асинхронно
-        jsEngine.registerFunction("emitAsync", args -> {
+        jsEngine.registerFunctionLambda("emitAsync", args -> {
             String eventName = args[0].toString();
             Object[] eventArgs = new Object[args.length - 1];
             System.arraycopy(args, 1, eventArgs, 0, args.length - 1);
@@ -353,7 +353,7 @@ public class LXXVServer {
         });
 
         // Получить количество слушателей
-        jsEngine.registerFunction("getListenerCount", args -> {
+        jsEngine.registerFunctionLambda("getListenerCount", args -> {
             String eventName = args[0].toString();
             return eventSystem.getListenerCount(eventName);
         });
@@ -364,7 +364,7 @@ public class LXXVServer {
      */
     private static void registerSchedulerFunctions() {
         // setTimeout
-        jsEngine.registerFunction("setTimeout", args -> {
+        jsEngine.registerFunctionLambda("setTimeout", args -> {
             // Код будет передан как строка, выполнится через delay
             String taskId = scheduler.setTimeout(
                     () -> {},
@@ -374,7 +374,7 @@ public class LXXVServer {
         });
 
         // setInterval
-        jsEngine.registerFunction("setInterval", args -> {
+        jsEngine.registerFunctionLambda("setInterval", args -> {
             String taskId = scheduler.setInterval(
                     () -> {},
                     ((Number) args[1]).longValue()
@@ -383,18 +383,18 @@ public class LXXVServer {
         });
 
         // clearTimeout/clearInterval
-        jsEngine.registerFunction("clearTimeout", args -> {
+        jsEngine.registerFunctionLambda("clearTimeout", args -> {
             String taskId = args[0].toString();
             return scheduler.clearTimeout(taskId);
         });
 
-        jsEngine.registerFunction("clearInterval", args -> {
+        jsEngine.registerFunctionLambda("clearInterval", args -> {
             String taskId = args[0].toString();
             return scheduler.clearInterval(taskId);
         });
 
         // Получить активные задачи
-        jsEngine.registerFunction("getActiveTasks", args -> {
+        jsEngine.registerFunctionLambda("getActiveTasks", args -> {
             return scheduler.getActiveTasks().toArray();
         });
     }
@@ -404,30 +404,30 @@ public class LXXVServer {
      */
     private static void registerUtilityFunctions() {
         // Логирование
-        jsEngine.registerFunction("log", args -> {
+        jsEngine.registerFunctionLambda("log", args -> {
             System.out.println("[LXXV-JS] " + args[0]);
             return null;
         });
 
         // Предупреждение
-        jsEngine.registerFunction("warn", args -> {
+        jsEngine.registerFunctionLambda("warn", args -> {
             System.out.println("[LXXV-JS WARN] " + args[0]);
             return null;
         });
 
         // Ошибка
-        jsEngine.registerFunction("error", args -> {
+        jsEngine.registerFunctionLambda("error", args -> {
             System.err.println("[LXXV-JS ERROR] " + args[0]);
             return null;
         });
 
         // Получить текущее время в миллисекундах
-        jsEngine.registerFunction("now", args -> {
+        jsEngine.registerFunctionLambda("now", args -> {
             return System.currentTimeMillis();
         });
 
         // Получить информацию о памяти
-        jsEngine.registerFunction("getMemoryInfo", args -> {
+        jsEngine.registerFunctionLambda("getMemoryInfo", args -> {
             Runtime runtime = Runtime.getRuntime();
             Map<String, Object> info = new HashMap<>();
             info.put("total", runtime.totalMemory());
@@ -473,3 +473,4 @@ public class LXXVServer {
         return server;
     }
 }
+

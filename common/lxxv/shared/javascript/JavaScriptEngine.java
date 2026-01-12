@@ -166,21 +166,20 @@ public class JavaScriptEngine {
 
     /**
      * Register a custom Java function accessible from JavaScript
-     * Accepts both JavaScriptFunction and Function<Object[], Object> lambdas
      */
-    public void registerFunction(String name, Object function) {
-        if (function instanceof JavaScriptFunction) {
-            registeredFunctions.put(name, (JavaScriptFunction) function);
-            globalContext.put(name, function);
-        } else if (function instanceof Function) {
-            @SuppressWarnings("unchecked")
-            Function<Object[], Object> lambda = (Function<Object[], Object>) function;
-            JavaScriptFunction wrapped = args -> lambda.apply(args);
-            registeredFunctions.put(name, wrapped);
-            globalContext.put(name, wrapped);
-        } else {
-            throw new IllegalArgumentException("Function must be JavaScriptFunction or Function<Object[], Object>");
-        }
+    public void registerFunction(String name, JavaScriptFunction function) {
+        registeredFunctions.put(name, function);
+        globalContext.put(name, function);
+    }
+
+    /**
+     * Register a simple Java function (lambda) - convenience method
+     * Use this when you want to pass a lambda like: (args) -> { ... }
+     */
+    public void registerFunctionLambda(String name, Function<Object[], Object> function) {
+        JavaScriptFunction wrapped = args -> function.apply(args);
+        registeredFunctions.put(name, wrapped);
+        globalContext.put(name, wrapped);
     }
 
     /**
