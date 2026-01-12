@@ -6,6 +6,10 @@
 
 ```gradle
 dependencies {
+    // Javet - Java + V8 JavaScript Engine (рекомендуется)
+    implementation("com.caoccao.javet:javet:3.1.3")
+    
+    // GraalVM JavaScript (fallback)
     implementation("org.graalvm.js:js:22.3.0")
     implementation("org.graalvm.js:js-scriptengine:22.3.0")
 }

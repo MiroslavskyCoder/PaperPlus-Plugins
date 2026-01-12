@@ -399,12 +399,18 @@ Object isValid = manager.executeScriptFunction(
 ## Зависимости
 
 ```gradle
-// GraalVM JavaScript
+// Javet - Java + V8 JavaScript Engine (cross-platform)
+implementation("com.caoccao.javet:javet:3.1.3")
+
+// GraalVM JavaScript (fallback)
 implementation("org.graalvm.js:js:22.3.0")
 implementation("org.graalvm.js:js-scriptengine:22.3.0")
 
-// J2V8 (alternative)
-implementation("com.eclipsesource.j2v8:j2v8:6.2.0")
+// JSON Processing
+implementation("com.google.code.gson:gson:2.10.1")
+
+// Logging
+implementation("org.slf4j:slf4j-api:2.0.5")
 ```
 
 ---
