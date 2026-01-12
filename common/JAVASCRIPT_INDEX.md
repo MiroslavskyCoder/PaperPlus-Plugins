@@ -3,9 +3,10 @@
 ## 📚 Документация
 
 ### Основные Гайды
-1. **[V8 Quick Start](./V8_QUICKSTART.md)** - Быстрый старт для новичков
-2. **[JavaScript Integration Documentation](./JAVASCRIPT_INTEGRATION.md)** - Полная документация
-3. **[Common Module README](./COMMON_README.md)** - Обзор модуля common
+1. **[Javet Integration](./JAVET_INTEGRATION.md)** - Java + V8 (Рекомендуется)
+2. **[V8 Quick Start](./V8_QUICKSTART.md)** - Быстрый старт для новичков
+3. **[JavaScript Integration Documentation](./JAVASCRIPT_INTEGRATION.md)** - Полная документация
+4. **[Common Module README](./COMMON_README.md)** - Обзор модуля common
 
 ---
 
@@ -311,6 +312,10 @@ Object result = sandbox.execute("1 + 1");
 ### build.gradle.kts
 ```gradle
 dependencies {
+    // Javet - Java + V8 (рекомендуется)
+    implementation("com.caoccao.javet:javet:3.1.3")
+    
+    // GraalVM JS (fallback)
     implementation("org.graalvm.js:js:22.3.0")
     implementation("org.graalvm.js:js-scriptengine:22.3.0")
 }
