@@ -583,6 +583,7 @@ dependencies {
     implementation("org.graalvm.js:js-scriptengine:22.3.0")
     implementation("io.javalin:javalin:5.6.2")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.slf4j:slf4j-api:2.0.5")
 }
 ```
 
