@@ -1,0 +1,37 @@
+{
+  "id": "024_master_builder",
+  "name": "Мастер Строитель",
+  "description": "Постройте башню высотой 64 блока",
+  "type": "BUILD",
+  "difficulty": "HARD",
+  "level": 10,
+  "category": "building",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": ["010_architect"],
+  "objectives": [
+    {
+      "id": "build_tower",
+      "type": "PLACE",
+      "description": "Построить башню",
+      "target": "ANY",
+      "required": 1024,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 2000,
+    "exp": 1000,
+    "items": [
+      {
+        "type": "ELYTRA",
+        "amount": 1
+      },
+      {
+        "type": "FIREWORK_ROCKET",
+        "amount": 64
+      }
+    ]
+  }
+}

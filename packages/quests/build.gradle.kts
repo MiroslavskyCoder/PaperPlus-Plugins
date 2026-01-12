@@ -12,6 +12,15 @@ dependencies {
     
     // Shared database library
     implementation(project(":common"))
+    
+    // Javalin for REST API
+    implementation("io.javalin:javalin:5.6.2")
+    
+    // GSON for JSON
+    implementation("com.google.code.gson:gson:2.10.1")
+    
+    // SLF4J for logging
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 }
 
 tasks {

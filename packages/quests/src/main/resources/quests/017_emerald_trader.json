@@ -1,0 +1,34 @@
+{
+  "id": "017_emerald_trader",
+  "name": "Торговец Изумрудами",
+  "description": "Совершите 20 сделок с жителями деревни",
+  "type": "TRADE",
+  "difficulty": "MEDIUM",
+  "level": 8,
+  "category": "trading",
+  "timeLimit": 0,
+  "repeatable": true,
+  "daily": false,
+  "cooldown": 86400000,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "trade_villagers",
+      "type": "TRADE",
+      "description": "Торговать с жителями",
+      "target": "VILLAGER",
+      "required": 20,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 1000,
+    "exp": 500,
+    "items": [
+      {
+        "type": "EMERALD",
+        "amount": 32
+      }
+    ]
+  }
+}

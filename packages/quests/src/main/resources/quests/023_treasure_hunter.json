@@ -1,0 +1,37 @@
+{
+  "id": "023_treasure_hunter",
+  "name": "Охотник за Сокровищами",
+  "description": "Найдите 3 спрятанных сундука с сокровищами",
+  "type": "EXPLORE",
+  "difficulty": "HARD",
+  "level": 15,
+  "category": "exploration",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": ["007_explorer"],
+  "objectives": [
+    {
+      "id": "find_treasures",
+      "type": "EXPLORE",
+      "description": "Найти сундуки с сокровищами",
+      "target": "TREASURE_CHEST",
+      "required": 3,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 2500,
+    "exp": 1250,
+    "items": [
+      {
+        "type": "ENDER_CHEST",
+        "amount": 1
+      },
+      {
+        "type": "DIAMOND",
+        "amount": 16
+      }
+    ]
+  }
+}

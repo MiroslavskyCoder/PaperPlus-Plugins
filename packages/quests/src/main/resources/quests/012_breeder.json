@@ -1,0 +1,34 @@
+{
+  "id": "012_breeder",
+  "name": "Животновод",
+  "description": "Разведите 10 коров для фермы",
+  "type": "BREED",
+  "difficulty": "EASY",
+  "level": 3,
+  "category": "farming",
+  "timeLimit": 0,
+  "repeatable": true,
+  "daily": false,
+  "cooldown": 3600000,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "breed_cows",
+      "type": "BREED",
+      "description": "Развести коров",
+      "target": "COW",
+      "required": 10,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 350,
+    "exp": 175,
+    "items": [
+      {
+        "type": "WHEAT",
+        "amount": 64
+      }
+    ]
+  }
+}

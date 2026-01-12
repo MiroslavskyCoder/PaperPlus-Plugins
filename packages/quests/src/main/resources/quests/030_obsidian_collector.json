@@ -1,0 +1,37 @@
+{
+  "id": "030_obsidian_collector",
+  "name": "Сборщик Обсидиана",
+  "description": "Соберите 64 блока обсидиана для постройки портала",
+  "type": "COLLECT",
+  "difficulty": "HARD",
+  "level": 12,
+  "category": "mining",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": ["005_diamond_rush"],
+  "objectives": [
+    {
+      "id": "collect_obsidian",
+      "type": "COLLECT",
+      "description": "Собрать обсидиан",
+      "target": "OBSIDIAN",
+      "required": 64,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 2200,
+    "exp": 1100,
+    "items": [
+      {
+        "type": "ENDER_PEARL",
+        "amount": 12
+      },
+      {
+        "type": "BLAZE_ROD",
+        "amount": 6
+      }
+    ]
+  }
+}

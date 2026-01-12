@@ -17,6 +17,15 @@ dependencies {
     
     // GSON for JSON
     implementation("com.google.code.gson:gson:2.10.1")
+    
+    // V8 JavaScript Engine
+    implementation("com.eclipsesource.j2v8:j2v8_linux_x86_64:6.2.0")
+    implementation("com.eclipsesource.j2v8:j2v8_win32_x86_64:6.2.0")
+    implementation("com.eclipsesource.j2v8:j2v8_macosx_x86_64:6.2.0")
+    
+    // GraalVM JavaScript (alternative/backup)
+    implementation("org.graalvm.js:js:22.3.0")
+    implementation("org.graalvm.js:js-scriptengine:22.3.0")
 }
 
 tasks {

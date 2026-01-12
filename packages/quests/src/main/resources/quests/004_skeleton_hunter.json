@@ -1,0 +1,41 @@
+{
+  "id": "004_skeleton_hunter",
+  "name": "Охотник на Скелетов",
+  "description": "Убейте 20 скелетов и докажите свою меткость",
+  "type": "KILL",
+  "difficulty": "MEDIUM",
+  "level": 5,
+  "category": "combat",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": ["001_first_blood"],
+  "objectives": [
+    {
+      "id": "kill_skeletons",
+      "type": "KILL",
+      "description": "Убить скелетов",
+      "target": "SKELETON",
+      "required": 20,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 300,
+    "exp": 150,
+    "items": [
+      {
+        "type": "BOW",
+        "amount": 1,
+        "enchantments": {
+          "POWER": 2,
+          "INFINITY": 1
+        }
+      },
+      {
+        "type": "ARROW",
+        "amount": 64
+      }
+    ]
+  }
+}

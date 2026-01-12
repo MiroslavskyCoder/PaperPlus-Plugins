@@ -1,0 +1,39 @@
+{
+  "id": "020_pvp_champion",
+  "name": "Чемпион PvP",
+  "description": "Победите в 10 мини-играх PvP",
+  "type": "WIN_MINIGAME",
+  "difficulty": "EXPERT",
+  "level": 25,
+  "category": "pvp",
+  "timeLimit": 0,
+  "repeatable": true,
+  "daily": false,
+  "cooldown": 604800000,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "win_minigames",
+      "type": "WIN_MINIGAME",
+      "description": "Победить в мини-играх",
+      "target": "PVP",
+      "required": 10,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 5000,
+    "exp": 2500,
+    "items": [
+      {
+        "type": "DIAMOND_HELMET",
+        "amount": 1,
+        "enchantments": {
+          "PROTECTION": 4,
+          "RESPIRATION": 3,
+          "UNBREAKING": 3
+        }
+      }
+    ]
+  }
+}

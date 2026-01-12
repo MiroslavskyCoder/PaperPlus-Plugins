@@ -1,0 +1,47 @@
+{
+  "id": "019_dungeon_master",
+  "name": "Мастер Подземелий",
+  "description": "Пройдите 5 различных подземелий и получите легендарную награду",
+  "type": "COMPLETE_DUNGEON",
+  "difficulty": "LEGENDARY",
+  "level": 30,
+  "category": "dungeons",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": ["005_diamond_rush", "015_zombie_slayer", "016_creeper_killer"],
+  "objectives": [
+    {
+      "id": "complete_dungeons",
+      "type": "COMPLETE_DUNGEON",
+      "description": "Пройти подземелья",
+      "target": "ANY",
+      "required": 5,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 10000,
+    "exp": 5000,
+    "items": [
+      {
+        "type": "NETHERITE_SWORD",
+        "amount": 1,
+        "enchantments": {
+          "SHARPNESS": 10,
+          "LOOTING": 5,
+          "UNBREAKING": 5,
+          "MENDING": 1
+        }
+      },
+      {
+        "type": "NETHERITE_HELMET",
+        "amount": 1,
+        "enchantments": {
+          "PROTECTION": 6,
+          "UNBREAKING": 5
+        }
+      }
+    ]
+  }
+}

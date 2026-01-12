@@ -1,0 +1,34 @@
+{
+  "id": "002_wood_collector",
+  "name": "Сборщик Древесины",
+  "description": "Соберите 64 блока дуба для местного плотника",
+  "type": "COLLECT",
+  "difficulty": "EASY",
+  "level": 1,
+  "category": "gathering",
+  "timeLimit": 0,
+  "repeatable": true,
+  "daily": false,
+  "cooldown": 3600000,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "collect_oak_logs",
+      "type": "COLLECT",
+      "description": "Собрать дубовые брёвна",
+      "target": "OAK_LOG",
+      "required": 64,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 150,
+    "exp": 75,
+    "items": [
+      {
+        "type": "DIAMOND_AXE",
+        "amount": 1
+      }
+    ]
+  }
+}

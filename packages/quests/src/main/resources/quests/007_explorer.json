@@ -1,0 +1,53 @@
+{
+  "id": "007_explorer",
+  "name": "Исследователь",
+  "description": "Посетите 3 различных биома и откройте секреты мира",
+  "type": "EXPLORE",
+  "difficulty": "MEDIUM",
+  "level": 3,
+  "category": "exploration",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "visit_forest",
+      "type": "EXPLORE",
+      "description": "Посетить лес",
+      "target": "FOREST",
+      "required": 1,
+      "optional": false
+    },
+    {
+      "id": "visit_desert",
+      "type": "EXPLORE",
+      "description": "Посетить пустыню",
+      "target": "DESERT",
+      "required": 1,
+      "optional": false
+    },
+    {
+      "id": "visit_mountains",
+      "type": "EXPLORE",
+      "description": "Посетить горы",
+      "target": "MOUNTAINS",
+      "required": 1,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 400,
+    "exp": 200,
+    "items": [
+      {
+        "type": "COMPASS",
+        "amount": 1
+      },
+      {
+        "type": "MAP",
+        "amount": 3
+      }
+    ]
+  }
+}
