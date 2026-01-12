@@ -10,6 +10,10 @@ rootProject.name = "webx-dashboard"
 include("common")
 project(":common").projectDir = file("common")
 
+// LoaderScript - JavaScript script loader
+include("loaderscript")
+project(":loaderscript").projectDir = file("packages/loaderscript")
+
 // Shared Plugin Database (legacy - use common instead)
 include("shared-database")
 project(":shared-database").projectDir = file("packages/shared-database")

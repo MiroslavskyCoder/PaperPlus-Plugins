@@ -18,7 +18,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Home, Server, Users, DollarSign, ShoppingCart, Clock, Palette, Power, Heart, Skull, Bug, Utensils, Map, Settings as SettingsIcon, Plug, Sliders, Code2, Sparkles, Radio, CalendarClock } from "lucide-react";
+import { Home, Server, Users, DollarSign, ShoppingCart, Clock, Palette, Power, Heart, Skull, Bug, Utensils, Map, Settings as SettingsIcon, Plug, Sliders, Code2, Sparkles, Radio, CalendarClock, FileCode2 } from "lucide-react";
 import { StatCard } from '@/components/dashboard/stat-card';
 import { ChartsGrid } from '@/components/dashboard/charts-grid';
 import { HomeTab } from '@/components/dashboard/home-tab';
@@ -41,6 +41,7 @@ import { ScriptConsoleTab } from '@/components/dashboard/script-console-tab';
 import { EventSystemTab } from '@/components/dashboard/event-system-tab';
 import { TaskSchedulerTab } from '@/components/dashboard/task-scheduler-tab';
 import { ScriptTranspilerTab } from '@/components/dashboard/script-transpiler-tab';
+import { ScriptLoaderTab } from '@/components/dashboard/script-loader-tab';
 
 interface Stats {
   cpu: number;
@@ -84,6 +85,7 @@ const menuItems = [
   { id: 'map', label: 'Map', icon: Map },
   { id: 'config', label: 'Config', icon: Sliders },
   { id: 'plugins', label: 'Plugins', icon: Plug },
+  { id: 'scripts', label: 'Scripts', icon: FileCode2 },
   { id: 'script-console', label: 'JS Console', icon: Code2 },
   { id: 'script-transpiler', label: 'TS/JSX', icon: Sparkles },
   { id: 'events', label: 'Events', icon: Radio },
@@ -112,6 +114,7 @@ export default function Dashboard() {
       case 'map': return <MapTab entities={entities} mapImage={mapImage} />;
       case 'config': return <ConfigTab runCommand={runCommand} />;
       case 'plugins': return <PluginsTab />;
+      case 'scripts': return <ScriptLoaderTab />;
       case 'script-console': return <ScriptConsoleTab />;
       case 'script-transpiler': return <ScriptTranspilerTab />;
       case 'events': return <EventSystemTab />;

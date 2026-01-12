@@ -1,0 +1,17 @@
+# LoaderScript Plugin Configuration
+
+# API Server Port (for web dashboard integration)
+api-port: 7072
+
+# Auto-load scripts on startup
+auto-load: true
+
+# Watch for file changes and auto-reload
+# (requires restart to enable/disable)
+file-watcher: false
+
+# Script execution timeout (milliseconds)
+script-timeout: 30000
+
+# Enable debug logging
+debug: false
