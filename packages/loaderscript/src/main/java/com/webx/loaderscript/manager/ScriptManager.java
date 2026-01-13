@@ -3,6 +3,7 @@ package com.webx.loaderscript.manager;
 import com.webx.loaderscript.LoaderScriptPlugin;
 import com.webx.loaderscript.models.ScriptInfo;
 import lxxv.shared.javascript.JavaScriptEngine;
+import lxxv.shared.server.LXXVServer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -143,7 +144,12 @@ public class ScriptManager {
             // Execute script asynchronously
             asyncExecutor.execute(() -> {
                 try {
-                    Object result = jsEngine.execute(executableCode, new HashMap<>());
+                    // Create context with global objects
+                    Map<String, Object> context = new HashMap<>();
+                    context.put("LXXVServer", LXXVServer.class);
+                    context.put("Bukkit", Bukkit.class);
+                    
+                    Object result = jsEngine.execute(executableCode, context);
                     
                     // Create script info on main thread
                     Bukkit.getScheduler().runTask(plugin, () -> {
@@ -257,7 +263,12 @@ public class ScriptManager {
             // Execute script in sync context (main thread)
             Bukkit.getScheduler().runTask(plugin, () -> {
                 try {
-                    Object result = jsEngine.execute(executableCode, new HashMap<>());
+                    // Create context with global objects
+                    Map<String, Object> context = new HashMap<>();
+                    context.put("LXXVServer", LXXVServer.class);
+                    context.put("Bukkit", Bukkit.class);
+                    
+                    Object result = jsEngine.execute(executableCode, context);
                     
                     // Create script info
                     ScriptInfo info = new ScriptInfo(
