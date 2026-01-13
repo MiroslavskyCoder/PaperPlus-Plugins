@@ -70,6 +70,14 @@ world-gen:
   large-block-chance: 0.08  # 8% per check location
   large-block-height: 25
   
+  # Secret laboratories (underground)
+  secret-labs: true
+  lab-generation-chance: 0.02  # 2% per check location
+  
+  # Sawmills (wood processing buildings)
+  sawmills: true
+  sawmill-generation-chance: 0.04  # 4% per check location
+  
   # Animal watchers (pigs, cows, sheep stare at players)
   animal-watchers: true
   animal-detection-range: 20

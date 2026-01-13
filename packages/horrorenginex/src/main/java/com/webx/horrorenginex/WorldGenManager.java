@@ -103,6 +103,16 @@ public class WorldGenManager implements Listener {
                 if (plugin.getConfigManager().getConfig().getBoolean("world-gen.large-blocks", true)) {
                     tryGenerateLargeBlocks(world, playerLoc);
                 }
+                
+                // Check for secret laboratories
+                if (plugin.getConfigManager().getConfig().getBoolean("world-gen.secret-labs", true)) {
+                    tryGenerateSecretLab(world, playerLoc);
+                }
+                
+                // Check for sawmills
+                if (plugin.getConfigManager().getConfig().getBoolean("world-gen.sawmills", true)) {
+                    tryGenerateSawmill(world, playerLoc);
+                }
             }
         }, GENERATION_CHECK_INTERVAL, GENERATION_CHECK_INTERVAL);
     }
@@ -174,6 +184,46 @@ public class WorldGenManager implements Listener {
                     // 8% chance to generate large blocks
                     if (Math.random() < 0.08) {
                         generateLargeBlocks(world, checkLoc);
+                        generatedStructures.add(checkLoc);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Try to generate a secret laboratory
+     */
+    private void tryGenerateSecretLab(World world, Location playerLoc) {
+        for (int dx = -STRUCTURE_SEARCH_RADIUS; dx < STRUCTURE_SEARCH_RADIUS; dx += 70) {
+            for (int dz = -STRUCTURE_SEARCH_RADIUS; dz < STRUCTURE_SEARCH_RADIUS; dz += 70) {
+                Location checkLoc = playerLoc.clone().add(dx, 0, dz);
+                checkLoc = getGroundLevel(checkLoc);
+                
+                if (checkLoc != null && !generatedStructures.contains(checkLoc)) {
+                    // 2% chance to generate secret lab
+                    if (Math.random() < 0.02) {
+                        SecretLabGenerator.generateLaboratory(world, checkLoc);
+                        generatedStructures.add(checkLoc);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Try to generate a sawmill
+     */
+    private void tryGenerateSawmill(World world, Location playerLoc) {
+        for (int dx = -STRUCTURE_SEARCH_RADIUS; dx < STRUCTURE_SEARCH_RADIUS; dx += 65) {
+            for (int dz = -STRUCTURE_SEARCH_RADIUS; dz < STRUCTURE_SEARCH_RADIUS; dz += 65) {
+                Location checkLoc = playerLoc.clone().add(dx, 0, dz);
+                checkLoc = getGroundLevel(checkLoc);
+                
+                if (checkLoc != null && !generatedStructures.contains(checkLoc)) {
+                    // 4% chance to generate sawmill
+                    if (Math.random() < 0.04) {
+                        SawmillGenerator.generateSawmill(world, checkLoc);
                         generatedStructures.add(checkLoc);
                     }
                 }
