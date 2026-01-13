@@ -1,5 +1,6 @@
 name: HorrorEngineX
 version: 1.0.0
+api-version: 1.13
 main: com.webx.horrorenginex.HorrorEngineXPlugin
 description: Horror engine plugin with atmospheric effects and scary events
 authors:
