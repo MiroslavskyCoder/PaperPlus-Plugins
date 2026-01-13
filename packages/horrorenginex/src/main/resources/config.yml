@@ -47,6 +47,10 @@ permissions:
 
 # World Generation Settings
 world-gen:
+  # Enable continuous structure generation around players (after initial map generation)
+  # Set to false to only generate structures once at startup (default: false)
+  continuous-generation: false
+  
   # Constant rain in specified worlds
   constant-rain: true
   rain-worlds:

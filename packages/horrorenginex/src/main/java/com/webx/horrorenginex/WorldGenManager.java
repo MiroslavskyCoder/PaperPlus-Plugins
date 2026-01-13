@@ -20,8 +20,10 @@ public class WorldGenManager implements Listener {
     private final Map<Location, StructureType> structureLocations = new HashMap<>();
     private BukkitTask rainTask;
     private BukkitTask animalWatcherTask;
-    private static final int STRUCTURE_SEARCH_RADIUS = 100;
-    private static final int GENERATION_CHECK_INTERVAL = 40; // 2 seconds
+    private BukkitTask playerGenerationTask;
+    private boolean preGenerationComplete = false;
+    private static final int STRUCTURE_SEARCH_RADIUS = 150;
+    private static final int GENERATION_CHECK_INTERVAL = 20; // 1 second
     
     /**
      * Types of structures for tunnel connections
@@ -45,8 +47,13 @@ public class WorldGenManager implements Listener {
             startConstantRain();
         }
         
-        // Start structure generation around players
-        startStructureGeneration();
+        // Pre-generate structures on startup
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::preGenerateStructures);
+        
+        // Start structure generation around players (if enabled in config)
+        if (plugin.getConfigManager().getConfig().getBoolean("world-gen.continuous-generation", false)) {
+            startStructureGeneration();
+        }
         
         // Start animal watcher behavior
         if (plugin.getConfigManager().getConfig().getBoolean("world-gen.animal-watchers", true)) {
@@ -68,6 +75,11 @@ public class WorldGenManager implements Listener {
         if (animalWatcherTask != null) {
             animalWatcherTask.cancel();
             animalWatcherTask = null;
+        }
+        
+        if (playerGenerationTask != null) {
+            playerGenerationTask.cancel();
+            playerGenerationTask = null;
         }
     }
     
@@ -92,7 +104,7 @@ public class WorldGenManager implements Listener {
      * Start generating structures around players
      */
     private void startStructureGeneration() {
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        playerGenerationTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (plugin.isBypassed(player)) continue;
                 
@@ -152,8 +164,8 @@ public class WorldGenManager implements Listener {
                 checkLoc = getGroundLevel(checkLoc);
                 
                 if (checkLoc != null && !generatedStructures.contains(checkLoc)) {
-                    // 5% chance to generate a house
-                    if (Math.random() < 0.05) {
+                    // 20% chance to generate a house (increased from 5%)
+                    if (Math.random() < 0.20) {
                         HauntedHouseGenerator.generateHouse(world, checkLoc);
                         generatedStructures.add(checkLoc);
                         structureLocations.put(checkLoc, StructureType.HAUNTED_HOUSE);
@@ -185,8 +197,8 @@ public class WorldGenManager implements Listener {
                 Location checkLoc = playerLoc.clone().add(dx, 25, dz);
                 
                 if (!generatedStructures.contains(checkLoc)) {
-                    // 8% chance to generate large blocks
-                    if (Math.random() < 0.08) {
+                    // 25% chance to generate large blocks (increased from 8%)
+                    if (Math.random() < 0.25) {
                         generateLargeBlocks(world, checkLoc);
                         generatedStructures.add(checkLoc);
                     }
@@ -205,8 +217,8 @@ public class WorldGenManager implements Listener {
                 checkLoc = getGroundLevel(checkLoc);
                 
                 if (checkLoc != null && !generatedStructures.contains(checkLoc)) {
-                    // 2% chance to generate secret lab
-                    if (Math.random() < 0.02) {
+                    // 10% chance to generate secret lab (increased from 2%)
+                    if (Math.random() < 0.10) {
                         SecretLabGenerator.generateLaboratory(world, checkLoc);
                         generatedStructures.add(checkLoc);
                         structureLocations.put(checkLoc, StructureType.SECRET_LAB);
@@ -229,8 +241,8 @@ public class WorldGenManager implements Listener {
                 checkLoc = getGroundLevel(checkLoc);
                 
                 if (checkLoc != null && !generatedStructures.contains(checkLoc)) {
-                    // 4% chance to generate sawmill
-                    if (Math.random() < 0.04) {
+                    // 15% chance to generate sawmill (increased from 4%)
+                    if (Math.random() < 0.15) {
                         SawmillGenerator.generateSawmill(world, checkLoc);
                         generatedStructures.add(checkLoc);
                         structureLocations.put(checkLoc, StructureType.SAWMILL);
@@ -493,4 +505,101 @@ public class WorldGenManager implements Listener {
         
         // Could add triggers here when players enter generated structures
     }
+    
+    /**
+     * Pre-generate structures on server startup across all worlds
+     */
+    private void preGenerateStructures() {
+        try {
+            plugin.getLogger().info("Starting initial world pre-generation...");
+            
+            for (World world : Bukkit.getWorlds()) {
+                // Generate initial structures in a 500x500 area around spawn
+                Location spawn = world.getSpawnLocation();
+                
+                plugin.getLogger().info("Pre-generating structures in " + world.getName());
+                
+                // Generate haunted houses in a grid pattern
+                if (plugin.getConfigManager().getConfig().getBoolean("world-gen.haunted-houses", true)) {
+                    for (int x = -250; x < 250; x += 100) {
+                        for (int z = -250; z < 250; z += 100) {
+                            Location genLoc = spawn.clone().add(x, 0, z);
+                            genLoc = getGroundLevel(genLoc);
+                            
+                            if (genLoc != null && !generatedStructures.contains(genLoc)) {
+                                if (Math.random() < 0.4) { // 40% chance
+                                    HauntedHouseGenerator.generateHouse(world, genLoc);
+                                    generatedStructures.add(genLoc);
+                                    structureLocations.put(genLoc, StructureType.HAUNTED_HOUSE);
+                                    connectToNearbyStructure(world, genLoc);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Generate secret labs
+                if (plugin.getConfigManager().getConfig().getBoolean("world-gen.secret-labs", true)) {
+                    for (int x = -300; x < 300; x += 200) {
+                        for (int z = -300; z < 300; z += 200) {
+                            Location genLoc = spawn.clone().add(x, 0, z);
+                            genLoc = getGroundLevel(genLoc);
+                            
+                            if (genLoc != null && !generatedStructures.contains(genLoc)) {
+                                if (Math.random() < 0.25) { // 25% chance
+                                    SecretLabGenerator.generateLaboratory(world, genLoc);
+                                    generatedStructures.add(genLoc);
+                                    structureLocations.put(genLoc, StructureType.SECRET_LAB);
+                                    connectToNearbyStructure(world, genLoc);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Generate sawmills
+                if (plugin.getConfigManager().getConfig().getBoolean("world-gen.sawmills", true)) {
+                    for (int x = -280; x < 280; x += 150) {
+                        for (int z = -280; z < 280; z += 150) {
+                            Location genLoc = spawn.clone().add(x, 0, z);
+                            genLoc = getGroundLevel(genLoc);
+                            
+                            if (genLoc != null && !generatedStructures.contains(genLoc)) {
+                                if (Math.random() < 0.35) { // 35% chance
+                                    SawmillGenerator.generateSawmill(world, genLoc);
+                                    generatedStructures.add(genLoc);
+                                    structureLocations.put(genLoc, StructureType.SAWMILL);
+                                    connectToNearbyStructure(world, genLoc);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Generate large block formations
+                if (plugin.getConfigManager().getConfig().getBoolean("world-gen.large-blocks", true)) {
+                    for (int x = -300; x < 300; x += 120) {
+                        for (int z = -300; z < 300; z += 120) {
+                            Location genLoc = spawn.clone().add(x, 25, z);
+                            
+                            if (!generatedStructures.contains(genLoc)) {
+                                if (Math.random() < 0.3) { // 30% chance
+                                    generateLargeBlocks(world, genLoc);
+                                    generatedStructures.add(genLoc);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            plugin.getLogger().info("Pre-generation complete! Generated " + generatedStructures.size() + " structures");
+            preGenerationComplete = true;
+            plugin.getLogger().info("World generation finished. Map is fully populated with structures.");
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error during pre-generation: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
+
