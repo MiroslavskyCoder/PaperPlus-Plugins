@@ -5,6 +5,7 @@ import com.webx.loaderscript.models.ScriptInfo;
 import lxxv.shared.javascript.JavaScriptEngine;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,11 +13,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
- * Manages loading, unloading, and execution of JavaScript scripts
+ * Manages loading, unloading, and execution of JavaScript scripts with async queue support
  */
 public class ScriptManager {
     
@@ -25,14 +26,70 @@ public class ScriptManager {
     private final JavaScriptEngine jsEngine;
     private final Map<String, ScriptInfo> loadedScripts = new ConcurrentHashMap<>();
     
+    // Async script execution queue
+    private final Queue<String> scriptQueue = new ConcurrentLinkedQueue<>();
+    private final ExecutorService asyncExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "LoaderScript-Async-Queue");
+        t.setDaemon(true);
+        return t;
+    });
+    private BukkitTask queueProcessorTask;
+    
     public ScriptManager(LoaderScriptPlugin plugin, File scriptsFolder, JavaScriptEngine jsEngine) {
         this.plugin = plugin;
         this.scriptsFolder = scriptsFolder;
         this.jsEngine = jsEngine;
+        startAsyncQueueProcessor();
     }
     
     /**
-     * Load all scripts from scripts folder
+     * Start async queue processor task
+     */
+    private void startAsyncQueueProcessor() {
+        queueProcessorTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            if (!scriptQueue.isEmpty()) {
+                String scriptName = scriptQueue.poll();
+                if (scriptName != null) {
+                    executeScriptAsync(scriptName);
+                }
+            }
+        }, 0L, 1L); // Run every tick (20ms)
+    }
+    
+    /**
+     * Load all scripts from scripts folder asynchronously
+     */
+    public void loadAllScriptsAsync() {
+        asyncExecutor.execute(() -> {
+            if (!scriptsFolder.exists()) {
+                plugin.getLogger().warning("Scripts folder does not exist: " + scriptsFolder.getAbsolutePath());
+                return;
+            }
+            
+            File[] files = scriptsFolder.listFiles((dir, name) -> 
+                name.endsWith(".js") || name.endsWith(".ts") || name.endsWith(".jsx") || name.endsWith(".tsx")
+            );
+            
+            if (files == null || files.length == 0) {
+                plugin.getLogger().info("No scripts found in scripts folder");
+                return;
+            }
+            
+            plugin.getLogger().info("§6Loading " + files.length + " scripts asynchronously...");
+            
+            int loaded = 0;
+            for (File file : files) {
+                // Add to queue for async execution
+                scriptQueue.offer(file.getName());
+                loaded++;
+            }
+            
+            plugin.getLogger().info("§a" + loaded + " scripts added to async queue");
+        });
+    }
+    
+    /**
+     * Load all scripts from scripts folder (legacy sync method, kept for compatibility)
      */
     public void loadAllScripts() {
         if (!scriptsFolder.exists()) {
@@ -57,6 +114,120 @@ public class ScriptManager {
         }
         
         plugin.getLogger().info("Loaded " + loaded + "/" + files.length + " scripts");
+    }
+    
+    /**
+     * Execute script asynchronously via queue
+     */
+    private void executeScriptAsync(String scriptName) {
+        File scriptFile = new File(scriptsFolder, scriptName);
+        
+        if (!scriptFile.exists()) {
+            plugin.getLogger().warning("Script not found: " + scriptName);
+            return;
+        }
+        
+        try {
+            // Read script content
+            String content = Files.readString(scriptFile.toPath(), StandardCharsets.UTF_8);
+            
+            // Check if TypeScript/JSX - transpile first
+            final String executableCode;
+            if (isTypeScriptFile(scriptName)) {
+                plugin.getLogger().info("§6Transpiling TypeScript: " + scriptName);
+                executableCode = jsEngine.transpile(content, scriptName);
+            } else {
+                executableCode = content;
+            }
+            
+            // Execute script asynchronously
+            asyncExecutor.execute(() -> {
+                try {
+                    Object result = jsEngine.execute(executableCode, new HashMap<>());
+                    
+                    // Create script info on main thread
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        ScriptInfo info = new ScriptInfo(
+                            scriptName,
+                            scriptFile.getAbsolutePath(),
+                            scriptFile.length(),
+                            scriptFile.lastModified(),
+                            System.currentTimeMillis(),
+                            true,
+                            null
+                        );
+                        
+                        loadedScripts.put(scriptName, info);
+                        plugin.getLogger().info("§a✓ Loaded script (async): " + scriptName);
+                    });
+                    
+                } catch (Exception e) {
+                    plugin.getLogger().severe("Failed to execute script " + scriptName + ": " + e.getMessage());
+                    
+                    // Store error info on main thread
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        ScriptInfo info = new ScriptInfo(
+                            scriptName,
+                            scriptFile.getAbsolutePath(),
+                            scriptFile.length(),
+                            scriptFile.lastModified(),
+                            System.currentTimeMillis(),
+                            false,
+                            e.getMessage()
+                        );
+                        loadedScripts.put(scriptName, info);
+                    });
+                }
+            });
+            
+        } catch (IOException e) {
+            plugin.getLogger().severe("Failed to read script " + scriptName + ": " + e.getMessage());
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to load script " + scriptName + ": " + e.getMessage());
+        }
+    }
+    
+    
+    /**
+     * Add script to async execution queue
+     */
+    public void queueScriptExecution(String scriptName) {
+        scriptQueue.offer(scriptName);
+        plugin.getLogger().info("§6Queued script for async execution: " + scriptName);
+    }
+    
+    /**
+     * Get current queue size
+     */
+    public int getQueueSize() {
+        return scriptQueue.size();
+    }
+    
+    /**
+     * Clear the queue
+     */
+    public void clearQueue() {
+        int size = scriptQueue.size();
+        scriptQueue.clear();
+        plugin.getLogger().info("Cleared " + size + " scripts from queue");
+    }
+    
+    /**
+     * Shutdown the async executor (call on plugin disable)
+     */
+    public void shutdown() {
+        if (queueProcessorTask != null) {
+            queueProcessorTask.cancel();
+        }
+        asyncExecutor.shutdown();
+        try {
+            if (!asyncExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+                asyncExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            asyncExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
     
     /**

@@ -12,11 +12,54 @@ JavaScript script loader for Minecraft Paper/Spigot servers with hot-reload and 
 - ✅ Any modern Linux distribution with GLIBC 2.32+
 
 If you're running an older system:
-1. Update to a newer Linux distribution
+1. Update to a newer Linux distribution (recommended)
 2. Use Docker with Ubuntu 20.04+ or similar
-3. Or disable LoaderScript plugin
+3. **Build GLIBC 2.32+ from source** (advanced)
+4. Or disable LoaderScript plugin
 
 The plugin will automatically disable itself if GLIBC version is incompatible.
+
+### Checking Your GLIBC Version
+
+```bash
+ldd --version
+# or
+/lib64/libc.so.6
+```
+
+### Building GLIBC 2.32 from Source (Ubuntu 20.04)
+
+If you need to upgrade GLIBC on an older system, you can build it from source:
+
+```bash
+# Create installation directory (don't modify system GLIBC)
+mkdir -p $HOME/glibc && cd $HOME/glibc
+
+# Download and extract GLIBC 2.32
+wget http://ftp.gnu.org/gnu/libc/glibc-2.32.tar.gz
+tar -xvzf glibc-2.32.tar.gz
+
+# Create build and install directories
+mkdir -p build glibc-2.32-install
+cd build
+
+# Configure, build and install
+~/glibc/glibc-2.32/configure --prefix=$HOME/glibc/glibc-2.32-install
+make
+make install
+
+# Verify installation
+~/glibc/glibc-2.32-install/bin/ldd --version
+```
+
+**Prerequisites** (install if needed):
+```bash
+sudo apt-get install build-essential gawk bison
+```
+
+**Note:** This installs GLIBC in your home directory without affecting system GLIBC. LoaderScript will attempt to use the system version first, then fall back to alternative versions if available.
+
+For more details, see: https://askubuntu.com/questions/1345342/how-to-install-glibc-2-32-when-i-already-have-glibc2-31
 
 ## Features
 

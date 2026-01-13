@@ -48,11 +48,11 @@ public class LoaderScriptPlugin extends JavaPlugin {
             // Create API controller (register with WebX Dashboard later)
             apiController = new ScriptAPIController(scriptManager, jsEngine);
             
-            // Load all scripts
-            scriptManager.loadAllScripts();
+            // Load all scripts asynchronously with Queue
+            scriptManager.loadAllScriptsAsync();
             
             getLogger().info("LoaderScript enabled! Scripts folder: " + scriptsFolder.getAbsolutePath());
-            getLogger().info("Loaded " + scriptManager.getLoadedScripts().size() + " scripts");
+            getLogger().info("§6Scripts loading asynchronously in queue...");
             
         } catch (UnsatisfiedLinkError e) {
             getLogger().severe("═══════════════════════════════════════════════════════");
@@ -79,8 +79,9 @@ public class LoaderScriptPlugin extends JavaPlugin {
     
     @Override
     public void onDisable() {
-        // Unload all scripts
+        // Shutdown async executor and clear queue
         if (scriptManager != null) {
+            scriptManager.shutdown();
             scriptManager.unloadAllScripts();
         }
         
