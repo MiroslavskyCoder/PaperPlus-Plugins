@@ -70,6 +70,9 @@ public class HorrorEngineXPlugin extends JavaPlugin implements Listener {
         if (eventManager != null) {
             eventManager.stopEventScheduler();
         }
+        if (worldGenManager != null) {
+            worldGenManager.stopWorldGeneration();
+        }
         getLogger().info("👻 HorrorEngineX disabled!");
     }
     
