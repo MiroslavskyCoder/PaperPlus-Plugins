@@ -1,0 +1,46 @@
+# HorrorEngineX Configuration
+
+# Horror events settings
+horror-events:
+  enabled: true
+  frequency: 0.001  # Probability per player movement (0.001 = 0.1%)
+
+# Effects settings
+effects:
+  sounds:
+    enabled: true
+    volume: 0.7
+  atmospheric:
+    enabled: true
+  blindness:
+    duration: 60
+    amplifier: 0
+  slowness:
+    duration: 100
+    amplifier: 1
+  nausea:
+    duration: 80
+    amplifier: 0
+  darkness:
+    duration: 120
+    amplifier: 0
+
+# Messages
+messages:
+  join-message: true
+  prefix: "&6&l[👻 HorrorEngineX]&r "
+  welcome: "&6&lWelcome to the horror realm!"
+  watching: "&4&l💀 Something is watching you..."
+
+# Feature toggles
+features:
+  creeper-stare: true
+  phantom-sounds: true
+  cave-ambient: true
+  horror-messages: true
+
+# Permissions
+permissions:
+  bypass-effects: "horrorenginex.bypass"
+  admin: "horrorenginex.admin"
+  use: "horrorenginex.use"

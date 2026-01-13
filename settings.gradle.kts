@@ -236,3 +236,5 @@ project(":hdphysicssound").projectDir = File("packages/hdphysicssound")
 
 include(":create2")
 project(":create2").projectDir = File("packages/create2")
+include(":horrorenginex")
+project(":horrorenginex").projectDir = File("packages/horrorenginex")
