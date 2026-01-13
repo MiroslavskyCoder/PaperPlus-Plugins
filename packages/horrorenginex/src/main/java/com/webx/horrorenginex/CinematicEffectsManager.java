@@ -65,7 +65,8 @@ public class CinematicEffectsManager implements Listener {
         
         // Remove existing bar
         if (cinematicBars.containsKey(playerId)) {
-            Bukkit.removeBossBar(cinematicBars.get(playerId).getKey());
+            BossBar oldBar = cinematicBars.get(playerId);
+            oldBar.removePlayer(player);
         }
         
         // Create new boss bar (black bars effect)
@@ -85,14 +86,12 @@ public class CinematicEffectsManager implements Listener {
     private void applyGrayAtmosphere(Player player) {
         // Apply blindness for gray vision
         player.addPotionEffect(
-            new PotionEffect(PotionEffectType.BLINDNESS, 1000, 0, false, false),
-            PotionEffect.DurationApplied.EXTEND
+            new PotionEffect(PotionEffectType.BLINDNESS, 1000, 0, false, false)
         );
         
         // Apply slowness for heavy atmosphere
         player.addPotionEffect(
-            new PotionEffect(PotionEffectType.SLOWNESS, 1000, 1, false, false),
-            PotionEffect.DurationApplied.EXTEND
+            new PotionEffect(PotionEffectType.SLOWNESS, 1000, 1, false, false)
         );
     }
     
@@ -215,12 +214,12 @@ public class CinematicEffectsManager implements Listener {
         
         // Screen flickering effect using boss bar
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
-            BossBar bar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID);
+            BossBar bar = Bukkit.createBossBar("GLITCH", BarColor.WHITE, BarStyle.SOLID);
             bar.setProgress(random.nextDouble());
             bar.addPlayer(player);
             
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                Bukkit.removeBossBar(bar.getKey());
+                bar.removePlayer(player);
             }, 3);
         }, 0, 10);
     }
@@ -300,7 +299,8 @@ public class CinematicEffectsManager implements Listener {
         
         // Remove boss bar
         if (cinematicBars.containsKey(playerId)) {
-            Bukkit.removeBossBar(cinematicBars.get(playerId).getKey());
+            BossBar bar = cinematicBars.get(playerId);
+            bar.removePlayer(player);
             cinematicBars.remove(playerId);
         }
         

@@ -1,12 +1,12 @@
 package com.webx.horrorenginex;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 
 /**
  * Manages horror events that occur periodically
  */
-public class HorrorEventManager {
+public class HorrorEventManager implements Listener {
     
     private final HorrorEngineXPlugin plugin;
     private BukkitTask eventScheduler;
