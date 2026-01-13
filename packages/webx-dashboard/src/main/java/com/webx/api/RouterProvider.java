@@ -16,7 +16,6 @@ import com.webx.api.models.SettingsConfig;
 import com.webx.api.services.*;
 import com.webx.helper.SystemHelper;
 import com.webx.services.SettingsService;
-import com.webx.loaderscript.integration.LoaderScriptDashboardIntegration;
 
 import io.javalin.Javalin;
 
@@ -635,12 +634,23 @@ public class RouterProvider {
 
     private void registerLoaderScriptRoutes() {
         try {
-            if (LoaderScriptDashboardIntegration.isLoaderScriptAvailable()) {
-                LoaderScriptDashboardIntegration.registerWithDashboard(app);
+            // Use reflection to avoid compile-time dependency on LoaderScript
+            Class<?> integrationClass = Class.forName("com.webx.loaderscript.integration.LoaderScriptDashboardIntegration");
+            
+            // Check if LoaderScript is available
+            java.lang.reflect.Method isAvailableMethod = integrationClass.getMethod("isLoaderScriptAvailable");
+            Boolean isAvailable = (Boolean) isAvailableMethod.invoke(null);
+            
+            if (isAvailable != null && isAvailable) {
+                // Register routes
+                java.lang.reflect.Method registerMethod = integrationClass.getMethod("registerWithDashboard", Javalin.class);
+                registerMethod.invoke(null, app);
                 plugin.getLogger().info("✅ LoaderScript API routes registered");
             } else {
                 plugin.getLogger().info("⚠️ LoaderScript plugin not found - skipping LoaderScript routes");
             }
+        } catch (ClassNotFoundException e) {
+            plugin.getLogger().info("ℹ️ LoaderScript plugin not installed - skipping LoaderScript routes");
         } catch (Exception e) {
             plugin.getLogger().warning("⚠️ Error registering LoaderScript routes: " + e.getMessage());
         }

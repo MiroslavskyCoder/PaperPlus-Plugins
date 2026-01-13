@@ -81,7 +81,8 @@ tasks.register("buildAllPlugins") {
         ":ranks:build",
         ":modernfix:build",
         ":hdphysicssound:build",
-        ":create2:build"
+        ":create2:build",
+        ":loaderscript:build"
     )
     finalizedBy("copyPlugins")
 }
@@ -170,6 +171,7 @@ tasks.register<Copy>("copyPlugins") {
     from("packages/modernfix/build/libs")
     from("packages/hdphysicssound/build/libs")
     from("packages/create2/build/libs")
+    from("packages/loaderscript/build/libs")
     into("out/plugins")
     
     include("*.jar")

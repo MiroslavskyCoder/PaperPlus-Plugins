@@ -1,6 +1,5 @@
 plugins {
     java
-    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.webx"
@@ -30,28 +29,27 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.5")
 }
 
-tasks {
-    shadowJar {
-        archiveClassifier.set("")
-        
-        // Relocate dependencies to avoid conflicts
-        relocate("io.javalin", "com.webx.loaderscript.libs.javalin")
-        relocate("org.eclipse.jetty", "com.webx.loaderscript.libs.jetty")
-        relocate("kotlin", "com.webx.loaderscript.libs.kotlin")
-        
-        // Include LXXV Common
-        dependencies {
-            include(project(":common"))
-        }
+tasks.jar {
+    archiveBaseName.set("loaderscript")
+    
+    manifest {
+        attributes["Main-Class"] = "com.webx.loaderscript.LoaderScriptPlugin"
     }
     
-    build {
-        dependsOn(shadowJar)
+    // Include all dependencies
+    from(configurations.runtimeClasspath.get().filter { it.exists() }.map { 
+        if (it.isDirectory) it else zipTree(it) 
+    }) {
+        exclude("META-INF/*.SF")
+        exclude("META-INF/*.DSA")
+        exclude("META-INF/*.RSA")
     }
     
-    withType<JavaCompile> {
-        options.encoding = "UTF-8"
-    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
 }
 
 java {

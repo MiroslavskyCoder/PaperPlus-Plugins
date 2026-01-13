@@ -1,2 +1,19 @@
-# Randomizer configuration
-random-drops: true
+# Randomizer Plugin Configuration
+
+# Cooldown time in minutes between random item rewards
+cooldown-minutes: 3
+
+# Maximum teleport distance from current location
+max-teleport-distance: 1000
+
+# Radius to check for monsters around teleport location
+monster-check-radius: 10
+
+# Messages
+messages:
+  cooldown: "&cВы должны подождать еще %time% секунд!"
+  item-received: "&aВы получили &f%amount%x %item%&a!"
+  teleport-success: "&aВы телепортированы на случайное место!"
+  teleport-coords: "&7Координаты: &fX: %x% Y: %y% Z: %z%"
+  teleport-failed: "&cНе удалось найти безопасное место для телепортации!"
+  random-number: "&aВаше случайное число: &f%number%"
