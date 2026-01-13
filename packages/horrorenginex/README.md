@@ -1,23 +1,34 @@
 # HorrorEngineX Plugin
 
-A Minecraft plugin that adds horror and atmospheric effects to the server.
+A comprehensive Minecraft plugin that adds horror, atmospheric effects, and world generation to create a truly scary server experience.
 
 ## Features
 
+### Core Horror Effects
 - 👻 **Horror Events** - Random scary events occur while playing
 - 🔊 **Sound Effects** - Creepy ambient sounds and horror audio
 - ✨ **Atmospheric Effects** - Potion effects like blindness, slowness, darkness
 - 📢 **Horror Messages** - Creepy messages and jump scares
+- 🎬 **Cinematic Effects** - Advanced visual rendering effects, screen glitches
 - ⚙️ **Fully Configurable** - All features can be toggled
+
+### World Generation System
+- 🏚️ **Haunted Houses** - Auto-generated 1-6 story abandoned buildings with loot
+- 🗻 **Cave Networks** - Procedural 3x3 tunnel systems up to 600 blocks long
+- 👁️ **Animal Watchers** - Pigs, cows, sheep stare at nearby players
+- 💧 **Constant Rain** - Perpetual rainstorms in selected worlds
+- 🪨 **Large Block Formations** - Ominous stone structures floating in air
 
 ## Horror Effects
 
 - **Blindness** - Temporary darkness effect
-- **Slowness** - Movement slowdown effect
-- **Nausea** - Screen rotation effect
+- **Slowness** - Movement slowdown effect  
+- **Confusion** - Screen rotation effect
 - **Darkness** - Ambient darkness potion
 - **Creeper Stare** - Feels like something is watching you
 - **Phantom Sounds** - Eerie phantom noises
+- **Screen Glitches** - Reality-bending visual distortions
+- **Entity Glitches** - Weird movement and appearance bugs
 
 ## Commands
 
@@ -26,6 +37,8 @@ A Minecraft plugin that adds horror and atmospheric effects to the server.
 - `/hex status` - Show current status
 - `/hex event start|stop` - Control horror events
 - `/hex effects trigger|list` - Trigger or list effects
+- `/hex cinematic on|off` - Toggle cinematic effects
+- `/hex glitch` - Trigger random glitch effect
 - `/hex bypass` - Toggle horror effects for yourself
 - `/hex reload` - Reload configuration
 
@@ -39,6 +52,7 @@ A Minecraft plugin that adds horror and atmospheric effects to the server.
 
 Edit `plugins/HorrorEngineX/config.yml`:
 
+### Basic Horror Effects
 ```yaml
 horror-events:
   enabled: true
@@ -48,6 +62,57 @@ effects:
   sounds:
     enabled: true
   atmospheric:
+    enabled: true
+```
+
+### World Generation
+```yaml
+world-gen:
+  constant-rain: true
+  rain-worlds:
+    - "world"
+  
+  haunted-houses: true
+  house-generation-chance: 0.05
+  
+  cave-tunnels: true
+  tunnel-generation-chance: 0.03
+  
+  large-blocks: true
+  large-block-chance: 0.08
+  
+  animal-watchers: true
+  animal-detection-range: 20
+```
+
+## Detailed Guides
+
+- 📖 [World Generation Guide](./WORLD_GENERATION.md) - Complete world gen documentation
+- ⚙️ [Configuration Guide](./config.yml) - Full configuration reference
+
+## Installation
+
+1. Drop `horrorenginex.jar` into `plugins/` folder
+2. Restart server
+3. Edit `plugins/HorrorEngineX/config.yml` as needed
+4. Use `/hex reload` to apply changes
+
+## Performance
+
+- Asynchronous world generation
+- Lazy structure generation (only when needed)
+- Configurable generation rates
+- Minimal server impact
+
+## Dependencies
+
+- Bukkit/Paper API 1.20.4+
+- Java 17+
+
+## Author
+
+HorrorEngineX Development Team
+
     enabled: true
 ```
 
