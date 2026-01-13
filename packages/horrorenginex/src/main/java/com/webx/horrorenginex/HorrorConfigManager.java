@@ -62,6 +62,10 @@ public class HorrorConfigManager {
         return joinMessageEnabled;
     }
     
+    public FileConfiguration getConfig() {
+        return config;
+    }
+    
     // Setters
     public void setHorrorEventsEnabled(boolean enabled) {
         horrorEventsEnabled = enabled;

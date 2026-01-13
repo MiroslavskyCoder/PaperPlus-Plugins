@@ -1,6 +1,7 @@
 package com.webx.horrorenginex;
 
 import org.bukkit.*;
+import org.bukkit.block.Block;
 
 /**
  * Generates cave tunnel systems
