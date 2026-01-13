@@ -2,25 +2,28 @@ package com.webx.horrorenginex;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import java.util.Random;
 
 /**
- * Generates secret underground laboratories
+ * Generates secret underground laboratories with multiple rooms
  */
 public class SecretLabGenerator {
     
+    private static final Random random = new Random();
+    
     /**
-     * Generate a secret laboratory underground
+     * Generate a large multi-room laboratory underground
      */
     public static void generateLaboratory(World world, Location baseLocation) {
         try {
             int baseX = baseLocation.getBlockX();
-            int baseY = baseLocation.getBlockY() - 10; // 10 blocks underground
+            int baseY = baseLocation.getBlockY() - 15; // 15 blocks underground
             int baseZ = baseLocation.getBlockZ();
             
-            // Create main lab room (15x15x8)
-            int width = 15;
-            int height = 8;
-            int depth = 15;
+            // Large laboratory complex (60x60x12)
+            int totalWidth = 60;
+            int totalDepth = 60;
+            int height = 12;
             
             // Clear space and create walls
             for (int x = baseX; x < baseX + width; x++) {
