@@ -109,7 +109,7 @@ tunnel-min-length: 100
 tunnel-max-length: 600
 ```
 
-### 4. **Large Block Formations**
+### 6. **Large Block Formations**
 Случайные образования больших блоков в воздухе:
 
 - **Высота**: 25+ блоков над землей
@@ -127,7 +127,7 @@ large-block-chance: 0.08  # 8% вероятность
 large-block-height: 25  # Минимальная высота генерации
 ```
 
-### 5. **Animal Watchers**
+### 7. **Animal Watchers**
 Поведение животных, которые смотрят на игроков:
 
 - **Животные**: Свиньи (Pig), Коровы (Cow), Овцы (Sheep)
