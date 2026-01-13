@@ -51,6 +51,9 @@ public class HorrorEngineXPlugin extends JavaPlugin implements Listener {
             // Start world generation
             worldGenManager.startWorldGeneration();
             
+            // Print welcome message
+            printWelcomeBanner();
+            
             getLogger().info("═══════════════════════════════════════════════════════");
             getLogger().info("👻 HorrorEngineX enabled!");
             getLogger().info("Horror events: " + (configManager.isHorrorEventsEnabled() ? "§aON" : "§cOFF"));
@@ -167,5 +170,23 @@ public class HorrorEngineXPlugin extends JavaPlugin implements Listener {
      */
     public boolean isBypassed(Player player) {
         return bypassedPlayers.contains(player.getUniqueId());
+    }
+    
+    /**
+     * Print welcome banner to console
+     */
+    private void printWelcomeBanner() {
+        getLogger().info("");
+        getLogger().info("   ╦ ╦  ╔═╗  ╦═╗  ╔═╗  ╔═╗  ╔═╗  ╔╗╔  ╔═╗  ╦╔╗╔  ╔═╗  ╔═╗");
+        getLogger().info("   ╠╦╝  ║ ║  ║ ║  ║ ║  ╠═╝  ║    ║║║  ║ ║  ║║║║  ║╔╝  ║╣");
+        getLogger().info("   ╩╚═  ╚═╝  ╩═╝  ╚═╝  ╩    ╚═╝  ╝╚╝  ╚═╝  ╩╝╚╝  ╚═╝  ╚═╝");
+        getLogger().info("");
+        getLogger().info("         👻  HorrorEngineX is Awakening  👻");
+        getLogger().info("");
+        getLogger().info("   Version: 1.0.0");
+        getLogger().info("   Author: LXXV");
+        getLogger().info("");
+        getLogger().info("═══════════════════════════════════════════════════════════════════");
+        getLogger().info("");
     }
 }

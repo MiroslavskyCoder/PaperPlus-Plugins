@@ -82,7 +82,8 @@ tasks.register("buildAllPlugins") {
         ":modernfix:build",
         ":hdphysicssound:build",
         ":create2:build",
-        ":loaderscript:build"
+        ":loaderscript:build",
+        ":horrorenginex:build"
     )
     finalizedBy("copyPlugins")
 }
