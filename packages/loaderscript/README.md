@@ -2,6 +2,22 @@
 
 JavaScript script loader for Minecraft Paper/Spigot servers with hot-reload and web management.
 
+## ⚠️ System Requirements
+
+**IMPORTANT:** LoaderScript requires **GLIBC 2.32+** to run!
+
+- ✅ Ubuntu 20.04+ / Debian 11+
+- ✅ CentOS 8+ / RHEL 8+
+- ✅ Fedora 32+
+- ✅ Any modern Linux distribution with GLIBC 2.32+
+
+If you're running an older system:
+1. Update to a newer Linux distribution
+2. Use Docker with Ubuntu 20.04+ or similar
+3. Or disable LoaderScript plugin
+
+The plugin will automatically disable itself if GLIBC version is incompatible.
+
 ## Features
 
 - ✅ Load JavaScript/TypeScript files from `scripts/` folder
@@ -18,8 +34,9 @@ JavaScript script loader for Minecraft Paper/Spigot servers with hot-reload and 
 1. Copy `LoaderScript.jar` to `plugins/` folder
 2. Install `common.jar` (LXXV Common module) to `plugins/` folder
 3. Install `webx-dashboard.jar` (WebX Dashboard) to `plugins/` folder for web UI
-4. Restart server
-5. Scripts folder will be created at: `scripts/` (in server root)
+4. **Ensure your system has GLIBC 2.32+** (check with `ldd --version`)
+5. Restart server
+6. Scripts folder will be created at: `scripts/` (in server root)
 
 ## How It Works
 
