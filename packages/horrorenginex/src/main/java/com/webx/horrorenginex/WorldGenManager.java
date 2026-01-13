@@ -252,7 +252,9 @@ public class WorldGenManager implements Listener {
         int y = world.getHighestBlockYAt(loc) - 1;
         
         if (y > 0) {
-            return loc.clone().setY(y);
+            Location groundLoc = loc.clone();
+            groundLoc.setY(y);
+            return groundLoc;
         }
         return null;
     }
