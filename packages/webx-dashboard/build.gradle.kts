@@ -49,23 +49,43 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
 }
 
-tasks.jar {
-    archiveBaseName.set("webx-dashboard")
-    
-    manifest {
-        attributes["Main-Class"] = "com.webx.PolyglotPlugin"
+tasks {
+    shadowJar {
+        archiveClassifier.set("")
+        
+        // Relocate dependencies to avoid conflicts
+        relocate("io.javalin", "com.webx.shaded.javalin")
+        relocate("org.eclipse.jetty", "com.webx.shaded.jetty")
+        relocate("kotlin", "com.webx.shaded.kotlin")
+        relocate("com.fasterxml.jackson", "com.webx.shaded.jackson")
+        relocate("org.slf4j", "com.webx.shaded.slf4j")
+        relocate("com.google.gson", "com.webx.shaded.gson")
+        relocate("org.postgresql", "com.webx.shaded.postgresql")
+        relocate("com.zaxxer.hikari", "com.webx.shaded.hikari")
+        relocate("at.favre.lib.crypto", "com.webx.shaded.bcrypt")
+        relocate("io.jsonwebtoken", "com.webx.shaded.jwt")
+        relocate("redis.clients.jedis", "com.webx.shaded.jedis")
+        
+        manifest {
+            attributes["Main-Class"] = "com.webx.PolyglotPlugin"
+        }
+        
+        minimize {
+            // Don't minimize these as they're needed at runtime
+            exclude(dependency("io.javalin:javalin:.*"))
+            exclude(dependency("org.postgresql:postgresql:.*"))
+        }
     }
     
-    // Include all dependencies
-    from(configurations.runtimeClasspath.get().filter { it.exists() }.map { 
-        if (it.isDirectory) it else zipTree(it) 
-    }) {
-        exclude("META-INF/*.SF")
-        exclude("META-INF/*.DSA")
-        exclude("META-INF/*.RSA")
+    // Use shadowJar instead of jar
+    jar {
+        enabled = false
+        dependsOn(shadowJar)
     }
     
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    build {
+        dependsOn(shadowJar)
+    }
 }
 
 // Task to clean old frontend files
