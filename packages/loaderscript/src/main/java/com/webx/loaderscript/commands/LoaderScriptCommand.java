@@ -48,6 +48,9 @@ public class LoaderScriptCommand implements CommandExecutor, TabCompleter {
             case "info" -> handleInfo(sender, args);
             case "create" -> handleCreate(sender, args);
             case "delete", "remove" -> handleDelete(sender, args);
+            case "queue" -> handleQueueStatus(sender);
+            case "queue-run", "queuerun" -> handleQueueRun(sender, args);
+            case "queue-clear", "queueclear" -> handleQueueClear(sender);
             default -> sendHelp(sender);
         }
         
@@ -223,6 +226,41 @@ public class LoaderScriptCommand implements CommandExecutor, TabCompleter {
         }
     }
     
+    private void handleQueueStatus(CommandSender sender) {
+        int queueSize = scriptManager.getQueueSize();
+        sender.sendMessage("§6========== §eAsync Queue Status §6==========");
+        sender.sendMessage("§7Queue size: §e" + queueSize + " scripts");
+        
+        if (queueSize == 0) {
+            sender.sendMessage("§7Queue is empty");
+        } else {
+            sender.sendMessage("§7Scripts are loading asynchronously...");
+        }
+        sender.sendMessage("§6================================");
+    }
+    
+    private void handleQueueRun(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /loaderscript queue-run <script>");
+            return;
+        }
+        
+        String scriptName = args[1];
+        
+        if (!scriptManager.listAllScripts().contains(scriptName)) {
+            sender.sendMessage("§cScript not found: §e" + scriptName);
+            return;
+        }
+        
+        scriptManager.queueScriptExecution(scriptName);
+        sender.sendMessage("§a✓ Queued §e" + scriptName + " §afor async execution");
+    }
+    
+    private void handleQueueClear(CommandSender sender) {
+        scriptManager.clearQueue();
+        sender.sendMessage("§a✓ Cleared async queue");
+    }
+    
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6========== §eLoaderScript Commands §6==========");
         sender.sendMessage("§e/loaderscript list §7- List all scripts");
@@ -233,6 +271,9 @@ public class LoaderScriptCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§e/loaderscript info <script> §7- Show script info");
         sender.sendMessage("§e/loaderscript create <name> §7- Create new script");
         sender.sendMessage("§e/loaderscript delete <script> §7- Delete a script");
+        sender.sendMessage("§e/loaderscript queue §7- Show async queue status");
+        sender.sendMessage("§e/loaderscript queue-run <script> §7- Queue script for async run");
+        sender.sendMessage("§e/loaderscript queue-clear §7- Clear async queue");
         sender.sendMessage("§6==========================================");
     }
     
@@ -258,7 +299,8 @@ public class LoaderScriptCommand implements CommandExecutor, TabCompleter {
             String subCommand = args[0].toLowerCase();
             if (subCommand.equals("load") || subCommand.equals("reload") || 
                 subCommand.equals("unload") || subCommand.equals("info") || 
-                subCommand.equals("delete")) {
+                subCommand.equals("delete") || subCommand.equals("queue-run") ||
+                subCommand.equals("queuerun")) {
                 
                 List<String> scripts = scriptManager.listAllScripts();
                 for (String script : scripts) {
