@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+@SuppressWarnings("deprecation")
 public class WorldColorsCommand implements CommandExecutor {
     
     private final WorldColorsPlugin plugin;
@@ -21,7 +22,7 @@ public class WorldColorsCommand implements CommandExecutor {
                 return true;
             }
             
-            plugin.loadWorldColors();
+            plugin.reloadConfig();
             sender.sendMessage(ChatColor.GREEN + "WorldColors configuration reloaded!");
             return true;
         }

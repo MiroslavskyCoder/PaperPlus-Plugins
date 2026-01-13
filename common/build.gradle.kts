@@ -32,7 +32,7 @@ dependencies {
     implementation("org.graalvm.js:js-scriptengine:22.3.0")
     
     // Javalin for REST API
-    implementation("io.javalin:javalin:5.6.2")
+    implementation("io.javalin:javalin:6.7.0")
     
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.5")

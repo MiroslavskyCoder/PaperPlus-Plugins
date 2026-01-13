@@ -103,18 +103,18 @@ public class RouterProvider {
             plugin.getLogger().info("WebSocket /metrics endpoint initialized"); 
             ws.onConnect(ctx -> {
                 metricsService.getMetricsClients().add(ctx);
-                plugin.getLogger().info("✅ WebSocket client connected: " + ctx.sessionId() + " | Total clients: " + metricsService.getMetricsClients().size());
+                plugin.getLogger().info("✅ WebSocket client connected: #" + ctx.hashCode() + " | Total clients: " + metricsService.getMetricsClients().size());
             });
             ws.onClose(ctx -> {
                 metricsService.getMetricsClients().remove(ctx);
-                plugin.getLogger().info("❌ WebSocket client disconnected: " + ctx.sessionId() + " | Total clients: " + metricsService.getMetricsClients().size());
+                plugin.getLogger().info("❌ WebSocket client disconnected: #" + ctx.hashCode() + " | Total clients: " + metricsService.getMetricsClients().size());
             });
             ws.onError(ctx -> {
                 Throwable err = ctx.error();
                 if (err instanceof java.nio.channels.ClosedChannelException) {
-                    plugin.getLogger().info("WS closed (metrics): " + ctx.sessionId());
+                    plugin.getLogger().info("WS closed (metrics): #" + ctx.hashCode());
                 } else {
-                    plugin.getLogger().warning("⚠️ WebSocket error (metrics) for " + ctx.sessionId() + ": " + err);
+                    plugin.getLogger().warning("⚠️ WebSocket error (metrics) for #" + ctx.hashCode() + ": " + err);
                 }
                 metricsService.getMetricsClients().remove(ctx);
             });
@@ -476,6 +476,7 @@ public class RouterProvider {
                 staticFiles.aliasCheck = null;
             });
             
+            // Enable CORS in Javalin 6.x
             config.bundledPlugins.enableCors(cors -> {
                 cors.addRule(it -> {
                     it.anyHost();

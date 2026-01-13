@@ -67,6 +67,7 @@ public class LXXVServer {
         eventSystem = new JavaScriptEventSystem();
         scheduler = new JavaScriptScheduler();
 
+        registerConsoleFunctions();
         registerServerFunctions();
         registerPlayerFunctions();
         registerWorldFunctions();
@@ -78,6 +79,43 @@ public class LXXVServer {
         registerChatFunctions();
         registerSoundParticleFunctions();
         registerVaultFunctions();
+    }
+
+    // ===== CONSOLE FUNCTIONS =====
+
+    private static void registerConsoleFunctions() {
+        // console.log - output to server console with prefix
+        jsEngine.registerFunctionLambda("console.log", args -> {
+            StringBuilder message = new StringBuilder("[LXXV Engine]: ");
+            for (int i = 0; i < args.length; i++) {
+                if (i > 0) message.append(" ");
+                message.append(args[i] != null ? args[i].toString() : "null");
+            }
+            server.getLogger().info(message.toString());
+            return null;
+        });
+
+        // console.warn - warning messages
+        jsEngine.registerFunctionLambda("console.warn", args -> {
+            StringBuilder message = new StringBuilder("[LXXV Engine]: ");
+            for (int i = 0; i < args.length; i++) {
+                if (i > 0) message.append(" ");
+                message.append(args[i] != null ? args[i].toString() : "null");
+            }
+            server.getLogger().warning(message.toString());
+            return null;
+        });
+
+        // console.error - error messages
+        jsEngine.registerFunctionLambda("console.error", args -> {
+            StringBuilder message = new StringBuilder("[LXXV Engine]: ");
+            for (int i = 0; i < args.length; i++) {
+                if (i > 0) message.append(" ");
+                message.append(args[i] != null ? args[i].toString() : "null");
+            }
+            server.getLogger().severe(message.toString());
+            return null;
+        });
     }
 
     // ===== SERVER FUNCTIONS =====

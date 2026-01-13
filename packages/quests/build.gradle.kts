@@ -14,7 +14,7 @@ dependencies {
     implementation(project(":common"))
     
     // Javalin for REST API
-    implementation("io.javalin:javalin:5.6.2")
+    implementation("io.javalin:javalin:6.7.0")
     
     // GSON for JSON
     implementation("com.google.code.gson:gson:2.10.1")
