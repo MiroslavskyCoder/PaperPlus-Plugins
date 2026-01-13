@@ -23,6 +23,7 @@ public class HorrorEngineXPlugin extends JavaPlugin implements Listener {
     private final HorrorEffectsManager effectsManager = new HorrorEffectsManager(this);
     private final CinematicEffectsManager cinematicManager = new CinematicEffectsManager(this);
     private final HorrorConfigManager configManager = new HorrorConfigManager(this);
+    private final WorldGenManager worldGenManager = new WorldGenManager(this);
     private final Set<UUID> bypassedPlayers = new HashSet<>();
     
     @Override
@@ -39,12 +40,16 @@ public class HorrorEngineXPlugin extends JavaPlugin implements Listener {
             getServer().getPluginManager().registerEvents(eventManager, this);
             getServer().getPluginManager().registerEvents(effectsManager, this);
             getServer().getPluginManager().registerEvents(cinematicManager, this);
+            getServer().getPluginManager().registerEvents(worldGenManager, this);
             
             // Register commands
             getCommand("horrorenginex").setExecutor(new HorrorEngineXCommand(this));
             
             // Start horror event scheduler
             eventManager.startEventScheduler();
+            
+            // Start world generation
+            worldGenManager.startWorldGeneration();
             
             getLogger().info("═══════════════════════════════════════════════════════");
             getLogger().info("👻 HorrorEngineX enabled!");

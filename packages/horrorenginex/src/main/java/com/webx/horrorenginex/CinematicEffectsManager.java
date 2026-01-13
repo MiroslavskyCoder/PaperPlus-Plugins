@@ -72,7 +72,7 @@ public class CinematicEffectsManager implements Listener {
         // Create new boss bar (black bars effect)
         BossBar topBar = Bukkit.createBossBar(
             "§0█████████████████████████████████████████████████████",
-            BarColor.BLACK,
+            BarColor.PURPLE,
             BarStyle.SOLID
         );
         topBar.setProgress(1.0);
@@ -91,7 +91,7 @@ public class CinematicEffectsManager implements Listener {
         
         // Apply slowness for heavy atmosphere
         player.addPotionEffect(
-            new PotionEffect(PotionEffectType.SLOWNESS, 1000, 1, false, false)
+            new PotionEffect(PotionEffectType.SLOW, 1000, 1, false, false)
         );
     }
     
@@ -122,7 +122,7 @@ public class CinematicEffectsManager implements Listener {
                 
                 // Gray particle cloud
                 player.getWorld().spawnParticle(
-                    Particle.SMOKE,
+                    Particle.CLOUD,
                     dustLoc,
                     5,
                     0.1, 0.1, 0.1,
@@ -140,7 +140,7 @@ public class CinematicEffectsManager implements Listener {
                 Location mistLoc = loc.clone().add(offsetX, 1, offsetZ);
                 
                 player.getWorld().spawnParticle(
-                    Particle.SPELL_MOB,
+                    Particle.SPELL,
                     mistLoc,
                     3,
                     0.3, 0.3, 0.3,
@@ -209,7 +209,7 @@ public class CinematicEffectsManager implements Listener {
     public void applyGlitchEffect(Player player) {
         // Rapid nausea for screen distortion
         player.addPotionEffect(
-            new PotionEffect(PotionEffectType.NAUSEA, 40, 2, false, false)
+            new PotionEffect(PotionEffectType.CONFUSION, 40, 2, false, false)
         );
         
         // Screen flickering effect using boss bar
@@ -235,7 +235,7 @@ public class CinematicEffectsManager implements Listener {
         
         // Slowness to make movement feel buggy
         player.addPotionEffect(
-            new PotionEffect(PotionEffectType.SLOWNESS, 100, 2, false, false)
+            new PotionEffect(PotionEffectType.SLOW, 100, 2, false, false)
         );
         
         // Weakness effect
@@ -271,7 +271,7 @@ public class CinematicEffectsManager implements Listener {
      */
     private void triggerScreenFlip(Player player) {
         player.addPotionEffect(
-            new PotionEffect(PotionEffectType.NAUSEA, 60, 2, false, false)
+            new PotionEffect(PotionEffectType.CONFUSION, 60, 2, false, false)
         );
         
         player.sendActionBar("§4§l⚠ ⟲ ГЛИТЧ ЭКРАНА ⟲ ⚠");
@@ -283,7 +283,7 @@ public class CinematicEffectsManager implements Listener {
     private void triggerSilentScreenGlitch(Player player) {
         // Subtle unsettling effect
         player.addPotionEffect(
-            new PotionEffect(PotionEffectType.SLOWNESS, 80, 0, false, false)
+            new PotionEffect(PotionEffectType.SLOW, 80, 0, false, false)
         );
         
         player.addPotionEffect(

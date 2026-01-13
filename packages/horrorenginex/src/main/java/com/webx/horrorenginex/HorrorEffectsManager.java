@@ -67,7 +67,7 @@ public class HorrorEffectsManager implements Listener {
      * Apply slowness effect
      */
     public void applySlowness(Player player) {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 1, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 1, false, false));
         playEffectSound(player, Sound.ENTITY_PHANTOM_AMBIENT, 0.7f);
     }
     
@@ -75,7 +75,7 @@ public class HorrorEffectsManager implements Listener {
      * Apply nausea effect
      */
     public void applyNausea(Player player) {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 80, 0, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 80, 0, false, false));
         playEffectSound(player, Sound.ENTITY_ENDERMAN_TELEPORT, 0.6f);
     }
     
@@ -91,7 +91,7 @@ public class HorrorEffectsManager implements Listener {
      * Apply creeper stare effect
      */
     public void applyCreeperStare(Player player) {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 0, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 0, false, false));
         playEffectSound(player, Sound.ENTITY_CREEPER_DEATH, 1.0f);
         player.sendMessage("§4§l💀 Something is watching you...");
     }
