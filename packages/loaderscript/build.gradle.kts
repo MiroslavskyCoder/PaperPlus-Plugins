@@ -18,7 +18,7 @@ dependencies {
     // LXXV Common (JavaScript engine + LXXVServer)
     implementation(project(":common"))
     
-    // Javalin for REST API
+    // Javalin for REST API (version 5.x to match webx-dashboard)
     implementation("io.javalin:javalin:5.6.2")
     
     // GSON for JSON
