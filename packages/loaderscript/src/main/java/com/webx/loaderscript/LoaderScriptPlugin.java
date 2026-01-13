@@ -6,6 +6,7 @@ import com.webx.loaderscript.manager.ScriptManager;
 import lxxv.shared.javascript.JavaScriptEngine;
 import lxxv.shared.server.LXXVServer;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -50,6 +51,9 @@ public class LoaderScriptPlugin extends JavaPlugin {
             
             // Load all scripts asynchronously with Queue
             scriptManager.loadAllScriptsAsync();
+            
+            // Try to register with WebX Dashboard if available
+            registerWithDashboard();
             
             getLogger().info("LoaderScript enabled! Scripts folder: " + scriptsFolder.getAbsolutePath());
             getLogger().info("§6Scripts loading asynchronously in queue...");
@@ -107,5 +111,25 @@ public class LoaderScriptPlugin extends JavaPlugin {
      */
     public ScriptAPIController getAPIController() {
         return apiController;
+    }
+    
+    /**
+     * Attempt to register with WebX Dashboard if it's available
+     */
+    private void registerWithDashboard() {
+        try {
+            // Try to get WebX Dashboard plugin
+            Plugin dashboardPlugin = Bukkit.getPluginManager().getPlugin("WebX-Dashboard");
+            if (dashboardPlugin != null && dashboardPlugin.isEnabled()) {
+                // Try to access the Javalin app through reflection
+                Class<?> routerClass = Class.forName("com.webx.api.RouterProvider");
+                // If we get here, the dashboard is loaded, it will handle registration
+                getLogger().info("✅ WebX Dashboard detected - routes will be registered");
+            }
+        } catch (Exception e) {
+            // Dashboard not available yet, that's okay
+            // It will use reflection to find us when it initializes
+            getLogger().fine("WebX Dashboard not yet available for registration: " + e.getMessage());
+        }
     }
 }

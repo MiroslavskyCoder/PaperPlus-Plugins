@@ -643,17 +643,23 @@ public class RouterProvider {
             Boolean isAvailable = (Boolean) isAvailableMethod.invoke(null);
             
             if (isAvailable != null && isAvailable) {
-                // Register routes
-                java.lang.reflect.Method registerMethod = integrationClass.getMethod("registerWithDashboard", Javalin.class);
-                registerMethod.invoke(null, app);
-                plugin.getLogger().info("✅ LoaderScript API routes registered");
+                try {
+                    // Register routes
+                    java.lang.reflect.Method registerMethod = integrationClass.getMethod("registerWithDashboard", Javalin.class);
+                    registerMethod.invoke(null, app);
+                    plugin.getLogger().info("✅ LoaderScript API routes registered successfully");
+                } catch (Exception registerError) {
+                    plugin.getLogger().warning("⚠️ Failed to register LoaderScript routes: " + registerError.getMessage());
+                    registerError.printStackTrace();
+                }
             } else {
                 plugin.getLogger().info("⚠️ LoaderScript plugin not found - skipping LoaderScript routes");
             }
         } catch (ClassNotFoundException e) {
             plugin.getLogger().info("ℹ️ LoaderScript plugin not installed - skipping LoaderScript routes");
         } catch (Exception e) {
-            plugin.getLogger().warning("⚠️ Error registering LoaderScript routes: " + e.getMessage());
+            plugin.getLogger().warning("⚠️ Error checking LoaderScript availability: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

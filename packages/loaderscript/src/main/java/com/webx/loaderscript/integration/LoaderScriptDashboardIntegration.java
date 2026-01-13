@@ -21,11 +21,21 @@ public class LoaderScriptDashboardIntegration {
     public static void registerWithDashboard(Javalin app) {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("LoaderScript");
         
-        if (plugin == null || !(plugin instanceof LoaderScriptPlugin)) {
-            throw new IllegalStateException("LoaderScript plugin not found or not loaded");
+        if (plugin == null) {
+            throw new IllegalStateException("LoaderScript plugin not found");
+        }
+        
+        if (!(plugin instanceof LoaderScriptPlugin)) {
+            throw new IllegalStateException("LoaderScript plugin is not the correct type");
         }
         
         LoaderScriptPlugin loaderScript = (LoaderScriptPlugin) plugin;
+        
+        // Check if API controller is initialized
+        if (loaderScript.getAPIController() == null) {
+            throw new IllegalStateException("LoaderScript API controller not initialized");
+        }
+        
         loaderScript.getAPIController().registerRoutes(app);
     }
     
