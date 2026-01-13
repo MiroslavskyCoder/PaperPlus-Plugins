@@ -13,8 +13,8 @@ A comprehensive Minecraft plugin that adds horror, atmospheric effects, and worl
 - ⚙️ **Fully Configurable** - All features can be toggled
 
 ### World Generation System
-- 🏚️ **Haunted Houses** - Auto-generated 1-6 story abandoned buildings with loot
-- 🧪 **Secret Laboratories** - Underground research facilities with equipment
+- 🏚️ **Haunted Houses** - Auto-generated 1-8 story abandoned buildings (12x12 or 20x20 size) with loot
+- 🧪 **Secret Laboratories** - Massive underground multi-room research facilities (60x60x12) with director office, scientist rooms, bathrooms, storage, cafeterias, libraries, and recreation room
 - 🪵 **Sawmills** - Wood processing buildings with log piles and machinery
 - 🗻 **Cave Networks** - Procedural 3x3 tunnel systems up to 600 blocks long
 - 👁️ **Animal Watchers** - Pigs, cows, sheep stare at nearby players

@@ -17,10 +17,20 @@ public class WorldGenManager implements Listener {
     
     private final HorrorEngineXPlugin plugin;
     private final Set<Location> generatedStructures = new HashSet<>();
+    private final Map<Location, StructureType> structureLocations = new HashMap<>();
     private BukkitTask rainTask;
     private BukkitTask animalWatcherTask;
     private static final int STRUCTURE_SEARCH_RADIUS = 100;
     private static final int GENERATION_CHECK_INTERVAL = 40; // 2 seconds
+    
+    /**
+     * Types of structures for tunnel connections
+     */
+    private enum StructureType {
+        HAUNTED_HOUSE,
+        SECRET_LAB,
+        SAWMILL
+    }
     
     public WorldGenManager(HorrorEngineXPlugin plugin) {
         this.plugin = plugin;
@@ -146,6 +156,10 @@ public class WorldGenManager implements Listener {
                     if (Math.random() < 0.05) {
                         HauntedHouseGenerator.generateHouse(world, checkLoc);
                         generatedStructures.add(checkLoc);
+                        structureLocations.put(checkLoc, StructureType.HAUNTED_HOUSE);
+                        
+                        // Try to connect to nearby structures with tunnel
+                        connectToNearbyStructure(world, checkLoc);
                     }
                 }
             }
@@ -153,23 +167,13 @@ public class WorldGenManager implements Listener {
     }
     
     /**
-     * Try to generate a cave tunnel system
+     * Try to generate a cave tunnel system (now connects structures)
+     * This method is no longer used for random generation
+     * Tunnels are created via connectToNearbyStructure() instead
      */
     private void tryGenerateCaveTunnel(World world, Location playerLoc) {
-        for (int dx = -STRUCTURE_SEARCH_RADIUS; dx < STRUCTURE_SEARCH_RADIUS; dx += 60) {
-            for (int dz = -STRUCTURE_SEARCH_RADIUS; dz < STRUCTURE_SEARCH_RADIUS; dz += 60) {
-                Location checkLoc = playerLoc.clone().add(dx, 0, dz);
-                checkLoc.setY(30); // Underground
-                
-                if (!generatedStructures.contains(checkLoc)) {
-                    // 3% chance to generate tunnel system
-                    if (Math.random() < 0.03) {
-                        CaveNetworkGenerator.generateTunnelNetwork(world, checkLoc);
-                        generatedStructures.add(checkLoc);
-                    }
-                }
-            }
-        }
+        // Disabled: Cave tunnels now only connect structures
+        // See connectToNearbyStructure() method
     }
     
     /**
@@ -205,6 +209,10 @@ public class WorldGenManager implements Listener {
                     if (Math.random() < 0.02) {
                         SecretLabGenerator.generateLaboratory(world, checkLoc);
                         generatedStructures.add(checkLoc);
+                        structureLocations.put(checkLoc, StructureType.SECRET_LAB);
+                        
+                        // Try to connect to nearby structures with tunnel
+                        connectToNearbyStructure(world, checkLoc);
                     }
                 }
             }
@@ -225,6 +233,10 @@ public class WorldGenManager implements Listener {
                     if (Math.random() < 0.04) {
                         SawmillGenerator.generateSawmill(world, checkLoc);
                         generatedStructures.add(checkLoc);
+                        structureLocations.put(checkLoc, StructureType.SAWMILL);
+                        
+                        // Try to connect to nearby structures with tunnel
+                        connectToNearbyStructure(world, checkLoc);
                     }
                 }
             }
@@ -262,8 +274,9 @@ public class WorldGenManager implements Listener {
     private void checkNearbyAnimals(Player player) {
         Location playerLoc = player.getLocation();
         
-        // Find all entities within 20 blocks
-        playerLoc.getWorld().getNearbyEntities(playerLoc, 20, 20, 20).forEach(entity -> {
+        // Find all entities within 3-5 blocks (as per requirements)
+        int radius = 3 + (int)(Math.random() * 3); // Random 3-5 block radius
+        playerLoc.getWorld().getNearbyEntities(playerLoc, radius, radius, radius).forEach(entity -> {
             if (entity instanceof org.bukkit.entity.Pig ||
                 entity instanceof org.bukkit.entity.Cow ||
                 entity instanceof org.bukkit.entity.Sheep) {
@@ -275,6 +288,9 @@ public class WorldGenManager implements Listener {
                     // Rotate head toward player
                     Location entityLoc = entity.getLocation();
                     Location playerEyeLoc = player.getEyeLocation();
+                    
+                    // Play creepy stare sound effect (ambient cave sound)
+                    player.playSound(player.getLocation(), Sound.AMBIENT_CAVE, 0.3f, 0.5f);
                     
                     // Calculate rotation to look at player
                     double dx = playerEyeLoc.getX() - entityLoc.getX();
@@ -292,6 +308,167 @@ public class WorldGenManager implements Listener {
                 }
             }
         });
+    }
+    
+    /**
+     * Connect new structure to nearest existing structure with tunnel
+     * This creates long 3x3 tunnels that can reach up to 600 blocks
+     */
+    private void connectToNearbyStructure(World world, Location newStructure) {
+        // Find nearest structure within range
+        Location nearestStructure = null;
+        double nearestDistance = Double.MAX_VALUE;
+        
+        for (Location existingLoc : structureLocations.keySet()) {
+            if (existingLoc.equals(newStructure)) continue;
+            if (!existingLoc.getWorld().equals(world)) continue;
+            
+            double distance = existingLoc.distance(newStructure);
+            
+            // Only connect if distance is between 100 and 600 blocks (as per requirements)
+            if (distance >= 100 && distance <= 600 && distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestStructure = existingLoc;
+            }
+        }
+        
+        // If found nearby structure, create tunnel connecting them
+        if (nearestStructure != null) {
+            plugin.getLogger().info("Connecting structures with tunnel: " + 
+                newStructure.getBlockX() + "," + newStructure.getBlockZ() + " -> " +
+                nearestStructure.getBlockX() + "," + nearestStructure.getBlockZ() +
+                " (distance: " + (int)nearestDistance + " blocks)");
+            
+            // Create 3x3 tunnel underground (y=30)
+            createConnectingTunnel(world, newStructure, nearestStructure);
+        }
+    }
+    
+    /**
+     * Create a 3x3 tunnel connecting two structures
+     */
+    private void createConnectingTunnel(World world, Location start, Location end) {
+        // Set tunnel depth
+        int tunnelY = 30;
+        
+        // Get start and end points
+        int startX = start.getBlockX();
+        int startZ = start.getBlockZ();
+        int endX = end.getBlockX();
+        int endZ = end.getBlockZ();
+        
+        // Calculate direction
+        int dx = endX - startX;
+        int dz = endZ - startZ;
+        double distance = Math.sqrt(dx * dx + dz * dz);
+        
+        // Normalize direction
+        double dirX = dx / distance;
+        double dirZ = dz / distance;
+        
+        // Create tunnel blocks
+        for (double step = 0; step < distance; step += 1.0) {
+            int x = (int)(startX + dirX * step);
+            int z = (int)(startZ + dirZ * step);
+            
+            // Create 3x3 cross-section
+            for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                for (int offsetY = -1; offsetY <= 1; offsetY++) {
+                    for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+                        Location blockLoc = new Location(world, x + offsetX, tunnelY + offsetY, z + offsetZ);
+                        Material currentType = blockLoc.getBlock().getType();
+                        
+                        // Only carve through natural blocks
+                        if (currentType == Material.STONE || currentType == Material.DEEPSLATE ||
+                            currentType == Material.GRANITE || currentType == Material.DIORITE ||
+                            currentType == Material.ANDESITE || currentType == Material.TUFF ||
+                            currentType == Material.DIRT || currentType == Material.GRAVEL ||
+                            currentType == Material.CALCITE || currentType == Material.BLACKSTONE) {
+                            blockLoc.getBlock().setType(Material.AIR);
+                        }
+                    }
+                }
+            }
+            
+            // Add decorations occasionally
+            if (Math.random() < 0.1) {
+                // Stalactites from ceiling
+                Location ceilingLoc = new Location(world, x, tunnelY + 2, z);
+                if (ceilingLoc.getBlock().getType() == Material.AIR) {
+                    ceilingLoc.getBlock().setType(Material.POINTED_DRIPSTONE);
+                }
+            }
+            
+            // Add random branches (10% chance)
+            if (Math.random() < 0.1) {
+                createTunnelBranch(world, new Location(world, x, tunnelY, z));
+            }
+        }
+        
+        // Create entrance from structure to tunnel
+        createTunnelEntrance(world, start, tunnelY);
+        createTunnelEntrance(world, end, tunnelY);
+    }
+    
+    /**
+     * Create entrance from structure down to tunnel
+     */
+    private void createTunnelEntrance(World world, Location structureLoc, int tunnelY) {
+        int x = structureLoc.getBlockX();
+        int z = structureLoc.getBlockZ();
+        int startY = structureLoc.getBlockY();
+        
+        // Create 3x3 vertical shaft down to tunnel
+        for (int y = startY; y >= tunnelY; y--) {
+            for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
+                    Location blockLoc = new Location(world, x + offsetX, y, z + offsetZ);
+                    blockLoc.getBlock().setType(Material.AIR);
+                }
+            }
+            
+            // Add ladder on one wall
+            Location ladderLoc = new Location(world, x - 1, y, z);
+            ladderLoc.getBlock().setType(Material.LADDER);
+        }
+    }
+    
+    /**
+     * Create small 2x2 branch tunnel
+     */
+    private void createTunnelBranch(World world, Location branchStart) {
+        // Random direction
+        int direction = (int)(Math.random() * 4);
+        int dx = 0, dz = 0;
+        
+        if (direction == 0) dx = 1;
+        else if (direction == 1) dx = -1;
+        else if (direction == 2) dz = 1;
+        else dz = -1;
+        
+        int branchLength = 10 + (int)(Math.random() * 20); // 10-30 blocks
+        
+        for (int i = 0; i < branchLength; i++) {
+            int x = branchStart.getBlockX() + dx * i;
+            int y = branchStart.getBlockY();
+            int z = branchStart.getBlockZ() + dz * i;
+            
+            // 2x2 cross-section
+            for (int offsetX = 0; offsetX <= 1; offsetX++) {
+                for (int offsetY = 0; offsetY <= 1; offsetY++) {
+                    for (int offsetZ = 0; offsetZ <= 1; offsetZ++) {
+                        Location blockLoc = new Location(world, x + offsetX, y + offsetY, z + offsetZ);
+                        Material currentType = blockLoc.getBlock().getType();
+                        
+                        if (currentType == Material.STONE || currentType == Material.DEEPSLATE ||
+                            currentType == Material.GRANITE || currentType == Material.DIORITE ||
+                            currentType == Material.ANDESITE) {
+                            blockLoc.getBlock().setType(Material.AIR);
+                        }
+                    }
+                }
+            }
+        }
     }
     
     /**

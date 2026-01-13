@@ -24,10 +24,6 @@ public class SecretLabGenerator {
             int totalWidth = 60;
             int totalDepth = 60;
             int height = 12;
-            // Large laboratory complex (60x60x12)
-            int totalWidth = 60;
-            int totalDepth = 60;
-            int height = 12;
             
             // Clear entire area and create perimeter walls
             clearAndCreateWalls(world, baseX, baseY, baseZ, totalWidth, totalDepth, height);
