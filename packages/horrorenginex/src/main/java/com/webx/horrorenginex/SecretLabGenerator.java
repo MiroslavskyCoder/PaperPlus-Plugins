@@ -82,6 +82,9 @@ public class SecretLabGenerator {
             // Add lighting throughout
             addLighting(world, baseX, baseY, baseZ, totalWidth, totalDepth, height);
             
+            // Add stone cross above entrance on surface
+            createSurfaceCross(world, baseX + totalWidth / 2, baseLocation.getBlockY(), baseZ + 2);
+            
         } catch (Exception e) {
             // Silently fail
         }
@@ -323,6 +326,67 @@ public class SecretLabGenerator {
                 world.getBlockAt(x, baseY + height - 2, z).setType(Material.REDSTONE_LAMP);
                 world.getBlockAt(x, baseY + height - 3, z).setType(Material.REDSTONE_BLOCK);
             }
+        }
+    }
+    
+    /**
+     * Create stone cross on surface above laboratory entrance
+     */
+    private static void createSurfaceCross(World world, int centerX, int baseY, int centerZ) {
+        try {
+            // Cross dimensions
+            int height = 10 + (int)(Math.random() * 5); // 10-15 blocks tall (larger for labs)
+            int armWidth = 2;
+            int armLength = 4;
+            
+            // Vertical beam (thick)
+            for (int y = baseY; y < baseY + height; y++) {
+                for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                    world.getBlockAt(centerX + offsetX, y, centerZ).setType(Material.STONE_BRICKS);
+                }
+            }
+            
+            // Horizontal beam (positioned higher)
+            int beamY = baseY + height / 3;
+            for (int x = centerX - armLength; x <= centerX + armLength; x++) {
+                for (int z = centerZ - armWidth; z <= centerZ + armWidth; z++) {
+                    for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                        world.getBlockAt(centerX + offsetX, beamY, z).setType(Material.STONE_BRICKS);
+                    }
+                }
+            }
+            
+            // Top point
+            for (int offsetX = -1; offsetX <= 1; offsetX++) {
+                world.getBlockAt(centerX + offsetX, baseY + height, centerZ).setType(Material.STONE_BRICK_STAIRS);
+            }
+            
+            // Wide base support (5x5)
+            for (int x = centerX - 2; x <= centerX + 2; x++) {
+                for (int z = centerZ - 2; z <= centerZ + 2; z++) {
+                    if (world.getBlockAt(x, baseY - 1, z).getType() == Material.AIR) {
+                        world.getBlockAt(x, baseY - 1, z).setType(Material.STONE_BRICKS);
+                    }
+                }
+            }
+            
+            // Add heavy weathering for ominous effect
+            for (int y = baseY; y < baseY + height; y += 2) {
+                if (Math.random() < 0.4) {
+                    world.getBlockAt(centerX, y, centerZ).setType(Material.MOSSY_STONE_BRICKS);
+                }
+            }
+            
+            // Add hanging vines
+            if (Math.random() < 0.5) {
+                for (int y = baseY; y < baseY + height; y += 2) {
+                    world.getBlockAt(centerX - 2, y, centerZ).setType(Material.TWISTING_VINES);
+                    world.getBlockAt(centerX + 2, y, centerZ).setType(Material.TWISTING_VINES);
+                }
+            }
+            
+        } catch (Exception e) {
+            // Silently fail
         }
     }
 }

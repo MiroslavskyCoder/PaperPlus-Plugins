@@ -127,8 +127,71 @@ public class HauntedHouseGenerator {
                 }
             }
             
+            // Add stone cross above the house
+            generateStoneCross(world, baseX + width / 2, roofY + 2, baseZ + depth / 2);
+            
         } catch (Exception e) {
             // Silently fail if generation issue occurs
+        }
+    }
+    
+    /**
+     * Generate a stone cross above the house
+     * Gothic/cemetery style cross made of stone bricks
+     */
+    private static void generateStoneCross(World world, int centerX, int baseY, int centerZ) {
+        try {
+            // Cross dimensions
+            int height = 8 + (int)(Math.random() * 4); // 8-12 blocks tall
+            int armWidth = 1;
+            int armLength = 3;
+            
+            // Vertical beam
+            for (int y = baseY; y < baseY + height; y++) {
+                world.getBlockAt(centerX, y, centerZ).setType(Material.STONE_BRICKS);
+            }
+            
+            // Horizontal beam (shorter, positioned higher)
+            int beamY = baseY + height / 3;
+            for (int x = centerX - armLength; x <= centerX + armLength; x++) {
+                for (int z = centerZ - armWidth; z <= centerZ + armWidth; z++) {
+                    world.getBlockAt(x, beamY, z).setType(Material.STONE_BRICKS);
+                }
+            }
+            
+            // Top point/cross top
+            world.getBlockAt(centerX, baseY + height, centerZ).setType(Material.STONE_BRICK_STAIRS);
+            
+            // Base of cross (wider support)
+            for (int x = centerX - 2; x <= centerX + 2; x++) {
+                for (int z = centerZ - 2; z <= centerZ + 2; z++) {
+                    if (world.getBlockAt(x, baseY - 1, z).getType() == Material.AIR) {
+                        world.getBlockAt(x, baseY - 1, z).setType(Material.STONE_BRICKS);
+                    }
+                }
+            }
+            
+            // Add moss for aged effect (30% chance)
+            if (Math.random() < 0.3) {
+                // Add some mossy stone bricks
+                for (int y = baseY; y < baseY + height; y += 2) {
+                    if (Math.random() < 0.5) {
+                        world.getBlockAt(centerX, y, centerZ).setType(Material.MOSSY_STONE_BRICKS);
+                    }
+                }
+            }
+            
+            // Add creeping vines occasionally
+            if (Math.random() < 0.2) {
+                // Vines on the sides
+                for (int y = baseY; y < baseY + height; y += 3) {
+                    world.getBlockAt(centerX - 1, y, centerZ).setType(Material.TWISTING_VINES);
+                    world.getBlockAt(centerX + 1, y, centerZ).setType(Material.TWISTING_VINES);
+                }
+            }
+            
+        } catch (Exception e) {
+            // Silently fail
         }
     }
     

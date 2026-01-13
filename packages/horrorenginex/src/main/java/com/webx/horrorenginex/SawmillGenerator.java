@@ -138,6 +138,55 @@ public class SawmillGenerator {
                 world.getBlockAt(baseX + width, baseY, z).setType(Material.OAK_FENCE);
             }
             
+            // Add stone cross above the sawmill
+            generateStoneCross(world, baseX + width / 2, baseY + height, baseZ + depth / 2);
+            
+        } catch (Exception e) {
+            // Silently fail
+        }
+    }
+    
+    /**
+     * Generate a stone cross above the sawmill
+     */
+    private static void generateStoneCross(World world, int centerX, int baseY, int centerZ) {
+        try {
+            // Cross dimensions (medium size for sawmill)
+            int height = 7 + (int)(Math.random() * 3); // 7-10 blocks tall
+            
+            // Vertical beam
+            for (int y = baseY; y < baseY + height; y++) {
+                world.getBlockAt(centerX, y, centerZ).setType(Material.STONE_BRICKS);
+            }
+            
+            // Horizontal beam
+            int beamY = baseY + height / 3;
+            for (int x = centerX - 3; x <= centerX + 3; x++) {
+                world.getBlockAt(x, beamY, centerZ).setType(Material.STONE_BRICKS);
+            }
+            for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+                world.getBlockAt(centerX, beamY, z).setType(Material.STONE_BRICKS);
+            }
+            
+            // Top point
+            world.getBlockAt(centerX, baseY + height, centerZ).setType(Material.STONE_BRICK_STAIRS);
+            
+            // Base support
+            for (int x = centerX - 1; x <= centerX + 1; x++) {
+                for (int z = centerZ - 1; z <= centerZ + 1; z++) {
+                    if (world.getBlockAt(x, baseY - 1, z).getType() == Material.AIR) {
+                        world.getBlockAt(x, baseY - 1, z).setType(Material.STONE_BRICKS);
+                    }
+                }
+            }
+            
+            // Add moss for age
+            if (Math.random() < 0.4) {
+                for (int y = baseY; y < baseY + height; y += 2) {
+                    world.getBlockAt(centerX, y, centerZ).setType(Material.MOSSY_STONE_BRICKS);
+                }
+            }
+            
         } catch (Exception e) {
             // Silently fail
         }
