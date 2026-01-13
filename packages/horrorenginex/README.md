@@ -14,6 +14,8 @@ A comprehensive Minecraft plugin that adds horror, atmospheric effects, and worl
 
 ### World Generation System
 - 🏚️ **Haunted Houses** - Auto-generated 1-6 story abandoned buildings with loot
+- 🧪 **Secret Laboratories** - Underground research facilities with equipment
+- 🪵 **Sawmills** - Wood processing buildings with log piles and machinery
 - 🗻 **Cave Networks** - Procedural 3x3 tunnel systems up to 600 blocks long
 - 👁️ **Animal Watchers** - Pigs, cows, sheep stare at nearby players
 - 💧 **Constant Rain** - Perpetual rainstorms in selected worlds
@@ -77,6 +79,12 @@ world-gen:
   
   cave-tunnels: true
   tunnel-generation-chance: 0.03
+  
+  secret-labs: true
+  lab-generation-chance: 0.02
+  
+  sawmills: true
+  sawmill-generation-chance: 0.04
   
   large-blocks: true
   large-block-chance: 0.08
