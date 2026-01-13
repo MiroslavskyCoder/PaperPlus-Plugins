@@ -47,8 +47,9 @@ public class WorldGenManager implements Listener {
             startConstantRain();
         }
         
-        // Pre-generate structures on startup
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::preGenerateStructures);
+        // Pre-generate structures on startup (in main thread with 2 second delay)
+        // Delay gives server time to fully initialize
+        Bukkit.getScheduler().runTaskLater(plugin, this::preGenerateStructures, 40);
         
         // Start structure generation around players (if enabled in config)
         if (plugin.getConfigManager().getConfig().getBoolean("world-gen.continuous-generation", false)) {
