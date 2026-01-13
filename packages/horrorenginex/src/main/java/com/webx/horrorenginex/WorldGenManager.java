@@ -22,6 +22,7 @@ public class WorldGenManager implements Listener {
     private BukkitTask animalWatcherTask;
     private BukkitTask playerGenerationTask;
     private boolean preGenerationComplete = false;
+    private BukkitTask preGenerationTask;
     private static final int STRUCTURE_SEARCH_RADIUS = 150;
     private static final int GENERATION_CHECK_INTERVAL = 20; // 1 second
     
@@ -47,9 +48,9 @@ public class WorldGenManager implements Listener {
             startConstantRain();
         }
         
-        // Pre-generate structures on startup (in main thread with 2 second delay)
+        // Pre-generate structures on startup (in async with main thread blocks)
         // Delay gives server time to fully initialize
-        Bukkit.getScheduler().runTaskLater(plugin, this::preGenerateStructures, 40);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::preGenerateStructures);
         
         // Start structure generation around players (if enabled in config)
         if (plugin.getConfigManager().getConfig().getBoolean("world-gen.continuous-generation", false)) {
@@ -81,6 +82,11 @@ public class WorldGenManager implements Listener {
         if (playerGenerationTask != null) {
             playerGenerationTask.cancel();
             playerGenerationTask = null;
+        }
+        
+        if (preGenerationTask != null) {
+            preGenerationTask.cancel();
+            preGenerationTask = null;
         }
     }
     
