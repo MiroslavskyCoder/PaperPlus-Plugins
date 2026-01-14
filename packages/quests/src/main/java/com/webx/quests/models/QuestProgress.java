@@ -8,7 +8,9 @@ public class QuestProgress {
     private final Map<String, Integer> objectiveProgress;
     private long startedAt;
     private long completedAt;
-    private boolean completed;
+    private QuestStatus status;
+    private long lastUpdateTime;
+    private int attempts;
 
     public QuestProgress(UUID player, String questId) {
         this.player = player;
@@ -16,7 +18,9 @@ public class QuestProgress {
         this.objectiveProgress = new HashMap<>();
         this.startedAt = System.currentTimeMillis();
         this.completedAt = -1;
-        this.completed = false;
+        this.status = QuestStatus.NOT_STARTED;
+        this.lastUpdateTime = System.currentTimeMillis();
+        this.attempts = 0;
     }
 
     public UUID getPlayer() {
@@ -27,8 +31,23 @@ public class QuestProgress {
         return questId;
     }
 
+    public QuestStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(QuestStatus status) {
+        this.status = status;
+        this.lastUpdateTime = System.currentTimeMillis();
+        if (status == QuestStatus.IN_PROGRESS && startedAt == 0) {
+            this.startedAt = System.currentTimeMillis();
+        } else if (status == QuestStatus.COMPLETED) {
+            this.completedAt = System.currentTimeMillis();
+        }
+    }
+
     public void setObjectiveProgress(String objective, int progress) {
         objectiveProgress.put(objective, progress);
+        this.lastUpdateTime = System.currentTimeMillis();
     }
 
     public int getObjectiveProgress(String objective) {
@@ -38,17 +57,19 @@ public class QuestProgress {
     public void addObjectiveProgress(String objective, int amount) {
         int current = getObjectiveProgress(objective);
         objectiveProgress.put(objective, current + amount);
+        this.lastUpdateTime = System.currentTimeMillis();
     }
 
     public boolean isCompleted() {
-        return completed;
+        return status == QuestStatus.COMPLETED;
     }
 
     public void setCompleted(boolean completed) {
-        this.completed = completed;
+        this.status = completed ? QuestStatus.COMPLETED : QuestStatus.IN_PROGRESS;
         if (completed) {
             this.completedAt = System.currentTimeMillis();
         }
+        this.lastUpdateTime = System.currentTimeMillis();
     }
 
     public long getStartedAt() {
@@ -57,5 +78,29 @@ public class QuestProgress {
 
     public long getCompletedAt() {
         return completedAt;
+    }
+
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public int getAttempts() {
+        return attempts;
+    }
+
+    public void incrementAttempts() {
+        this.attempts++;
+    }
+
+    public Map<String, Integer> getAllProgress() {
+        return new HashMap<>(objectiveProgress);
+    }
+
+    public void reset() {
+        this.status = QuestStatus.NOT_STARTED;
+        this.objectiveProgress.clear();
+        this.startedAt = System.currentTimeMillis();
+        this.completedAt = -1;
+        this.lastUpdateTime = System.currentTimeMillis();
     }
 }

@@ -1,0 +1,37 @@
+{
+  "id": "011_animal_tamer",
+  "name": "Укротитель Животных",
+  "description": "Приручите 5 волков и создайте свою стаю",
+  "type": "TAME",
+  "difficulty": "MEDIUM",
+  "level": 4,
+  "category": "animals",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "tame_wolves",
+      "type": "TAME",
+      "description": "Приручить волков",
+      "target": "WOLF",
+      "required": 5,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 600,
+    "exp": 300,
+    "items": [
+      {
+        "type": "BONE",
+        "amount": 64
+      },
+      {
+        "type": "LEATHER",
+        "amount": 32
+      }
+    ]
+  }
+}

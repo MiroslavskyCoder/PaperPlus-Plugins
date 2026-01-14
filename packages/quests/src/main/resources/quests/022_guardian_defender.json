@@ -1,0 +1,37 @@
+{
+  "id": "022_guardian_defender",
+  "name": "Защитник Города",
+  "description": "Защитите город от волны монстров в течение 10 минут",
+  "type": "DEFEND",
+  "difficulty": "EXPERT",
+  "level": 22,
+  "category": "combat",
+  "timeLimit": 600,
+  "repeatable": false,
+  "daily": false,
+  "requirements": ["015_zombie_slayer", "004_skeleton_hunter"],
+  "objectives": [
+    {
+      "id": "defend_waves",
+      "type": "DEFEND",
+      "description": "Защитить от волн монстров",
+      "target": "CITY",
+      "required": 10,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 4000,
+    "exp": 2000,
+    "items": [
+      {
+        "type": "TOTEM_OF_UNDYING",
+        "amount": 1
+      },
+      {
+        "type": "ENCHANTED_GOLDEN_APPLE",
+        "amount": 5
+      }
+    ]
+  }
+}

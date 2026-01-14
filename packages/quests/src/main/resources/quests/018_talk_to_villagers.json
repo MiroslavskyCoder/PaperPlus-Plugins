@@ -1,0 +1,33 @@
+{
+  "id": "018_talk_to_villagers",
+  "name": "Общительный Житель",
+  "description": "Поговорите с 10 различными жителями деревни",
+  "type": "TALK",
+  "difficulty": "EASY",
+  "level": 2,
+  "category": "social",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "talk_villagers",
+      "type": "TALK",
+      "description": "Поговорить с жителями",
+      "target": "VILLAGER",
+      "required": 10,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 300,
+    "exp": 150,
+    "items": [
+      {
+        "type": "EMERALD",
+        "amount": 5
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "009_fisherman",
+  "name": "Рыбак",
+  "description": "Поймайте 30 рыб и станьте мастером рыбалки",
+  "type": "FISH",
+  "difficulty": "EASY",
+  "level": 2,
+  "category": "fishing",
+  "timeLimit": 0,
+  "repeatable": true,
+  "daily": false,
+  "cooldown": 7200000,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "catch_fish",
+      "type": "FISH",
+      "description": "Поймать рыбу",
+      "target": "FISH",
+      "required": 30,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 250,
+    "exp": 120,
+    "items": [
+      {
+        "type": "FISHING_ROD",
+        "amount": 1,
+        "enchantments": {
+          "LUCK_OF_THE_SEA": 3,
+          "LURE": 2
+        }
+      }
+    ]
+  }
+}

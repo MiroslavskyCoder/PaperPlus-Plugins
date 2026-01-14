@@ -1,0 +1,31 @@
+name: HDPhysicsSound
+version: ${version}
+main: com.webx.hdphysicssound.HDPhysicsSoundPlugin
+api-version: 1.20
+author: WebX
+description: Sound physics remastered for Paper (occlusion, attenuation, reverb)
+
+commands:
+  hdps:
+    description: HDPhysicsSound command
+    usage: /hdps <subcommand>
+    aliases: [hdpsound, hdsound]
+    permission: hdps.command
+
+permissions:
+  hdps.*:
+    description: All HDPhysicsSound permissions
+    default: op
+    children:
+      hdps.command: true
+      hdps.admin: true
+      hdps.debug: true
+  hdps.command:
+    description: Use HDPhysicsSound commands
+    default: true
+  hdps.admin:
+    description: Admin commands
+    default: op
+  hdps.debug:
+    description: Debug controls
+    default: op

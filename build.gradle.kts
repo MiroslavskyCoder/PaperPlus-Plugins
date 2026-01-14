@@ -1,5 +1,3 @@
-// Root build file
-
 plugins {
     base
 }
@@ -9,12 +7,13 @@ tasks.register("buildAllPlugins") {
     group = "build"
     description = "Build all plugins"
     dependsOn(
+        ":common:build",
+        ":shared-database:build",
         ":webx-dashboard:build",
         ":webx-dashboard-panel:bunBuild",
         ":regionigroks-map:build",
         ":pvp-base:build",
-        ":show-health:build",
-        ":abomination:build",
+        ":show-health:build", 
         ":death-mark:build",
         ":home-tp:build",
         ":back-tp:build",
@@ -71,7 +70,20 @@ tasks.register("buildAllPlugins") {
         ":fishing:build",
         ":cooking:build",
         ":combat:build",
-        ":guilds-advanced:build"
+        ":guilds-advanced:build",
+        ":playerinfo:build",
+        ":worldcolors:build",
+        ":autoshutdown:build",
+        ":simpleheal:build",
+        ":deathmessage:build",
+        ":mobcatch:build",
+        ":friendfeed:build",
+        ":ranks:build",
+        ":modernfix:build",
+        ":hdphysicssound:build",
+        ":create2:build",
+        ":loaderscript:build",
+        ":horrorenginex:build"
     )
     finalizedBy("copyPlugins")
 }
@@ -91,8 +103,7 @@ tasks.register<Copy>("copyPlugins") {
     from("packages/webx-dashboard/build/libs")
     from("packages/regionigroks-map/build/libs")
     from("packages/pvp-base/build/libs")
-    from("packages/show-health/build/libs")
-    from("packages/abomination/build/libs")
+    from("packages/show-health/build/libs") 
     from("packages/death-mark/build/libs")
     from("packages/home-tp/build/libs")
     from("packages/back-tp/build/libs")
@@ -150,6 +161,18 @@ tasks.register<Copy>("copyPlugins") {
     from("packages/cooking/build/libs")
     from("packages/combat/build/libs")
     from("packages/guilds-advanced/build/libs")
+    from("packages/playerinfo/build/libs")
+    from("packages/worldcolors/build/libs")
+    from("packages/autoshutdown/build/libs")
+    from("packages/simpleheal/build/libs")
+    from("packages/deathmessage/build/libs")
+    from("packages/mobcatch/build/libs")
+    from("packages/friendfeed/build/libs")
+    from("packages/ranks/build/libs")
+    from("packages/modernfix/build/libs")
+    from("packages/hdphysicssound/build/libs")
+    from("packages/create2/build/libs")
+    from("packages/loaderscript/build/libs")
     into("out/plugins")
     
     include("*.jar")
@@ -192,14 +215,13 @@ tasks.register("listProjects") {
 }
 
 // Wrap clean to clean all subprojects
-tasks.clean {
+tasks.named("clean") {
     dependsOn(
         ":webx-dashboard:clean",
         ":webx-dashboard-panel:clean",
         ":regionigroks-map:clean",
         ":pvp-base:clean",
-        ":show-health:clean",
-        ":abomination:clean",
+        ":show-health:clean", 
         ":death-mark:clean",
         ":home-tp:clean",
         ":warps:clean",
@@ -256,7 +278,18 @@ tasks.clean {
         ":fishing:clean",
         ":cooking:clean",
         ":combat:clean",
-        ":guilds-advanced:clean"
+        ":guilds-advanced:clean",
+        ":playerinfo:clean",
+        ":worldcolors:clean",
+        ":autoshutdown:clean",
+        ":simpleheal:clean",
+        ":deathmessage:clean",
+        ":mobcatch:clean",
+        ":friendfeed:clean",
+        ":ranks:clean",
+        ":modernfix:clean",
+        ":hdphysicssound:clean",
+        ":create2:clean"
     )
 }
 

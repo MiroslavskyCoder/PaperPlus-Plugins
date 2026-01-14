@@ -1,0 +1,38 @@
+{
+  "id": "015_zombie_slayer",
+  "name": "Истребитель Зомби",
+  "description": "Убейте 100 зомби и защитите деревню",
+  "type": "KILL",
+  "difficulty": "HARD",
+  "level": 10,
+  "category": "combat",
+  "timeLimit": 3600,
+  "repeatable": false,
+  "daily": false,
+  "requirements": ["001_first_blood"],
+  "objectives": [
+    {
+      "id": "kill_zombies_100",
+      "type": "KILL",
+      "description": "Убить 100 зомби",
+      "target": "ZOMBIE",
+      "required": 100,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 1800,
+    "exp": 900,
+    "items": [
+      {
+        "type": "DIAMOND_SWORD",
+        "amount": 1,
+        "enchantments": {
+          "SHARPNESS": 5,
+          "LOOTING": 3,
+          "UNBREAKING": 3
+        }
+      }
+    ]
+  }
+}

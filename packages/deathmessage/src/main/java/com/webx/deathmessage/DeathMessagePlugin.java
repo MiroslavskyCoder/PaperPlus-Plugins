@@ -44,7 +44,7 @@ public class DeathMessagePlugin extends JavaPlugin {
         }
     }
     
-    public boolean isEnabled() {
+    public boolean isDeathMessageEnabled() {
         return enabled;
     }
     

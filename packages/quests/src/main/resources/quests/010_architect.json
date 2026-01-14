@@ -1,0 +1,33 @@
+{
+  "id": "010_architect",
+  "name": "Архитектор",
+  "description": "Постройте дом размером минимум 10x10 блоков",
+  "type": "BUILD",
+  "difficulty": "MEDIUM",
+  "level": 5,
+  "category": "building",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "place_blocks",
+      "type": "PLACE",
+      "description": "Разместить блоки",
+      "target": "ANY",
+      "required": 400,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 800,
+    "exp": 400,
+    "items": [
+      {
+        "type": "GOLDEN_APPLE",
+        "amount": 5
+      }
+    ]
+  }
+}

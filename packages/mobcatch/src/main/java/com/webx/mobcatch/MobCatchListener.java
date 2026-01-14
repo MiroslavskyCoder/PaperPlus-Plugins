@@ -27,7 +27,7 @@ public class MobCatchListener implements Listener {
         
         // Check if player is sneaking and right-clicking with empty hand
         if (!player.isSneaking()) return;
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isMobCatchEnabled()) return;
         
         // Check permission
         if (plugin.isRequirePermission() && !player.hasPermission(plugin.getPermission())) {

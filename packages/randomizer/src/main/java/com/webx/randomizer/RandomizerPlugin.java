@@ -1,67 +1,47 @@
 package com.webx.randomizer;
-import com.webx.randomizer.managers.RandomizerManager;
 
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.inventory.ItemStack;
+import com.webx.randomizer.commands.RandomCommand;
+import com.webx.randomizer.managers.RandomizerManager;
+import com.webx.randomizer.listeners.RandomRewardListener;
+
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Random;
-
-public class RandomizerPlugin extends JavaPlugin implements Listener {
+/**
+ * Randomizer Plugin
+ * - Random teleport to safe surface location (no monsters)
+ * - Random number generation
+ * - Random item rewards (wood types and sticks only)
+ * - 3 minute cooldown between rewards
+ */
+public class RandomizerPlugin extends JavaPlugin {
     private static RandomizerPlugin instance;
-    private Random random = new Random();
     private RandomizerManager randomizerManager;
+    private RandomRewardListener rewardListener;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
-            randomizerManager = new RandomizerManager();
-        getServer().getPluginManager().registerEvents(this, this);
         
-        getCommand("randomizer").setExecutor((sender, cmd, label, args) -> {
-            if (!(sender instanceof Player)) return true;
-            Player player = (Player) sender;
-            
-            Material randomMaterial = getRandomMaterial();
-            ItemStack item = new ItemStack(randomMaterial);
-            player.getInventory().addItem(item);
-            
-            player.sendMessage("§aYou received random item: §f" + randomMaterial.name());
-            
-            return true;
-        });
+        // Initialize managers
+        randomizerManager = new RandomizerManager(this);
+        rewardListener = new RandomRewardListener(this, randomizerManager);
+        
+        // Register events
+        getServer().getPluginManager().registerEvents(rewardListener, this);
+        
+        // Register commands
+        getCommand("randomizer").setExecutor(new RandomCommand(this, randomizerManager));
+        getCommand("randomtp").setExecutor(new RandomCommand(this, randomizerManager));
+        getCommand("randomitem").setExecutor(new RandomCommand(this, randomizerManager));
+        getCommand("randomnumber").setExecutor(new RandomCommand(this, randomizerManager));
         
         getLogger().info("Randomizer Plugin enabled!");
     }
     
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (getConfig().getBoolean("random-drops", false)) {
-            if (random.nextDouble() < 0.1) { // 10% шанс
-                Material randomDrop = getRandomMaterial();
-                event.setExpToDrop(event.getExpToDrop() * 2);
-                event.getBlock().getWorld().dropItemNaturally(
-                    event.getBlock().getLocation(),
-                    new ItemStack(randomDrop)
-                );
-            }
-        }
-    }
-    
-    private Material getRandomMaterial() {
-        Material[] materials = {
-            Material.DIAMOND,
-            Material.GOLD_INGOT,
-            Material.EMERALD,
-            Material.IRON_INGOT,
-            Material.LAPIS_LAZULI
-        };
-        return materials[random.nextInt(materials.length)];
+    @Override
+    public void onDisable() {
+        getLogger().info("Randomizer Plugin disabled!");
     }
     
     public static RandomizerPlugin getInstance() {

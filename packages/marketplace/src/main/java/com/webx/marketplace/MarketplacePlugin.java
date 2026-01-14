@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,7 +31,7 @@ public class MarketplacePlugin extends JavaPlugin implements Listener {
         
         getServer().getPluginManager().registerEvents(this, this);
         
-        marketplace = Bukkit.createInventory(null, 54, "§6Marketplace");
+        marketplace = Bukkit.createInventory(null, 54, Component.text("Marketplace"));
         initializeMarketplace();
         
         getCommand("marketplace").setExecutor((sender, cmd, label, args) -> {
@@ -56,7 +56,7 @@ public class MarketplacePlugin extends JavaPlugin implements Listener {
         ItemStack item = new ItemStack(material);
         var meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(displayName);
+            meta.displayName(Component.text(displayName));
             item.setItemMeta(meta);
         }
         marketplace.setItem(slot, item);

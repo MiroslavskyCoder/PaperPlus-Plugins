@@ -19,6 +19,9 @@ dependencies {
     
     // Economy plugin dependency for API integration
     compileOnly(project(":economy"))
+    
+    // LoaderScript plugin dependency for API integration
+    compileOnly(project(":loaderscript"))
 
     // Javalin for embedded Web Server
     implementation("io.javalin:javalin:6.7.0")
@@ -28,6 +31,9 @@ dependencies {
     
     // Gson for JSON processing
     implementation("com.google.code.gson:gson:2.10.1")
+    
+    // Shared database library
+    implementation(project(":common"))
 
     // PostgreSQL and connection pooling
     implementation("org.postgresql:postgresql:42.6.0")
@@ -41,12 +47,24 @@ dependencies {
 
     implementation("redis.clients:jedis:5.1.2") 
     implementation("com.zaxxer:HikariCP:5.1.0")
-} 
+}
+
 tasks.jar {
+    archiveBaseName.set("webx-dashboard")
+    
     manifest {
         attributes["Main-Class"] = "com.webx.PolyglotPlugin"
     }
-    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    
+    // Include all dependencies
+    from(configurations.runtimeClasspath.get().filter { it.exists() }.map { 
+        if (it.isDirectory) it else zipTree(it) 
+    }) {
+        exclude("META-INF/*.SF")
+        exclude("META-INF/*.DSA")
+        exclude("META-INF/*.RSA")
+    }
+    
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 

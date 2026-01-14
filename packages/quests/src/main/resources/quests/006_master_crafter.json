@@ -1,0 +1,57 @@
+{
+  "id": "006_master_crafter",
+  "name": "Мастер Крафта",
+  "description": "Создайте полный набор железной брони",
+  "type": "CRAFT",
+  "difficulty": "MEDIUM",
+  "level": 5,
+  "category": "crafting",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "craft_iron_helmet",
+      "type": "CRAFT",
+      "description": "Создать железный шлем",
+      "target": "IRON_HELMET",
+      "required": 1,
+      "optional": false
+    },
+    {
+      "id": "craft_iron_chestplate",
+      "type": "CRAFT",
+      "description": "Создать железную кирасу",
+      "target": "IRON_CHESTPLATE",
+      "required": 1,
+      "optional": false
+    },
+    {
+      "id": "craft_iron_leggings",
+      "type": "CRAFT",
+      "description": "Создать железные поножи",
+      "target": "IRON_LEGGINGS",
+      "required": 1,
+      "optional": false
+    },
+    {
+      "id": "craft_iron_boots",
+      "type": "CRAFT",
+      "description": "Создать железные ботинки",
+      "target": "IRON_BOOTS",
+      "required": 1,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 500,
+    "exp": 250,
+    "items": [
+      {
+        "type": "DIAMOND_CHESTPLATE",
+        "amount": 1
+      }
+    ]
+  }
+}

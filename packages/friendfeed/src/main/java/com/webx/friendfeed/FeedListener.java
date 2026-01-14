@@ -22,7 +22,7 @@ public class FeedListener implements Listener {
         
         // Check if player is sneaking
         if (!feeder.isSneaking()) return;
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isFriendFeedEnabled()) return;
         
         // Check if right-clicked entity is a player
         if (!(event.getRightClicked() instanceof Player)) return;

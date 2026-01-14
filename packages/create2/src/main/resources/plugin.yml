@@ -1,0 +1,31 @@
+name: Create2
+version: ${version}
+main: com.webx.create2.Create2Plugin
+api-version: 1.20
+author: WebX
+description: Mechanical contraptions and automation inspired by Create mod
+
+commands:
+  create2:
+    description: Main Create2 command
+    usage: /create2 <subcommand>
+    aliases: [c2, create]
+    permission: create2.command
+
+permissions:
+  create2.*:
+    description: All Create2 permissions
+    default: op
+    children:
+      create2.command: true
+      create2.admin: true
+      create2.debug: true
+  create2.command:
+    description: Use Create2 commands
+    default: true
+  create2.admin:
+    description: Admin commands
+    default: op
+  create2.debug:
+    description: Debug mode
+    default: op

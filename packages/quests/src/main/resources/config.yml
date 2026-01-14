@@ -5,6 +5,12 @@ quest:
 rewards:
   default-money: 100
   default-exp: 50
+
+api:
+  enabled: true
+  port: 7071
+  host: "0.0.0.0"
+  cors-enabled: true
   
 messages:
   prefix: '&8[&6Quests&8]&r '

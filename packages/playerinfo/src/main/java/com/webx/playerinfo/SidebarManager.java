@@ -1,12 +1,13 @@
 package com.webx.playerinfo;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.ScoreboardManager;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 import java.util.HashMap;
@@ -53,8 +54,8 @@ public class SidebarManager {
         Team team = board.registerNewTeam(teamName);
         String entry = ChatColor.values()[score % ChatColor.values().length].toString() + ChatColor.RESET;
         team.addEntry(entry);
-        team.prefix(label + " ");
-        team.suffix(ChatColor.WHITE + "...");
+        team.prefix(Component.text(label + " "));
+        team.suffix(Component.text(ChatColor.WHITE + "..."));
         obj.getScore(entry).setScore(score);
     }
 
@@ -67,7 +68,7 @@ public class SidebarManager {
         setSuffix(board, "money", ChatColor.GOLD + values.money);
         setSuffix(board, "health", ChatColor.RED + values.health);
         setSuffix(board, "food", ChatColor.GREEN + values.food);
-        setSuffix(board, "ping", ChatColor.YELLOW + values.ping + " ms");
+        setSuffix(board, "ping", ChatColor.YELLOW + String.valueOf(values.ping) + " ms");
         setSuffix(board, "online", ChatColor.GREEN + String.valueOf(values.online));
         setSuffix(board, "world", ChatColor.WHITE + values.world);
     }
@@ -75,7 +76,7 @@ public class SidebarManager {
     private void setSuffix(Scoreboard board, String teamName, String value) {
         Team team = board.getTeam(teamName);
         if (team != null) {
-            team.suffix(value);
+            team.suffix(Component.text(value));
         }
     }
 

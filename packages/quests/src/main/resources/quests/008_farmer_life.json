@@ -1,0 +1,36 @@
+{
+  "id": "008_farmer_life",
+  "name": "Жизнь Фермера",
+  "description": "Соберите урожай пшеницы и станьте настоящим фермером",
+  "type": "FARM",
+  "difficulty": "EASY",
+  "level": 1,
+  "category": "farming",
+  "timeLimit": 0,
+  "repeatable": true,
+  "daily": true,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "harvest_wheat",
+      "type": "FARM",
+      "description": "Собрать пшеницу",
+      "target": "WHEAT",
+      "required": 64,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 150,
+    "exp": 80,
+    "items": [
+      {
+        "type": "GOLDEN_HOE",
+        "amount": 1,
+        "enchantments": {
+          "EFFICIENCY": 3
+        }
+      }
+    ]
+  }
+}

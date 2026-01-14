@@ -1,0 +1,36 @@
+{
+  "id": "003_stone_age",
+  "name": "Каменный Век",
+  "description": "Добудьте 128 блоков камня в шахте",
+  "type": "BREAK",
+  "difficulty": "EASY",
+  "level": 1,
+  "category": "mining",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "break_stone",
+      "type": "BREAK",
+      "description": "Сломать камень",
+      "target": "STONE",
+      "required": 128,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 200,
+    "exp": 100,
+    "items": [
+      {
+        "type": "IRON_PICKAXE",
+        "amount": 1,
+        "enchantments": {
+          "EFFICIENCY": 2
+        }
+      }
+    ]
+  }
+}

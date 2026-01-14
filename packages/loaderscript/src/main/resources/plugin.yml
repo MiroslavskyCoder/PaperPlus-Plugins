@@ -1,0 +1,28 @@
+name: LoaderScript
+version: '1.0.0'
+main: com.webx.loaderscript.LoaderScriptPlugin
+api-version: '1.20'
+author: LXXV Team
+description: JavaScript script loader with hot-reload and web management
+
+commands:
+  loaderscript:
+    description: LoaderScript management commands
+    aliases: [ls, lscript]
+    usage: |
+      /<command> list - List all scripts
+      /<command> load <script> - Load a script
+      /<command> reload <script> - Reload a script
+      /<command> unload <script> - Unload a script
+      /<command> reload-all - Reload all scripts
+      /<command> info <script> - Show script info
+      /<command> create <name> - Create new script template
+    permission: loaderscript.admin
+
+permissions:
+  loaderscript.admin:
+    description: LoaderScript admin commands
+    default: op
+  loaderscript.user:
+    description: LoaderScript user commands
+    default: true

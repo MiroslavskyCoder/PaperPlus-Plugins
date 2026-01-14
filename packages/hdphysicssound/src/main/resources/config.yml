@@ -1,0 +1,25 @@
+# HDPhysicsSound Configuration
+# Inspired by henkelmax/sound-physics-remastered
+
+physics:
+  max-distance: 48.0          # Maximum distance to process physics
+  air-absorption-per-meter: 0.02  # Volume loss per meter in open air
+  occlusion-steps: 6          # How many sample rays between source and listener
+  occlusion-penalty: 0.12     # Volume loss per blocked step
+  min-occlusion-volume: 0.15  # Minimum volume after occlusion
+  min-audible-volume: 0.05    # Volume cutoff (below = not played)
+
+reverb:
+  enabled: true
+  room-scale: 0.65            # Scales delay based on distance
+  decay: 0.45                 # How quickly echoes fade
+  wet-gain: 0.25              # Loudness of the reverb tail
+
+performance:
+  async-enabled: true         # Reserve for future async propagation
+  max-players-per-tick: 80    # Hard cap on listeners processed per tick
+
+debug:
+  enabled: false
+  log-traces: false
+  visualize-occlusion: false

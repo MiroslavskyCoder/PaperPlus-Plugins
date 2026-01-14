@@ -12,3 +12,7 @@ commands:
   region:
     description: Region management
     usage: /region create | join <name> | leave <name> | invite <player> <name> | setprivacy <open|closed> <name>
+  safezone:
+    description: Teleport to safe zone
+    usage: /safezone
+    aliases: [sz, spawn]

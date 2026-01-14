@@ -1,0 +1,37 @@
+{
+  "id": "013_enchanter",
+  "name": "Зачарователь",
+  "description": "Зачаруйте 3 предмета и познайте магию",
+  "type": "ENCHANT",
+  "difficulty": "HARD",
+  "level": 15,
+  "category": "magic",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "enchant_items",
+      "type": "ENCHANT",
+      "description": "Зачаровать предметы",
+      "target": "ANY",
+      "required": 3,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 1500,
+    "exp": 750,
+    "items": [
+      {
+        "type": "ENCHANTED_BOOK",
+        "amount": 3
+      },
+      {
+        "type": "EXPERIENCE_BOTTLE",
+        "amount": 64
+      }
+    ]
+  }
+}
