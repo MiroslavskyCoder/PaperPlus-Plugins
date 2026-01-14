@@ -155,34 +155,34 @@ export default function CodeEditorClientPage() {
   const formatDate = (timestamp?: number) =>
     timestamp ? new Date(timestamp).toLocaleString() : ""
 
-  const languageHint = useMemo(() => {
-    const name = selectedScript?.name ?? ""
-    return inferLanguagePretty(name)
-  }, [selectedScript])
-
-  const inferLanguage = (name: string): string => {
-    if (name.endsWith(".tsx")) return "tsx"
-    if (name.endsWith(".ts")) return "ts"
-    if (name.endsWith(".jsx")) return "jsx"
-    if (name.endsWith(".js")) return "js"
-    return "plain"
-  }
-
-  const inferLanguagePretty = (name: string): string => {
-    const lang = inferLanguage(name)
-    switch (lang) {
-      case "tsx":
-        return "TSX"
-      case "ts":
-        return "TS"
-      case "jsx":
-        return "JSX"
-      case "js":
-        return "JS"
-      default:
-        return "Plain"
+    function inferLanguage(name: string): string {
+      if (name.endsWith(".tsx")) return "tsx"
+      if (name.endsWith(".ts")) return "ts"
+      if (name.endsWith(".jsx")) return "jsx"
+      if (name.endsWith(".js")) return "js"
+      return "plain"
     }
-  }
+
+    function inferLanguagePretty(name: string): string {
+      const lang = inferLanguage(name)
+      switch (lang) {
+        case "tsx":
+          return "TSX"
+        case "ts":
+          return "TS"
+        case "jsx":
+          return "JSX"
+        case "js":
+          return "JS"
+        default:
+          return "Plain"
+      }
+    }
+
+    const languageHint = useMemo(() => {
+      const name = selectedScript?.name ?? ""
+      return inferLanguagePretty(name)
+    }, [selectedScript])
 
   const buildCodeState = (text: string, language: string): SerializedEditorState => ({
     root: {
@@ -223,7 +223,7 @@ export default function CodeEditorClientPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold">LoaderScript Code Editor</h1>
