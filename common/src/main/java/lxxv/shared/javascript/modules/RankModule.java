@@ -155,6 +155,11 @@ public class RankModule {
         return m.invoke(target, a1);
     }
 
+    private Object call(Object target, String method, Class<?> p1, Object a1, Class<?> p2, Object a2) throws Exception {
+        Method m = target.getClass().getMethod(method, p1, p2);
+        return m.invoke(target, a1, a2);
+    }
+
     private Object call(Object target, String method, Class<?> p1, Object a1, Class<?> p2, Object a2, Class<?> p3, Object a3, Class<?> p4, Object a4) throws Exception {
         Method m = target.getClass().getMethod(method, p1, p2, p3, p4);
         return m.invoke(target, a1, a2, a3, a4);

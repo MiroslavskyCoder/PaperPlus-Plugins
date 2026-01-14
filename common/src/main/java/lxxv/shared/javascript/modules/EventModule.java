@@ -239,7 +239,7 @@ public class EventModule {
 
     private void registerBridgeFunctions() {
         engine.registerFunction(REGISTER_FN, registerFunction(args -> {
-            String eventName = normalizeName(args[0]);
+            String eventName = normalizeName(safeName(args, 0));
             String callbackId = toNonEmptyString(args[1], "callbackId");
             boolean once = args.length > 2 && Boolean.parseBoolean(String.valueOf(args[2]));
             registerBinding(eventName, callbackId, once);
@@ -247,28 +247,33 @@ public class EventModule {
         }));
 
         engine.registerFunction(REMOVE_FN, registerFunction(args -> {
-            String eventName = normalizeName(args[0]);
+            String eventName = normalizeName(safeName(args, 0));
             String callbackId = toNonEmptyString(args[1], "callbackId");
             return removeBinding(eventName, callbackId, false);
         }));
 
         engine.registerFunction(EMIT_FN, registerFunction(args -> {
-            String eventName = normalizeName(args[0]);
+            String eventName = normalizeName(safeName(args, 0));
             Object[] payload = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new Object[0];
             eventSystem.emit(eventName, payload);
             return eventSystem.getListenerCount(eventName);
         }));
 
         engine.registerFunction(LENGTH_FN, registerFunction(args -> {
-            String eventName = normalizeName(args[0]);
+            String eventName = normalizeName(safeName(args, 0));
             return eventSystem.getListenerCount(eventName);
         }));
 
         engine.registerFunction(CLEAR_FN, registerFunction(args -> {
-            String target = args.length == 0 || args[0] == null ? null : normalizeName(args[0]);
+            String target = args.length == 0 || args[0] == null ? null : normalizeName(safeName(args, 0));
             clearBindings(target, false);
             return true;
         }));
+    }
+
+    private String safeName(Object[] args, int idx) {
+        if (args == null || args.length <= idx || args[idx] == null) return "";
+        return args[idx].toString();
     }
 
     private JavaScriptFunction registerFunction(JavaScriptFunction function) {
