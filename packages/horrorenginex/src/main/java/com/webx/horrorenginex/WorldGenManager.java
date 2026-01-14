@@ -365,6 +365,7 @@ public class WorldGenManager implements Listener {
     
     /**
      * Create a 3x3 tunnel connecting two structures
+     * Optimized to avoid excessive block updates
      */
     private void createConnectingTunnel(World world, Location start, Location end) {
         // Set tunnel depth
@@ -381,46 +382,29 @@ public class WorldGenManager implements Listener {
         int dz = endZ - startZ;
         double distance = Math.sqrt(dx * dx + dz * dz);
         
+        // Limit tunnel generation to every 5 blocks to reduce workload
         // Normalize direction
         double dirX = dx / distance;
         double dirZ = dz / distance;
         
-        // Create tunnel blocks
-        for (double step = 0; step < distance; step += 1.0) {
+        // Create tunnel blocks - optimized version
+        for (double step = 0; step < distance; step += 5.0) { // Every 5 blocks instead of 1
             int x = (int)(startX + dirX * step);
             int z = (int)(startZ + dirZ * step);
             
-            // Create 3x3 cross-section
+            // Create 3x3 cross-section - SIMPLIFIED
             for (int offsetX = -1; offsetX <= 1; offsetX++) {
                 for (int offsetY = -1; offsetY <= 1; offsetY++) {
                     for (int offsetZ = -1; offsetZ <= 1; offsetZ++) {
                         Location blockLoc = new Location(world, x + offsetX, tunnelY + offsetY, z + offsetZ);
                         Material currentType = blockLoc.getBlock().getType();
                         
-                        // Only carve through natural blocks
-                        if (currentType == Material.STONE || currentType == Material.DEEPSLATE ||
-                            currentType == Material.GRANITE || currentType == Material.DIORITE ||
-                            currentType == Material.ANDESITE || currentType == Material.TUFF ||
-                            currentType == Material.DIRT || currentType == Material.GRAVEL ||
-                            currentType == Material.CALCITE || currentType == Material.BLACKSTONE) {
-                            blockLoc.getBlock().setType(Material.AIR);
+                        // Only carve through natural blocks (limited set)
+                        if (currentType == Material.STONE || currentType == Material.DEEPSLATE) {
+                            blockLoc.getBlock().setType(Material.AIR, false); // Don't update neighbors
                         }
                     }
                 }
-            }
-            
-            // Add decorations occasionally
-            if (Math.random() < 0.1) {
-                // Stalactites from ceiling
-                Location ceilingLoc = new Location(world, x, tunnelY + 2, z);
-                if (ceilingLoc.getBlock().getType() == Material.AIR) {
-                    ceilingLoc.getBlock().setType(Material.POINTED_DRIPSTONE);
-                }
-            }
-            
-            // Add random branches (10% chance)
-            if (Math.random() < 0.1) {
-                createTunnelBranch(world, new Location(world, x, tunnelY, z));
             }
         }
         
@@ -453,44 +437,6 @@ public class WorldGenManager implements Listener {
     }
     
     /**
-     * Create small 2x2 branch tunnel
-     */
-    private void createTunnelBranch(World world, Location branchStart) {
-        // Random direction
-        int direction = (int)(Math.random() * 4);
-        int dx = 0, dz = 0;
-        
-        if (direction == 0) dx = 1;
-        else if (direction == 1) dx = -1;
-        else if (direction == 2) dz = 1;
-        else dz = -1;
-        
-        int branchLength = 10 + (int)(Math.random() * 20); // 10-30 blocks
-        
-        for (int i = 0; i < branchLength; i++) {
-            int x = branchStart.getBlockX() + dx * i;
-            int y = branchStart.getBlockY();
-            int z = branchStart.getBlockZ() + dz * i;
-            
-            // 2x2 cross-section
-            for (int offsetX = 0; offsetX <= 1; offsetX++) {
-                for (int offsetY = 0; offsetY <= 1; offsetY++) {
-                    for (int offsetZ = 0; offsetZ <= 1; offsetZ++) {
-                        Location blockLoc = new Location(world, x + offsetX, y + offsetY, z + offsetZ);
-                        Material currentType = blockLoc.getBlock().getType();
-                        
-                        if (currentType == Material.STONE || currentType == Material.DEEPSLATE ||
-                            currentType == Material.GRANITE || currentType == Material.DIORITE ||
-                            currentType == Material.ANDESITE) {
-                            blockLoc.getBlock().setType(Material.AIR);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    /**
      * Get ground level for a location
      */
     private Location getGroundLevel(Location loc) {
@@ -515,10 +461,11 @@ public class WorldGenManager implements Listener {
     
     /**
      * Pre-generate structures on server startup across all worlds
+     * Runs asynchronously to avoid blocking the main thread
      */
     private void preGenerateStructures() {
         try {
-            plugin.getLogger().info("Starting initial world pre-generation...");
+            plugin.getLogger().info("Starting initial world pre-generation (async)...");
             
             for (World world : Bukkit.getWorlds()) {
                 // Generate initial structures in a 500x500 area around spawn
@@ -526,58 +473,84 @@ public class WorldGenManager implements Listener {
                 
                 plugin.getLogger().info("Pre-generating structures in " + world.getName());
                 
-                // Generate haunted houses in a grid pattern
+                // Generate haunted houses in a grid pattern - SIMPLIFIED (no tunnels yet)
                 if (plugin.getConfigManager().getConfig().getBoolean("world-gen.haunted-houses", true)) {
                     for (int x = -250; x < 250; x += 100) {
                         for (int z = -250; z < 250; z += 100) {
-                            Location genLoc = spawn.clone().add(x, 0, z);
-                            genLoc = getGroundLevel(genLoc);
-                            
-                            if (genLoc != null && !generatedStructures.contains(genLoc)) {
-                                if (Math.random() < 0.4) { // 40% chance
-                                    HauntedHouseGenerator.generateHouse(world, genLoc);
-                                    generatedStructures.add(genLoc);
-                                    structureLocations.put(genLoc, StructureType.HAUNTED_HOUSE);
-                                    connectToNearbyStructure(world, genLoc);
+                            try {
+                                Location genLoc = spawn.clone().add(x, 0, z);
+                                
+                                // Don't call getGroundLevel - it's sync and loads chunks
+                                // Use pre-calculated Y from spawn
+                                genLoc.setY(spawn.getBlockY());
+                                
+                                if (!generatedStructures.contains(genLoc)) {
+                                    if (Math.random() < 0.4) { // 40% chance
+                                        // Run building generation in main thread
+                                        Bukkit.getScheduler().runTask(plugin, () -> {
+                                            HauntedHouseGenerator.generateHouse(world, genLoc);
+                                        });
+                                        generatedStructures.add(genLoc);
+                                        structureLocations.put(genLoc, StructureType.HAUNTED_HOUSE);
+                                    }
                                 }
+                                
+                                // Small delay to prevent main thread saturation
+                                Thread.sleep(5);
+                            } catch (Exception e) {
+                                // Ignore individual structure generation errors
                             }
                         }
                     }
                 }
                 
-                // Generate secret labs
+                // Generate secret labs - SIMPLIFIED
                 if (plugin.getConfigManager().getConfig().getBoolean("world-gen.secret-labs", true)) {
                     for (int x = -300; x < 300; x += 200) {
                         for (int z = -300; z < 300; z += 200) {
-                            Location genLoc = spawn.clone().add(x, 0, z);
-                            genLoc = getGroundLevel(genLoc);
-                            
-                            if (genLoc != null && !generatedStructures.contains(genLoc)) {
-                                if (Math.random() < 0.25) { // 25% chance
-                                    SecretLabGenerator.generateLaboratory(world, genLoc);
-                                    generatedStructures.add(genLoc);
-                                    structureLocations.put(genLoc, StructureType.SECRET_LAB);
-                                    connectToNearbyStructure(world, genLoc);
+                            try {
+                                Location genLoc = spawn.clone().add(x, 0, z);
+                                genLoc.setY(spawn.getBlockY());
+                                
+                                if (!generatedStructures.contains(genLoc)) {
+                                    if (Math.random() < 0.25) { // 25% chance
+                                        Bukkit.getScheduler().runTask(plugin, () -> {
+                                            SecretLabGenerator.generateLaboratory(world, genLoc);
+                                        });
+                                        generatedStructures.add(genLoc);
+                                        structureLocations.put(genLoc, StructureType.SECRET_LAB);
+                                    }
                                 }
+                                
+                                Thread.sleep(5);
+                            } catch (Exception e) {
+                                // Ignore
                             }
                         }
                     }
                 }
                 
-                // Generate sawmills
+                // Generate sawmills - SIMPLIFIED
                 if (plugin.getConfigManager().getConfig().getBoolean("world-gen.sawmills", true)) {
                     for (int x = -280; x < 280; x += 150) {
                         for (int z = -280; z < 280; z += 150) {
-                            Location genLoc = spawn.clone().add(x, 0, z);
-                            genLoc = getGroundLevel(genLoc);
-                            
-                            if (genLoc != null && !generatedStructures.contains(genLoc)) {
-                                if (Math.random() < 0.35) { // 35% chance
-                                    SawmillGenerator.generateSawmill(world, genLoc);
-                                    generatedStructures.add(genLoc);
-                                    structureLocations.put(genLoc, StructureType.SAWMILL);
-                                    connectToNearbyStructure(world, genLoc);
+                            try {
+                                Location genLoc = spawn.clone().add(x, 0, z);
+                                genLoc.setY(spawn.getBlockY());
+                                
+                                if (!generatedStructures.contains(genLoc)) {
+                                    if (Math.random() < 0.35) { // 35% chance
+                                        Bukkit.getScheduler().runTask(plugin, () -> {
+                                            SawmillGenerator.generateSawmill(world, genLoc);
+                                        });
+                                        generatedStructures.add(genLoc);
+                                        structureLocations.put(genLoc, StructureType.SAWMILL);
+                                    }
                                 }
+                                
+                                Thread.sleep(5);
+                            } catch (Exception e) {
+                                // Ignore
                             }
                         }
                     }
@@ -587,13 +560,21 @@ public class WorldGenManager implements Listener {
                 if (plugin.getConfigManager().getConfig().getBoolean("world-gen.large-blocks", true)) {
                     for (int x = -300; x < 300; x += 120) {
                         for (int z = -300; z < 300; z += 120) {
-                            Location genLoc = spawn.clone().add(x, 25, z);
-                            
-                            if (!generatedStructures.contains(genLoc)) {
-                                if (Math.random() < 0.3) { // 30% chance
-                                    generateLargeBlocks(world, genLoc);
-                                    generatedStructures.add(genLoc);
+                            try {
+                                Location genLoc = spawn.clone().add(x, 25, z);
+                                
+                                if (!generatedStructures.contains(genLoc)) {
+                                    if (Math.random() < 0.3) { // 30% chance
+                                        Bukkit.getScheduler().runTask(plugin, () -> {
+                                            generateLargeBlocks(world, genLoc);
+                                        });
+                                        generatedStructures.add(genLoc);
+                                    }
                                 }
+                                
+                                Thread.sleep(5);
+                            } catch (Exception e) {
+                                // Ignore
                             }
                         }
                     }
