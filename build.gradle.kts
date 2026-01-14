@@ -83,7 +83,7 @@ tasks.register("buildAllPlugins") {
         ":hdphysicssound:build",
         ":create2:build",
         ":loaderscript:build",
-        ":horrorenginex:build"
+        
     )
     finalizedBy("copyPlugins")
 }
