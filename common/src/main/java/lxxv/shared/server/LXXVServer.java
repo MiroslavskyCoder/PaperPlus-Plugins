@@ -1,8 +1,10 @@
 package lxxv.shared.server;
 
 import lxxv.shared.javascript.JavaScriptEngine;
+import lxxv.shared.javascript.JavaScriptException;
 import lxxv.shared.javascript.advanced.JavaScriptEventSystem;
 import lxxv.shared.javascript.advanced.JavaScriptScheduler;
+import lxxv.shared.javascript.modules.EventModule;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Biome;
 import org.bukkit.GameMode;
@@ -54,6 +56,7 @@ public class LXXVServer {
     private static JavaScriptEngine jsEngine;
     private static JavaScriptEventSystem eventSystem;
     private static JavaScriptScheduler scheduler;
+    private static EventModule eventModule;
     private static final Map<String, BossBar> bossBars = new HashMap<>();
     private static Economy economy;
     private static Permission permissions;
@@ -66,6 +69,13 @@ public class LXXVServer {
         jsEngine = engine;
         eventSystem = new JavaScriptEventSystem();
         scheduler = new JavaScriptScheduler();
+
+        eventModule = new EventModule(jsEngine, eventSystem);
+        try {
+            eventModule.register();
+        } catch (JavaScriptException e) {
+            server.getLogger().severe("Failed to initialize EventModule: " + e.getMessage());
+        }
 
         registerConsoleFunctions();
         registerServerFunctions();
@@ -962,33 +972,20 @@ public class LXXVServer {
     // ===== EVENT FUNCTIONS =====
 
     private static void registerEventFunctions() {
-        // Add event listener
-        jsEngine.registerFunctionLambda("addEventListener", args -> {
-            String eventName = args[0].toString();
-            // Store callback reference for later invocation
-            eventSystem.addEventListener(eventName, eventArgs -> {
-                // Callback will be invoked from Java
-            });
-            return null;
-        });
-
-        // Emit event
         jsEngine.registerFunctionLambda("emit", args -> {
             String eventName = args[0].toString();
-            Object[] eventArgs = Arrays.copyOfRange(args, 1, args.length);
-            eventSystem.emit(eventName, eventArgs);
-            return null;
+            Object[] payload = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new Object[0];
+            eventSystem.emit(eventName, payload);
+            return eventSystem.getListenerCount(eventName);
         });
 
-        // Emit event async
         jsEngine.registerFunctionLambda("emitAsync", args -> {
             String eventName = args[0].toString();
-            Object[] eventArgs = Arrays.copyOfRange(args, 1, args.length);
-            eventSystem.emitAsync(eventName, eventArgs);
-            return null;
+            Object[] payload = args.length > 1 ? Arrays.copyOfRange(args, 1, args.length) : new Object[0];
+            eventSystem.emitAsync(eventName, payload);
+            return true;
         });
 
-        // Get listener count
         jsEngine.registerFunctionLambda("getListenerCount", args -> {
             String eventName = args[0].toString();
             return eventSystem.getListenerCount(eventName);
@@ -1473,6 +1470,10 @@ public class LXXVServer {
 
     public static JavaScriptEventSystem getEventSystem() {
         return eventSystem;
+    }
+
+    public static EventModule getEventModule() {
+        return eventModule;
     }
 
     public static JavaScriptScheduler getScheduler() {
