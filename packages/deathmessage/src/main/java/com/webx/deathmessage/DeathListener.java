@@ -20,7 +20,7 @@ public class DeathListener implements Listener {
     
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (!plugin.isEnabled()) return;
+        if (!plugin.isDeathMessageEnabled()) return;
         
         Player player = event.getEntity();
         String deathMessage = buildDeathMessage(player, event);

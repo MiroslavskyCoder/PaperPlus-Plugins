@@ -1,0 +1,33 @@
+{
+  "id": "028_daily_combat",
+  "name": "Ежедневный Бой",
+  "description": "Убейте 50 любых монстров за день",
+  "type": "DAILY",
+  "difficulty": "MEDIUM",
+  "level": 5,
+  "category": "combat",
+  "timeLimit": 86400,
+  "repeatable": true,
+  "daily": true,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "kill_monsters_daily",
+      "type": "KILL",
+      "description": "Убить монстров",
+      "target": "ANY",
+      "required": 50,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 700,
+    "exp": 350,
+    "items": [
+      {
+        "type": "GOLDEN_APPLE",
+        "amount": 3
+      }
+    ]
+  }
+}

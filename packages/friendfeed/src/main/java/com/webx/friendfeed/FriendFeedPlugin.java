@@ -70,7 +70,7 @@ public class FriendFeedPlugin extends JavaPlugin {
         }
     }
     
-    public boolean isEnabled() {
+    public boolean isFriendFeedEnabled() {
         return enabled;
     }
     

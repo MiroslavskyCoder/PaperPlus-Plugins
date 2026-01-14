@@ -1,0 +1,56 @@
+name: Ranks
+version: 1.0.0
+description: Comprehensive Ranks & Permissions System
+main: com.webx.ranks.RanksPlugin
+authors: [ LXXV ]
+depend: [ ]
+
+commands:
+  rank:
+    description: Main rank management command
+    usage: /<command> <subcommand> [args]
+    aliases: [ ranks ]
+  rankinfo:
+    description: View detailed rank information
+    usage: /<command> <rankId>
+  ranklist:
+    description: List all available ranks
+    usage: /<command>
+
+permissions:
+  rank.admin.manage-ranks:
+    description: Can assign and remove ranks from players
+    default: op
+  rank.admin.edit-ranks:
+    description: Can create and edit rank configurations
+    default: op
+  rank.admin.view-logs:
+    description: Can view admin logs
+    default: op
+  rank.vip.fly:
+    description: Access to fly command
+    default: false
+  rank.vip.extended-slots:
+    description: Extended inventory/clan slots
+    default: false
+  rank.vip.priority-join:
+    description: Priority join when server full
+    default: false
+  rank.vip.bypass-afk:
+    description: Not kicked for AFK
+    default: false
+  rank.vip.global-chat:
+    description: Access to global chat
+    default: false
+  rank.vip.market-discount:
+    description: Marketplace price discount
+    default: false
+  rank.premium.custom-prefix:
+    description: Custom chat prefix
+    default: false
+  rank.premium.particle-effects:
+    description: Access to cosmetic particles
+    default: false
+  rank.premium.market-commission:
+    description: Lower marketplace commission
+    default: false

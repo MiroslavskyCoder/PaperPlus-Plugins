@@ -1,0 +1,38 @@
+plugins {
+    id("java")
+}
+
+group = "com.webx"
+version = "1.0.0"
+
+repositories {
+    mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
+}
+
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
+    
+    // Shared database library
+    implementation(project(":common"))
+}
+
+// Toolchain disabled - using system JDK instead
+// java {
+//     toolchain {
+//         languageVersion.set(JavaLanguageVersion.of(17))
+//     }
+// }
+
+tasks {
+    jar {
+        archiveBaseName.set("HDPhysicsSound")
+        archiveVersion.set(version.toString())
+    }
+
+    processResources {
+        filesMatching("plugin.yml") {
+            expand("version" to version)
+        }
+    }
+}

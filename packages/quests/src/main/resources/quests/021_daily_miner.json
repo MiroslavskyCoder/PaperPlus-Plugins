@@ -1,0 +1,33 @@
+{
+  "id": "021_daily_miner",
+  "name": "Ежедневная Добыча",
+  "description": "Добудьте 50 железных руд за день",
+  "type": "DAILY",
+  "difficulty": "EASY",
+  "level": 1,
+  "category": "mining",
+  "timeLimit": 86400,
+  "repeatable": true,
+  "daily": true,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "mine_iron_daily",
+      "type": "MINE",
+      "description": "Добыть железную руду",
+      "target": "IRON_ORE",
+      "required": 50,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 500,
+    "exp": 250,
+    "items": [
+      {
+        "type": "IRON_INGOT",
+        "amount": 10
+      }
+    ]
+  }
+}

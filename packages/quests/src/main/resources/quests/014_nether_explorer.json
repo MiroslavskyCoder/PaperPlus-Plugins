@@ -1,0 +1,37 @@
+{
+  "id": "014_nether_explorer",
+  "name": "Исследователь Незера",
+  "description": "Отправьтесь в Незер и пройдите 1000 блоков",
+  "type": "TRAVEL",
+  "difficulty": "HARD",
+  "level": 12,
+  "category": "exploration",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "travel_nether",
+      "type": "TRAVEL",
+      "description": "Пройти в Незере",
+      "target": "NETHER",
+      "required": 1000,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 2000,
+    "exp": 1000,
+    "items": [
+      {
+        "type": "NETHERITE_INGOT",
+        "amount": 2
+      },
+      {
+        "type": "FIRE_RESISTANCE_POTION",
+        "amount": 5
+      }
+    ]
+  }
+}

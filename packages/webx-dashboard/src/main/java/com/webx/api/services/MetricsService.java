@@ -74,7 +74,7 @@ public class MetricsService {
                     try {
                         client.send(json);
                     } catch (Exception e) {
-                        plugin.getLogger().info("WS send failed (metrics), removing client " + client.sessionId());
+                        plugin.getLogger().info("WS send failed (metrics), removing client #" + client.hashCode());
                         clients.remove(client);
                     }
                 }
@@ -127,7 +127,7 @@ public class MetricsService {
                     try {
                         client.send(json);
                     } catch (Exception e) {
-                        plugin.getLogger().info("WS send failed (players), removing client " + client.sessionId());
+                        plugin.getLogger().info("WS send failed (players), removing client #" + client.hashCode());
                         playersClients.remove(client);
                     }
                 }

@@ -14,6 +14,9 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     implementation("com.google.code.gson:gson:2.10.1")
+    
+    // Shared database library
+    implementation(project(":common"))
 }
 
 tasks.withType<JavaCompile> {

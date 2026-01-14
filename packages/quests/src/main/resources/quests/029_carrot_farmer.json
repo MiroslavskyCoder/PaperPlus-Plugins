@@ -1,0 +1,34 @@
+{
+  "id": "029_carrot_farmer",
+  "name": "Морковный Фермер",
+  "description": "Соберите 128 морковок для деревенских жителей",
+  "type": "FARM",
+  "difficulty": "EASY",
+  "level": 2,
+  "category": "farming",
+  "timeLimit": 0,
+  "repeatable": true,
+  "daily": false,
+  "cooldown": 7200000,
+  "requirements": [],
+  "objectives": [
+    {
+      "id": "harvest_carrots",
+      "type": "FARM",
+      "description": "Собрать морковь",
+      "target": "CARROT",
+      "required": 128,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 400,
+    "exp": 200,
+    "items": [
+      {
+        "type": "GOLDEN_CARROT",
+        "amount": 16
+      }
+    ]
+  }
+}

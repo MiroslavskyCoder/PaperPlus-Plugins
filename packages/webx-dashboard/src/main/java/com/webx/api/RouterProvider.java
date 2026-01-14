@@ -93,6 +93,9 @@ public class RouterProvider {
         
         // ===== LEADERBOARD ENDPOINTS =====
         registerLeaderboardRoutes();
+        
+        // ===== LOADERSCRIPT ENDPOINTS =====
+        registerLoaderScriptRoutes();
     }
     
     private void registerMetricsWebSocket() {
@@ -100,18 +103,18 @@ public class RouterProvider {
             plugin.getLogger().info("WebSocket /metrics endpoint initialized"); 
             ws.onConnect(ctx -> {
                 metricsService.getMetricsClients().add(ctx);
-                plugin.getLogger().info("✅ WebSocket client connected: " + ctx.sessionId() + " | Total clients: " + metricsService.getMetricsClients().size());
+                plugin.getLogger().info("✅ WebSocket client connected: #" + ctx.hashCode() + " | Total clients: " + metricsService.getMetricsClients().size());
             });
             ws.onClose(ctx -> {
                 metricsService.getMetricsClients().remove(ctx);
-                plugin.getLogger().info("❌ WebSocket client disconnected: " + ctx.sessionId() + " | Total clients: " + metricsService.getMetricsClients().size());
+                plugin.getLogger().info("❌ WebSocket client disconnected: #" + ctx.hashCode() + " | Total clients: " + metricsService.getMetricsClients().size());
             });
             ws.onError(ctx -> {
                 Throwable err = ctx.error();
                 if (err instanceof java.nio.channels.ClosedChannelException) {
-                    plugin.getLogger().info("WS closed (metrics): " + ctx.sessionId());
+                    plugin.getLogger().info("WS closed (metrics): #" + ctx.hashCode());
                 } else {
-                    plugin.getLogger().warning("⚠️ WebSocket error (metrics) for " + ctx.sessionId() + ": " + err);
+                    plugin.getLogger().warning("⚠️ WebSocket error (metrics) for #" + ctx.hashCode() + ": " + err);
                 }
                 metricsService.getMetricsClients().remove(ctx);
             });
@@ -473,6 +476,7 @@ public class RouterProvider {
                 staticFiles.aliasCheck = null;
             });
             
+            // Enable CORS in Javalin 6.x
             config.bundledPlugins.enableCors(cors -> {
                 cors.addRule(it -> {
                     it.anyHost();
@@ -627,6 +631,36 @@ public class RouterProvider {
         app.get(API.getFullPath("leaderboards/players"), leaderboardService::getTopPlayers);
         app.get(API.getFullPath("leaderboards/stats"), leaderboardService::getCombinedStats);
         plugin.getLogger().info("✅ Leaderboard API routes registered");
+    }
+
+    private void registerLoaderScriptRoutes() {
+        try {
+            // Use reflection to avoid compile-time dependency on LoaderScript
+            Class<?> integrationClass = Class.forName("com.webx.loaderscript.integration.LoaderScriptDashboardIntegration");
+            
+            // Check if LoaderScript is available
+            java.lang.reflect.Method isAvailableMethod = integrationClass.getMethod("isLoaderScriptAvailable");
+            Boolean isAvailable = (Boolean) isAvailableMethod.invoke(null);
+            
+            if (isAvailable != null && isAvailable) {
+                try {
+                    // Register routes
+                    java.lang.reflect.Method registerMethod = integrationClass.getMethod("registerWithDashboard", Javalin.class);
+                    registerMethod.invoke(null, app);
+                    plugin.getLogger().info("✅ LoaderScript API routes registered successfully");
+                } catch (Exception registerError) {
+                    plugin.getLogger().warning("⚠️ Failed to register LoaderScript routes: " + registerError.getMessage());
+                    registerError.printStackTrace();
+                }
+            } else {
+                plugin.getLogger().info("⚠️ LoaderScript plugin not found - skipping LoaderScript routes");
+            }
+        } catch (ClassNotFoundException e) {
+            plugin.getLogger().info("ℹ️ LoaderScript plugin not installed - skipping LoaderScript routes");
+        } catch (Exception e) {
+            plugin.getLogger().warning("⚠️ Error checking LoaderScript availability: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void stopWebServer() {

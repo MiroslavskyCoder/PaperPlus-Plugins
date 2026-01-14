@@ -1,4 +1,22 @@
+plugins {
+	// Auto-download JDK toolchains via Foojay resolver
+	// Disabled due to IBM_SEMERU issues - using local JDK instead
+	// id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+}
+
 rootProject.name = "webx-dashboard"
+
+// Common shared utilities
+include("common")
+project(":common").projectDir = file("common")
+
+// LoaderScript - JavaScript script loader
+include("loaderscript")
+project(":loaderscript").projectDir = file("packages/loaderscript")
+
+// Shared Plugin Database (legacy - use common instead)
+include("shared-database")
+project(":shared-database").projectDir = file("packages/shared-database")
 
 include("webx-dashboard-panel")
 project(":webx-dashboard-panel").projectDir = file("packages/webx-dashboard-panel")
@@ -14,9 +32,6 @@ project(":pvp-base").projectDir = file("packages/pvp-base")
 
 include("show-health")
 project(":show-health").projectDir = file("packages/show-health")
- 
-include(":abomination")
-project(":abomination").projectDir = File("packages/abomination")
 
 include(":death-mark")
 project(":death-mark").projectDir = File("packages/death-mark")
@@ -210,3 +225,16 @@ project(":mobcatch").projectDir = File("packages/mobcatch")
 
 include(":friendfeed")
 project(":friendfeed").projectDir = File("packages/friendfeed")
+include(":ranks")
+project(":ranks").projectDir = File("packages/ranks")
+
+include(":modernfix")
+project(":modernfix").projectDir = File("packages/modernfix")
+
+include(":hdphysicssound")
+project(":hdphysicssound").projectDir = File("packages/hdphysicssound")
+
+include(":create2")
+project(":create2").projectDir = File("packages/create2")
+include(":horrorenginex")
+project(":horrorenginex").projectDir = File("packages/horrorenginex")

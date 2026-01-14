@@ -65,7 +65,7 @@ public class MobCatchPlugin extends JavaPlugin {
         }
     }
     
-    public boolean isEnabled() {
+    public boolean isMobCatchEnabled() {
         return enabled;
     }
     

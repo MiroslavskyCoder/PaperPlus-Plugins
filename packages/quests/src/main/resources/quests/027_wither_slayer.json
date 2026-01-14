@@ -1,0 +1,38 @@
+{
+  "id": "027_wither_slayer",
+  "name": "Убийца Иссушителя",
+  "description": "Победите Иссушителя и докажите свою силу",
+  "type": "KILL",
+  "difficulty": "LEGENDARY",
+  "level": 38,
+  "category": "combat",
+  "timeLimit": 0,
+  "repeatable": true,
+  "daily": false,
+  "cooldown": 604800000,
+  "requirements": ["014_nether_explorer", "022_guardian_defender"],
+  "objectives": [
+    {
+      "id": "kill_wither",
+      "type": "KILL",
+      "description": "Убить Иссушителя",
+      "target": "WITHER",
+      "required": 1,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 18000,
+    "exp": 9000,
+    "items": [
+      {
+        "type": "NETHER_STAR",
+        "amount": 3
+      },
+      {
+        "type": "BEACON",
+        "amount": 1
+      }
+    ]
+  }
+}

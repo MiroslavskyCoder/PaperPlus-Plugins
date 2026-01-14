@@ -1,0 +1,61 @@
+{
+  "id": "025_legendary_smith",
+  "name": "Легендарный Кузнец",
+  "description": "Создайте полный набор незеритовой брони",
+  "type": "CRAFT",
+  "difficulty": "LEGENDARY",
+  "level": 35,
+  "category": "crafting",
+  "timeLimit": 0,
+  "repeatable": false,
+  "daily": false,
+  "requirements": ["006_master_crafter", "014_nether_explorer"],
+  "objectives": [
+    {
+      "id": "craft_netherite_helmet",
+      "type": "CRAFT",
+      "description": "Создать незеритовый шлем",
+      "target": "NETHERITE_HELMET",
+      "required": 1,
+      "optional": false
+    },
+    {
+      "id": "craft_netherite_chestplate",
+      "type": "CRAFT",
+      "description": "Создать незеритовую кирасу",
+      "target": "NETHERITE_CHESTPLATE",
+      "required": 1,
+      "optional": false
+    },
+    {
+      "id": "craft_netherite_leggings",
+      "type": "CRAFT",
+      "description": "Создать незеритовые поножи",
+      "target": "NETHERITE_LEGGINGS",
+      "required": 1,
+      "optional": false
+    },
+    {
+      "id": "craft_netherite_boots",
+      "type": "CRAFT",
+      "description": "Создать незеритовые ботинки",
+      "target": "NETHERITE_BOOTS",
+      "required": 1,
+      "optional": false
+    }
+  ],
+  "rewards": {
+    "money": 15000,
+    "exp": 7500,
+    "items": [
+      {
+        "type": "NETHERITE_BLOCK",
+        "amount": 5
+      },
+      {
+        "type": "BEACON",
+        "amount": 1
+      }
+    ]
+  }
+}
