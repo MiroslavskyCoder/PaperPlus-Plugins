@@ -18,6 +18,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   FileCode2, 
   Play, 
@@ -518,24 +527,45 @@ export function ScriptLoaderTab() {
                   </CardDescription>
                 )}
               </div>
-              {selectedScript && (
-                <div className="flex gap-2">
-                  <Button onClick={handleSaveScript} disabled={loading}>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Save
-                  </Button>
-                  {selectedScript.loaded && (
-                    <Button
-                      variant="outline"
-                      onClick={() => handleReloadScript(selectedScript.name)}
-                      disabled={loading}
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Reload
+              <div className="flex items-center gap-2 flex-wrap justify-end">
+                <Select
+                  value={selectedScript?.name ?? ''}
+                  onValueChange={(value) => loadScriptContent(value)}
+                >
+                  <SelectTrigger className="min-w-[220px]">
+                    <SelectValue placeholder="Choose a script" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Scripts</SelectLabel>
+                      {scripts.map((script) => (
+                        <SelectItem key={script.name} value={script.name}>
+                          {script.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+                {selectedScript && (
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveScript} disabled={loading}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Save
                     </Button>
-                  )}
-                </div>
-              )}
+                    {selectedScript.loaded && (
+                      <Button
+                        variant="outline"
+                        onClick={() => handleReloadScript(selectedScript.name)}
+                        disabled={loading}
+                      >
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Reload
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>

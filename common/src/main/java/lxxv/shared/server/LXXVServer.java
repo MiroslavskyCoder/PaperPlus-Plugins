@@ -57,6 +57,16 @@ public class LXXVServer {
     private static JavaScriptEventSystem eventSystem;
     private static JavaScriptScheduler scheduler;
     private static EventModule eventModule;
+    private static lxxv.shared.javascript.modules.PlayerModule playerModule;
+    private static lxxv.shared.javascript.modules.MathModule mathModule;
+    private static lxxv.shared.javascript.modules.ConsoleModule consoleModule;
+    private static lxxv.shared.javascript.modules.WorldModule worldModule;
+    private static lxxv.shared.javascript.modules.RankModule rankModule;
+    private static lxxv.shared.javascript.modules.ClansModule clansModule;
+    private static lxxv.shared.javascript.modules.ConfigModule configModule;
+    private static lxxv.shared.javascript.modules.PluginsModule pluginsModule;
+    private static lxxv.shared.javascript.modules.WebXSettingsModule webXSettingsModule;
+    private static lxxv.shared.javascript.modules.UtilModule utilModule;
     private static final Map<String, BossBar> bossBars = new HashMap<>();
     private static Economy economy;
     private static Permission permissions;
@@ -77,55 +87,18 @@ public class LXXVServer {
             server.getLogger().severe("Failed to initialize EventModule: " + e.getMessage());
         }
 
-        registerConsoleFunctions();
         registerServerFunctions();
         registerPlayerFunctions();
         registerWorldFunctions();
         registerEventFunctions();
         registerSchedulerFunctions();
-        registerUtilityFunctions();
         registerEntityFunctions();
         registerScoreboardFunctions();
         registerChatFunctions();
         registerSoundParticleFunctions();
         registerVaultFunctions();
-    }
 
-    // ===== CONSOLE FUNCTIONS =====
-
-    private static void registerConsoleFunctions() {
-        // console.log - output to server console with prefix
-        jsEngine.registerFunctionLambda("console.log", args -> {
-            StringBuilder message = new StringBuilder("[LXXV Engine]: ");
-            for (int i = 0; i < args.length; i++) {
-                if (i > 0) message.append(" ");
-                message.append(args[i] != null ? args[i].toString() : "null");
-            }
-            server.getLogger().info(message.toString());
-            return null;
-        });
-
-        // console.warn - warning messages
-        jsEngine.registerFunctionLambda("console.warn", args -> {
-            StringBuilder message = new StringBuilder("[LXXV Engine]: ");
-            for (int i = 0; i < args.length; i++) {
-                if (i > 0) message.append(" ");
-                message.append(args[i] != null ? args[i].toString() : "null");
-            }
-            server.getLogger().warning(message.toString());
-            return null;
-        });
-
-        // console.error - error messages
-        jsEngine.registerFunctionLambda("console.error", args -> {
-            StringBuilder message = new StringBuilder("[LXXV Engine]: ");
-            for (int i = 0; i < args.length; i++) {
-                if (i > 0) message.append(" ");
-                message.append(args[i] != null ? args[i].toString() : "null");
-            }
-            server.getLogger().severe(message.toString());
-            return null;
-        });
+        registerJavaScriptModules();
     }
 
     // ===== SERVER FUNCTIONS =====
@@ -1417,45 +1390,39 @@ public class LXXVServer {
         });
     }
 
-    // ===== UTILITY FUNCTIONS =====
+    // ===== MODULE REGISTRATION =====
 
-    private static void registerUtilityFunctions() {
-        // Log message
-        jsEngine.registerFunctionLambda("log", args -> {
-            String message = args[0].toString();
-            Bukkit.getLogger().info("[JS] " + message);
-            return null;
-        });
+    private static void registerJavaScriptModules() {
+        playerModule = new lxxv.shared.javascript.modules.PlayerModule(jsEngine);
+        mathModule = new lxxv.shared.javascript.modules.MathModule(jsEngine);
+        consoleModule = new lxxv.shared.javascript.modules.ConsoleModule(jsEngine);
+        worldModule = new lxxv.shared.javascript.modules.WorldModule(jsEngine);
+        rankModule = new lxxv.shared.javascript.modules.RankModule(jsEngine);
+        clansModule = new lxxv.shared.javascript.modules.ClansModule(jsEngine);
+        configModule = new lxxv.shared.javascript.modules.ConfigModule(jsEngine);
+        pluginsModule = new lxxv.shared.javascript.modules.PluginsModule(jsEngine);
+        webXSettingsModule = new lxxv.shared.javascript.modules.WebXSettingsModule(jsEngine);
+        utilModule = new lxxv.shared.javascript.modules.UtilModule(jsEngine);
 
-        // Warn message
-        jsEngine.registerFunctionLambda("warn", args -> {
-            String message = args[0].toString();
-            Bukkit.getLogger().warning("[JS] " + message);
-            return null;
-        });
+        registerModule("PlayerModule", () -> playerModule.register());
+        registerModule("MathModule", () -> mathModule.register());
+        registerModule("ConsoleModule", () -> consoleModule.register());
+        registerModule("WorldModule", () -> worldModule.register());
+        registerModule("RankModule", () -> rankModule.register());
+        registerModule("ClansModule", () -> clansModule.register());
+        registerModule("ConfigModule", () -> configModule.register());
+        registerModule("PluginsModule", () -> pluginsModule.register());
+        registerModule("WebXSettingsModule", () -> webXSettingsModule.register());
+        registerModule("UtilModule", () -> utilModule.register());
+    }
 
-        // Error message
-        jsEngine.registerFunctionLambda("error", args -> {
-            String message = args[0].toString();
-            Bukkit.getLogger().severe("[JS] " + message);
-            return null;
-        });
-
-        // Get current timestamp
-        jsEngine.registerFunctionLambda("now", args -> {
-            return System.currentTimeMillis();
-        });
-
-        // Get memory info
-        jsEngine.registerFunctionLambda("getMemoryInfo", args -> {
-            Runtime runtime = Runtime.getRuntime();
-            Map<String, Object> memory = new HashMap<>();
-            memory.put("used", (runtime.totalMemory() - runtime.freeMemory()) / 1024 / 1024);
-            memory.put("free", runtime.freeMemory() / 1024 / 1024);
-            memory.put("total", runtime.totalMemory() / 1024 / 1024);
-            memory.put("max", runtime.maxMemory() / 1024 / 1024);
-            return memory;
-        });
+    private static void registerModule(String name, Runnable registrar) {
+        try {
+            registrar.run();
+            server.getLogger().info(name + " registered");
+        } catch (Exception e) {
+            server.getLogger().warning(name + " init failed: " + e.getMessage());
+        }
     }
 
     // ===== GETTERS =====
@@ -1479,6 +1446,17 @@ public class LXXVServer {
     public static JavaScriptScheduler getScheduler() {
         return scheduler;
     }
+
+    public static lxxv.shared.javascript.modules.PlayerModule getPlayerModule() { return playerModule; }
+    public static lxxv.shared.javascript.modules.MathModule getMathModule() { return mathModule; }
+    public static lxxv.shared.javascript.modules.ConsoleModule getConsoleModule() { return consoleModule; }
+    public static lxxv.shared.javascript.modules.WorldModule getWorldModule() { return worldModule; }
+    public static lxxv.shared.javascript.modules.RankModule getRankModule() { return rankModule; }
+    public static lxxv.shared.javascript.modules.ClansModule getClansModule() { return clansModule; }
+    public static lxxv.shared.javascript.modules.ConfigModule getConfigModule() { return configModule; }
+    public static lxxv.shared.javascript.modules.PluginsModule getPluginsModule() { return pluginsModule; }
+    public static lxxv.shared.javascript.modules.WebXSettingsModule getWebXSettingsModule() { return webXSettingsModule; }
+    public static lxxv.shared.javascript.modules.UtilModule getUtilModule() { return utilModule; }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private static Object parseGameRuleValue(GameRule<?> rule, String value) {
