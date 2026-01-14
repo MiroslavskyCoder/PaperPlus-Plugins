@@ -213,7 +213,7 @@ export default function CodeEditorPage() {
       type: "root",
       version: 1,
     },
-  })
+  } as unknown as SerializedEditorState)
 
   const serializedToText = (state: SerializedEditorState | undefined): string => {
     if (!state?.root?.children?.length) return ""
