@@ -1,5 +1,10 @@
 "use client"
 
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+export const prerender = false
+export const runtime = "nodejs"
+
 import { useEffect, useMemo, useState } from "react"
 import { SerializedEditorState } from "lexical"
 
