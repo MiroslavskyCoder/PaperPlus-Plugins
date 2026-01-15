@@ -247,6 +247,10 @@ public class JavaScriptEngine {
             // Always inject requireNativeModule directly to globalObject
             injectRequireNativeModule(globalObject);
 
+            // Diagnostic log: confirm injection for each script execution
+            String preview = code == null ? "null" : code.length() > 40 ? code.substring(0, 40) : code;
+            System.out.println("[JS Engine] Injected requireNativeModule for script: " + preview.replaceAll("\n", " "));
+
             // Inject variables
             for (Map.Entry<String, Object> entry : variables.entrySet()) {
                 globalObject.set(entry.getKey(), entry.getValue());
