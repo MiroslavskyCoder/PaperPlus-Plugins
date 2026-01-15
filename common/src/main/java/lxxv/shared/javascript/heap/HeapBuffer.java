@@ -77,9 +77,38 @@ public class HeapBuffer {
         return new String(data, StandardCharsets.UTF_8);
     }
 
+    public String toString(String encoding) {
+        if (encoding == null || encoding.equalsIgnoreCase("utf8") || encoding.equalsIgnoreCase("utf-8")) {
+            return toUtf8String();
+        }
+        if (encoding.equalsIgnoreCase("ascii")) {
+            return new String(data, StandardCharsets.US_ASCII);
+        }
+        if (encoding.equalsIgnoreCase("latin1") || encoding.equalsIgnoreCase("binary")) {
+            return new String(data, StandardCharsets.ISO_8859_1);
+        }
+        throw new IllegalArgumentException("Unsupported encoding: " + encoding);
+    }
+
     public void writeUtf8(String value) {
         if (value == null) return;
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+        int len = Math.min(bytes.length, data.length);
+        System.arraycopy(bytes, 0, data, 0, len);
+    }
+
+    public void write(String value, String encoding) {
+        if (value == null) return;
+        byte[] bytes;
+        if (encoding == null || encoding.equalsIgnoreCase("utf8") || encoding.equalsIgnoreCase("utf-8")) {
+            bytes = value.getBytes(StandardCharsets.UTF_8);
+        } else if (encoding.equalsIgnoreCase("ascii")) {
+            bytes = value.getBytes(StandardCharsets.US_ASCII);
+        } else if (encoding.equalsIgnoreCase("latin1") || encoding.equalsIgnoreCase("binary")) {
+            bytes = value.getBytes(StandardCharsets.ISO_8859_1);
+        } else {
+            throw new IllegalArgumentException("Unsupported encoding: " + encoding);
+        }
         int len = Math.min(bytes.length, data.length);
         System.arraycopy(bytes, 0, data, 0, len);
     }
