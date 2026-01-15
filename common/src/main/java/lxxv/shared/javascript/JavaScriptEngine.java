@@ -35,6 +35,8 @@ import lxxv.shared.javascript.api.MetricsApi;
 import lxxv.shared.javascript.api.ScriptApi;
 import lxxv.shared.javascript.api.LoggerApi;
 import lxxv.shared.javascript.api.HeapApi;
+import lxxv.shared.javascript.api.ProcessApi;
+import lxxv.shared.javascript.heap.HeapManager;
 import lxxv.shared.javascript.util.AsyncPool;
 import lxxv.shared.javascript.util.IoLoop;
 
@@ -58,10 +60,12 @@ public class JavaScriptEngine {
     private final ApiRegistry apiRegistry;
     private final ApiFacade apiFacade;
     private final ExecutorService executionPool;
+    private final HeapManager heapManager;
     private final MetricsApi metricsApi;
     private final ScriptApi scriptApi;
     private final LoggerApi loggerApi;
     private final HeapApi heapApi;
+    private final ProcessApi processApi;
     private boolean enabled;
 
     private JavaScriptEngine() {
@@ -77,10 +81,12 @@ public class JavaScriptEngine {
         this.apiRegistry = new ApiRegistry();
         this.apiFacade = new ApiFacade(apiRegistry);
         this.executionPool = Executors.newCachedThreadPool(new lxxv.shared.javascript.util.NamedThreadFactory("js-exec", true));
-        this.metricsApi = new MetricsApi(runtimeMetrics, new lxxv.shared.javascript.metrics.SystemMetrics());
+        this.heapManager = new HeapManager(64 * 1024 * 1024);
+        this.metricsApi = new MetricsApi(runtimeMetrics, new lxxv.shared.javascript.metrics.SystemMetrics(), heapManager);
         this.scriptApi = new ScriptApi(this, new lxxv.shared.javascript.runtime.ScriptRegistry());
         this.loggerApi = new LoggerApi(java.util.logging.Logger.getLogger("JS"));
-        this.heapApi = new HeapApi(new lxxv.shared.javascript.heap.HeapManager(64 * 1024 * 1024));
+        this.heapApi = new HeapApi(heapManager);
+        this.processApi = new ProcessApi(heapApi);
         this.swc4j = new Swc4j();
         this.enginePool = initializeEngine();
         this.enabled = (enginePool != null);
@@ -93,6 +99,7 @@ public class JavaScriptEngine {
         this.globalContext.put("scripts", scriptApi);
         this.globalContext.put("logger", loggerApi);
         this.globalContext.put("heap", heapApi);
+        this.globalContext.put("process", processApi);
     }
 
     public static synchronized JavaScriptEngine getInstance() {
