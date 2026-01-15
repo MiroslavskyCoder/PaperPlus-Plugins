@@ -16,6 +16,8 @@ dependencies {
     
     // Shared database library
     implementation(project(":common"))
+    // Redis utilities (ConfigStandardConfig, RedisIO)
+    implementation(project(":redis-storage"))
 }
 
 tasks.withType<JavaCompile> {
