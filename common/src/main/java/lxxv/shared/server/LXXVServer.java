@@ -1421,7 +1421,7 @@ public class LXXVServer {
 
     // ===== GETTERS =====
 
-    public static Server getServer() {
+    public static org.bukkit.Server getServer() {
         return server;
     }
 
