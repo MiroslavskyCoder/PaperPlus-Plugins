@@ -4,7 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.util.Map;
 
-import lxxv.shared.javascript.heap.HeapApi;
+import lxxv.shared.javascript.api.HeapApi;
 import lxxv.shared.javascript.heap.HeapStats;
 import lxxv.shared.javascript.util.ResourceUsage;
 
