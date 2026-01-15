@@ -45,12 +45,22 @@ import lxxv.shared.javascript.util.IoLoop;
  * Supports TypeScript/JSX transpilation, V8 execution, and Java integration
  */
 public class JavaScriptEngine {
+        /**
+         * Inject requireNativeModule into the given V8 global object.
+         */
+        private void injectRequireNativeModule(V8ValueObject globalObject) {
+            try {
+                globalObject.set("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
+            } catch (com.caoccao.javet.exceptions.JavetException e) {
+                throw new RuntimeException("Failed to inject requireNativeModule", e);
+            }
+        }
     private static JavaScriptEngine instance;
     private final JavetEnginePool<V8Runtime> enginePool;
     private final Swc4j swc4j;
     private final Map<String, Object> globalContext;
     private final Map<String, JavaScriptFunction> registeredFunctions;
-    private final Map<String, Map<String, JavaScriptFunction>> nativeModules;
+    private final Map<String, Map<String, JavaScriptFunction>> modules;
     private final FunctionRegistry functionRegistry;
     private final RuntimeMetrics runtimeMetrics;
     private final SandboxGuard sandboxGuard;
@@ -73,7 +83,7 @@ public class JavaScriptEngine {
     private JavaScriptEngine() {
         this.globalContext = new ConcurrentHashMap<>();
         this.registeredFunctions = new ConcurrentHashMap<>();
-        this.nativeModules = new ConcurrentHashMap<>();
+        this.modules = new ConcurrentHashMap<>();
         this.functionRegistry = new FunctionRegistry();
         this.runtimeMetrics = new RuntimeMetrics();
         this.sandboxGuard = new SandboxGuard();
@@ -105,6 +115,18 @@ public class JavaScriptEngine {
         this.globalContext.put("heap", heapApi);
         this.globalContext.put("process", processApi);
         this.globalContext.put("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
+
+        // Register FilesystemModule as requireNativeModule('filesystem')
+        beginModuleRegistration("filesystem");
+        lxxv.shared.javascript.modules.FilesystemModule fsModule = new lxxv.shared.javascript.modules.FilesystemModule();
+        registerFunction("read", (JavaScriptFunction) args -> fsModule.read((String) args[0]));
+        registerFunction("write", (JavaScriptFunction) args -> { fsModule.write((String) args[0], (byte[]) args[1]); return null; });
+        registerFunction("exists", (JavaScriptFunction) args -> fsModule.exists((String) args[0]));
+        registerFunction("delete", (JavaScriptFunction) args -> { fsModule.delete((String) args[0]); return null; });
+        registerFunction("mkdirs", (JavaScriptFunction) args -> { fsModule.mkdirs((String) args[0]); return null; });
+        registerFunction("list", (JavaScriptFunction) args -> fsModule.list((String) args[0]));
+        registerFunction("stat", (JavaScriptFunction) args -> fsModule.stat((String) args[0]));
+        endModuleRegistration();
     }
 
     public static synchronized JavaScriptEngine getInstance() {
@@ -212,7 +234,7 @@ public class JavaScriptEngine {
                 globalObject.set(entry.getKey(), entry.getValue());
             }
             // Always inject requireNativeModule directly to globalObject
-            globalObject.set("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
+            injectRequireNativeModule(globalObject);
 
             // Inject variables
             for (Map.Entry<String, Object> entry : variables.entrySet()) {
@@ -258,7 +280,7 @@ public class JavaScriptEngine {
     public void registerFunction(String name, JavaScriptFunction function) {
         String moduleName = activeModule.get();
         if (moduleName != null) {
-            nativeModules.computeIfAbsent(moduleName, k -> new ConcurrentHashMap<>()).put(name, function);
+            modules.computeIfAbsent(moduleName, k -> new ConcurrentHashMap<>()).put(name, function);
             return;
         }
 
@@ -346,7 +368,7 @@ public class JavaScriptEngine {
 
     public void beginModuleRegistration(String moduleName) {
         if (moduleName == null) return;
-        nativeModules.computeIfAbsent(moduleName, k -> new ConcurrentHashMap<>());
+        modules.computeIfAbsent(moduleName, k -> new ConcurrentHashMap<>());
         activeModule.set(moduleName);
     }
 
@@ -356,14 +378,14 @@ public class JavaScriptEngine {
 
     public Map<String, JavaScriptFunction> getNativeModule(String name) {
         if (name == null) return Map.of();
-        Map<String, JavaScriptFunction> module = nativeModules.get(name.toString());
+        Map<String, JavaScriptFunction> module = modules.get(name.toString());
         return module != null ? Map.copyOf(module) : Map.of();
     }
 
     private Object requireNativeModule(Object name) {
         Map<String, JavaScriptFunction> module = getNativeModule(name != null ? name.toString() : null);
         if (module.isEmpty()) {
-            return Map.of("__error", "Native module not found: " + name);
+            return Map.of("__error", "Module not found: " + name);
         }
         return module;
     }
