@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import com.webx.shop.ShopPlugin;
 import com.webx.shop.models.Shop;
 import com.webx.shop.models.ShopItem;
+import com.webx.redis.ConfigStandardConfig;
 import com.webx.redis.RedisConfig;
 import com.webx.redis.RedisIO;
 
@@ -26,12 +27,15 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class ShopManager {
     private static final Type SHOP_ITEM_LIST_TYPE = new TypeToken<List<ShopItem>>(){}.getType();
+    private static final Type SHOP_LIST_TYPE = new TypeToken<List<Shop>>(){}.getType();
     private final ShopPlugin plugin;
     private final Map<String, Shop> shops;
     private final List<ShopItem> shopItems;
     private final Path shopConfigPath;
+    private final Path shopsDataPath;
     private final boolean useRedis;
     private final String redisKey;
+    private final String redisShopsKey;
     private RedisIO redisIO;
     private final Gson gson;
 
@@ -41,7 +45,10 @@ public class ShopManager {
         this.shopItems = new ArrayList<>();
         String filePath = plugin.getConfig().getString("storage.file.path", "shop.json");
         this.shopConfigPath = plugin.getDataFolder().toPath().resolve(filePath);
+        String shopsFilePath = plugin.getConfig().getString("storage.file.shops-path", "shops.json");
+        this.shopsDataPath = plugin.getDataFolder().toPath().resolve(shopsFilePath);
         this.redisKey = "shop:items";
+        this.redisShopsKey = "shop:shops";
         this.gson = new GsonBuilder().setPrettyPrinting().create();
 
         ConfigurationSection storage = plugin.getConfig().getConfigurationSection("storage");
@@ -52,22 +59,7 @@ public class ShopManager {
     }
 
     private void initRedis(ConfigurationSection redisSection) {
-        RedisConfig cfg = loadRedisConfigFromFile();
-        if (cfg == null) {
-            cfg = new RedisConfig();
-            if (redisSection == null) {
-                plugin.getLogger().warning("Redis storage selected but redis config section is missing");
-            }
-            if (redisSection != null) {
-                cfg.host = redisSection.getString("host", cfg.host);
-                cfg.port = redisSection.getInt("port", cfg.port);
-                cfg.password = redisSection.getString("password", cfg.password);
-                cfg.database = redisSection.getInt("database", cfg.database);
-                cfg.ssl = redisSection.getBoolean("ssl", cfg.ssl);
-                cfg.timeoutMillis = redisSection.getInt("timeout-millis", cfg.timeoutMillis);
-                cfg.socketTimeoutMillis = redisSection.getInt("socket-timeout-millis", cfg.socketTimeoutMillis);
-            }
-        }
+        RedisConfig cfg = loadRedisConfig(redisSection);
 
         try {
             this.redisIO = new RedisIO(cfg, plugin.getLogger());
@@ -81,25 +73,33 @@ public class ShopManager {
         }
     }
 
-    private RedisConfig loadRedisConfigFromFile() {
-        File cfgFile = new File("redisconfig.json");
-        if (!cfgFile.exists()) {
-            return null;
-        }
-        try (Reader reader = new FileReader(cfgFile, StandardCharsets.UTF_8)) {
-            RedisConfig cfg = gson.fromJson(reader, RedisConfig.class);
-            if (cfg == null) return null;
+    private RedisConfig loadRedisConfig(ConfigurationSection redisSection) {
+        File serverRoot = plugin.getDataFolder().getParentFile() != null
+                ? plugin.getDataFolder().getParentFile().getParentFile()
+                : null;
+
+        RedisConfig cfg = ConfigStandardConfig.load(serverRoot, new RedisConfig(), plugin.getLogger());
+
+        if (redisSection == null) {
+            plugin.getLogger().warning("Redis storage selected but redis config section is missing");
             return cfg;
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to load redisconfig.json: " + e.getMessage());
-            return null;
         }
+
+        cfg.host = redisSection.getString("host", cfg.host);
+        cfg.port = redisSection.getInt("port", cfg.port);
+        cfg.password = redisSection.getString("password", cfg.password);
+        cfg.database = redisSection.getInt("database", cfg.database);
+        cfg.ssl = redisSection.getBoolean("ssl", cfg.ssl);
+        cfg.timeoutMillis = redisSection.getInt("timeout-millis", cfg.timeoutMillis);
+        cfg.socketTimeoutMillis = redisSection.getInt("socket-timeout-millis", cfg.socketTimeoutMillis);
+        return cfg;
     }
 
     public void loadShops() {
         shops.clear();
-        int count = reloadShopItems();
-        plugin.getLogger().info("Loaded " + count + " shop items");
+        int itemCount = reloadShopItems();
+        int shopCount = reloadCustomShops();
+        plugin.getLogger().info("Loaded " + itemCount + " shop items and " + shopCount + " shops");
     }
 
     public int reloadShopItems() {
@@ -126,6 +126,33 @@ public class ShopManager {
         }
     }
 
+    private int reloadCustomShops() {
+        List<Shop> loadedShops = new ArrayList<>();
+        boolean loadedFromRedis = false;
+
+        if (useRedis && redisIO != null) {
+            loadedShops = readShopsFromRedis();
+            loadedFromRedis = !loadedShops.isEmpty();
+        }
+
+        if (!loadedFromRedis) {
+            ensureShopsFileExists();
+            loadedShops = readShopsFromDisk();
+
+            if (useRedis && redisIO != null && !loadedShops.isEmpty()) {
+                writeShopsToRedis(loadedShops);
+            }
+        }
+
+        synchronized (shops) {
+            shops.clear();
+            for (Shop shop : loadedShops) {
+                shops.put(shop.getName().toLowerCase(), shop);
+            }
+            return shops.size();
+        }
+    }
+
     private void ensureShopConfigExists() {
         File parent = plugin.getDataFolder();
         if (!parent.exists() && !parent.mkdirs()) {
@@ -139,6 +166,25 @@ public class ShopManager {
                 plugin.getLogger().info("Created default shop.json");
             } catch (Exception e) {
                 plugin.getLogger().warning("Failed to create shop.json: " + e.getMessage());
+            }
+        }
+    }
+
+    private void ensureShopsFileExists() {
+        File parent = plugin.getDataFolder();
+        if (!parent.exists() && !parent.mkdirs()) {
+            plugin.getLogger().warning("Unable to create Shop data folder: " + parent);
+        }
+
+        File shopsFile = shopsDataPath.toFile();
+        if (!shopsFile.exists()) {
+            try {
+                if (shopsFile.createNewFile()) {
+                    java.nio.file.Files.writeString(shopsDataPath, "[]", StandardCharsets.UTF_8);
+                    plugin.getLogger().info("Created empty shops.json file");
+                }
+            } catch (IOException e) {
+                plugin.getLogger().warning("Failed to create shops.json: " + e.getMessage());
             }
         }
     }
@@ -173,8 +219,17 @@ public class ShopManager {
     }
 
     public void saveShops() {
-        // TODO: Save custom shops to storage
-        plugin.getLogger().info("Saved " + shops.size() + " shops");
+        List<Shop> currentShops;
+        synchronized (shops) {
+            currentShops = new ArrayList<>(shops.values());
+        }
+
+        if (useRedis && redisIO != null) {
+            writeShopsToRedis(currentShops);
+        }
+
+        writeShopsToDisk(currentShops);
+        plugin.getLogger().info("Saved " + currentShops.size() + " shops");
     }
 
     public List<ShopItem> getShopItems() {
@@ -224,6 +279,43 @@ public class ShopManager {
                 redisIO.close();
             } catch (Exception ignored) {
             }
+        }
+    }
+
+    private List<Shop> readShopsFromDisk() {
+        try (Reader reader = new FileReader(shopsDataPath.toFile(), StandardCharsets.UTF_8)) {
+            List<Shop> loaded = gson.fromJson(reader, SHOP_LIST_TYPE);
+            return loaded != null ? loaded : new ArrayList<>();
+        } catch (IOException e) {
+            plugin.getLogger().warning("Failed to load shops from disk: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private List<Shop> readShopsFromRedis() {
+        try {
+            return redisIO.getJson(redisShopsKey)
+                    .map(json -> gson.<List<Shop>>fromJson(json, SHOP_LIST_TYPE))
+                    .orElseGet(ArrayList::new);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to load shops from Redis: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void writeShopsToRedis(List<Shop> currentShops) {
+        try {
+            redisIO.setJson(redisShopsKey, gson.toJsonTree(currentShops));
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save shops to Redis: " + e.getMessage());
+        }
+    }
+
+    private void writeShopsToDisk(List<Shop> currentShops) {
+        try {
+            java.nio.file.Files.writeString(shopsDataPath, gson.toJson(currentShops), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            plugin.getLogger().warning("Failed to save shops to disk: " + e.getMessage());
         }
     }
 }

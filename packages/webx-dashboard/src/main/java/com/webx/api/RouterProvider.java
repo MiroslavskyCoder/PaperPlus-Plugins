@@ -50,7 +50,7 @@ public class RouterProvider {
         this.afkEndpoint = new AfkEndpoint(plugin, gson);
         this.pluginConfigEndpoint = new PluginConfigEndpoint(plugin, gson);
         this.clanService = new ClanService();
-        this.leaderboardService = new LeaderboardService();
+        this.leaderboardService = new LeaderboardService(plugin);
         
         this.startWebServer();
         this.registerRoutes();

@@ -37,6 +37,17 @@ public class AccountManager {
         return accounts.computeIfAbsent(uuid, k -> createAccount(uuid));
     }
 
+    public double getBalance(UUID uuid) {
+        Account account = accounts.get(uuid);
+        if (account == null) {
+            account = storage.loadAccount(uuid);
+            if (account != null) {
+                accounts.put(uuid, account);
+            }
+        }
+        return account != null ? account.getBalance() : 0.0;
+    }
+
     public Account getAccount(Player player) {
         return getAccount(player.getUniqueId());
     }

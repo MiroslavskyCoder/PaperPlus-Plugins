@@ -6,6 +6,17 @@ rewards:
   default-money: 100
   default-exp: 50
 
+storage:
+  type: redis # redis or file
+  redis:
+    use-root-config: true
+    host: localhost
+    port: 6379
+    password: ''
+    database: 0
+    quest-key-prefix: quests:data
+    progress-key-prefix: quests:progress
+
 api:
   enabled: true
   port: 7071

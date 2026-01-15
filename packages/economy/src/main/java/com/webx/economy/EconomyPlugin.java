@@ -6,6 +6,7 @@ import com.webx.economy.listeners.PlayerQuitListener;
 import com.webx.economy.managers.*;
 import com.webx.economy.storage.JsonStorage;
 import com.webx.economy.storage.MySQLStorage;
+import com.webx.economy.storage.RedisStorage;
 import com.webx.economy.storage.StorageProvider;
 import com.webx.economy.storage.YamlStorage;
 import com.webx.economy.utils.ConfigManager;
@@ -80,8 +81,11 @@ public class EconomyPlugin extends JavaPlugin {
                 storage = new YamlStorage(this);
                 break;
             case "json":
-            default:
                 storage = new JsonStorage(getDataFolder());
+                break;
+            case "redis":
+            default:
+                storage = new RedisStorage(this);
                 break;
         }
         

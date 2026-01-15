@@ -34,6 +34,7 @@ dependencies {
     
     // Shared database library
     implementation(project(":common"))
+    implementation(project(":redis-storage"))
 
     // PostgreSQL and connection pooling
     implementation("org.postgresql:postgresql:42.6.0")

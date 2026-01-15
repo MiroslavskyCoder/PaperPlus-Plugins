@@ -1,5 +1,12 @@
 database:
-  type: yaml # yaml or mysql
+  type: redis # redis, yaml or mysql
+  redis:
+    use-root-config: true # load ../redisconfig.json if present
+    host: localhost
+    port: 6379
+    password: ''
+    database: 0
+    key-prefix: economy:accounts
   mysql:
     host: localhost
     port: 3306

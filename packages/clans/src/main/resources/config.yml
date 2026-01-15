@@ -5,6 +5,16 @@ clan:
   territory:
     enabled: true
     chunks-per-member: 5
+
+storage:
+  redis:
+    enabled: true
+    use-root-config: true
+    host: localhost
+    port: 6379
+    password: ''
+    database: 0
+    key: clans:data
     
 messages:
   prefix: '&8[&6Clans&8]&r '

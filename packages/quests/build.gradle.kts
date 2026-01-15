@@ -12,6 +12,7 @@ dependencies {
     
     // Shared database library
     implementation(project(":common"))
+    implementation(project(":redis-storage"))
     
     // Javalin for REST API
     implementation("io.javalin:javalin:6.7.0")

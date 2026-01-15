@@ -2,21 +2,36 @@ package com.webx.api.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.webx.redis.ConfigStandardConfig;
+import com.webx.redis.RedisConfig;
+import com.webx.redis.RedisIO;
 import io.javalin.http.Context;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.FileReader;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * REST API service for Leaderboards using reflection
  */
 public class LeaderboardService {
     private final Gson gson;
+    private final JavaPlugin plugin;
+    private RedisIO redisIO;
 
-    public LeaderboardService() {
+    private static final String ECONOMY_ACCOUNTS_KEY = "economy:accounts:all";
+    private static final String CLANS_KEY = "clans:data";
+
+    public LeaderboardService(JavaPlugin plugin) {
+        this.plugin = plugin;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
@@ -31,7 +46,12 @@ public class LeaderboardService {
 
         Object accountManager = getAccountManager();
         if (accountManager == null) {
-            ctx.status(503).json(Map.of("error", "Economy plugin not available"));
+            List<Map<String, Object>> fallback = getTopPlayersFromRedis(limit);
+            if (fallback.isEmpty()) {
+                ctx.status(503).json(Map.of("error", "Economy plugin not available"));
+                return;
+            }
+            ctx.json(Map.of("leaderboard", fallback, "total", fallback.size()));
             return;
         }
 
@@ -100,7 +120,8 @@ public class LeaderboardService {
                 stats.put("clans", Map.of("total", 0));
             }
         } else {
-            stats.put("clans", Map.of("total", 0));
+            int clanCount = getClanCountFromRedis();
+            stats.put("clans", Map.of("total", clanCount));
         }
 
         // Get economy stats
@@ -127,6 +148,11 @@ public class LeaderboardService {
             } catch (Exception e) {
                 // Ignore economy stats if failed
             }
+        } else {
+            Map<String, Object> richest = getRichestFromRedis();
+            if (!richest.isEmpty()) {
+                stats.put("economy", richest);
+            }
         }
 
         ctx.json(stats);
@@ -148,6 +174,144 @@ public class LeaderboardService {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private List<Map<String, Object>> getTopPlayersFromRedis(int limit) {
+        RedisIO redis = ensureRedis();
+        if (redis == null) {
+            return List.of();
+        }
+
+        Optional<String> payload = redis.getString(ECONOMY_ACCOUNTS_KEY);
+        if (payload.isEmpty() || payload.get().isBlank()) {
+            return List.of();
+        }
+
+        try {
+            Type mapType = new TypeToken<Map<String, AccountData>>() {}.getType();
+            Map<String, AccountData> accounts = gson.fromJson(payload.get(), mapType);
+            if (accounts == null || accounts.isEmpty()) {
+                return List.of();
+            }
+
+            return accounts.values().stream()
+                    .sorted((a, b) -> Double.compare(b.totalBalance(), a.totalBalance()))
+                    .limit(limit)
+                    .map(this::toLeaderboardEntry)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to read Redis economy leaderboard: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    private Map<String, Object> toLeaderboardEntry(AccountData data) {
+        OfflinePlayer player = Bukkit.getOfflinePlayer(data.uuid);
+        Map<String, Object> playerData = new HashMap<>();
+        playerData.put("uuid", data.uuid.toString());
+        playerData.put("name", player.getName() != null ? player.getName() : "Unknown");
+        playerData.put("balance", data.balance);
+        playerData.put("bankBalance", data.bankBalance);
+        playerData.put("total", data.totalBalance());
+        playerData.put("online", player.isOnline());
+        return playerData;
+    }
+
+    private int getClanCountFromRedis() {
+        RedisIO redis = ensureRedis();
+        if (redis == null) {
+            return 0;
+        }
+
+        try {
+            Optional<String> payload = redis.getString(CLANS_KEY);
+            if (payload.isEmpty() || payload.get().isBlank()) {
+                return 0;
+            }
+            Type listType = new TypeToken<List<Map<String, Object>>>() {}.getType();
+            List<Map<String, Object>> data = gson.fromJson(payload.get(), listType);
+            return data != null ? data.size() : 0;
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to read clan count from Redis: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    private Map<String, Object> getRichestFromRedis() {
+        RedisIO redis = ensureRedis();
+        if (redis == null) {
+            return Map.of();
+        }
+
+        try {
+            Optional<String> payload = redis.getString(ECONOMY_ACCOUNTS_KEY);
+            if (payload.isEmpty() || payload.get().isBlank()) {
+                return Map.of();
+            }
+
+            Type mapType = new TypeToken<Map<String, AccountData>>() {}.getType();
+            Map<String, AccountData> accounts = gson.fromJson(payload.get(), mapType);
+            if (accounts == null || accounts.isEmpty()) {
+                return Map.of();
+            }
+
+            AccountData richest = accounts.values().stream()
+                    .max(Comparator.comparingDouble(AccountData::totalBalance))
+                    .orElse(null);
+            if (richest == null) {
+                return Map.of();
+            }
+
+            OfflinePlayer player = Bukkit.getOfflinePlayer(richest.uuid);
+            return Map.of(
+                    "richestPlayer", player.getName() != null ? player.getName() : "Unknown",
+                    "richestBalance", richest.totalBalance()
+            );
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to read richest player from Redis: " + e.getMessage());
+            return Map.of();
+        }
+    }
+
+    private RedisIO ensureRedis() {
+        if (redisIO != null) {
+            return redisIO;
+        }
+
+        try {
+            RedisConfig cfg = loadRedisConfig();
+            redisIO = new RedisIO(cfg, plugin.getLogger());
+            redisIO.ping();
+            return redisIO;
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to init Redis for leaderboards: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private RedisConfig loadRedisConfig() {
+        File pluginData = plugin.getDataFolder();
+        File serverRoot = pluginData.getParentFile() != null ? pluginData.getParentFile().getParentFile() : null;
+
+        RedisConfig cfg = ConfigStandardConfig.load(serverRoot, new RedisConfig(), plugin.getLogger());
+
+        // Allow override via system properties if needed
+        cfg.host = System.getProperty("redis.host", cfg.host);
+        cfg.port = Integer.getInteger("redis.port", cfg.port);
+        cfg.password = System.getProperty("redis.password", cfg.password);
+        cfg.database = Integer.getInteger("redis.database", cfg.database);
+        return cfg;
+    }
+
+    private static class AccountData {
+        UUID uuid;
+        double balance;
+        double bankBalance;
+        long lastInterest;
+
+        double totalBalance() {
+            return balance + bankBalance;
         }
     }
 }

@@ -56,6 +56,7 @@ public class ClansPlugin extends JavaPlugin {
     public void onDisable() {
         if (clanManager != null) {
             clanManager.saveClans();
+            clanManager.close();
         }
         
         getLogger().info("Clans plugin disabled!");
