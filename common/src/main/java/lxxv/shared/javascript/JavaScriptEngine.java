@@ -50,7 +50,14 @@ public class JavaScriptEngine {
          */
         private void injectRequireNativeModule(V8ValueObject globalObject) {
             try {
+                // Inject as global property
                 globalObject.set("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
+                // Also inject as globalThis.requireNativeModule for extra safety
+                globalObject.set("globalThis", globalObject);
+                V8ValueObject globalThis = (V8ValueObject) globalObject.get("globalThis");
+                if (globalThis != null) {
+                    globalThis.set("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
+                }
             } catch (com.caoccao.javet.exceptions.JavetException e) {
                 throw new RuntimeException("Failed to inject requireNativeModule", e);
             }
@@ -126,6 +133,28 @@ public class JavaScriptEngine {
         this.globalContext.put("heap", heapApi);
         this.globalContext.put("process", processApi);
         this.globalContext.put("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
+
+        // Inject a console object for JS (log, warn, error)
+        this.globalContext.put("console", new Object() {
+            public void log(Object... args) {
+                java.util.logging.Logger.getLogger("JS").info(joinArgs(args));
+            }
+            public void warn(Object... args) {
+                java.util.logging.Logger.getLogger("JS").warning(joinArgs(args));
+            }
+            public void error(Object... args) {
+                java.util.logging.Logger.getLogger("JS").severe(joinArgs(args));
+            }
+            private String joinArgs(Object[] args) {
+                if (args == null) return "null";
+                StringBuilder sb = new StringBuilder();
+                for (Object arg : args) {
+                    if (sb.length() > 0) sb.append(" ");
+                    sb.append(String.valueOf(arg));
+                }
+                return sb.toString();
+            }
+        });
 
         // Register FilesystemModule as requireNativeModule('filesystem')
         beginModuleRegistration("filesystem");

@@ -1,4 +1,7 @@
 // Minimal diagnostic script for LoaderScript
+const globalKeys = Object.getOwnPropertyNames(globalThis || this);
+console.log('[DIAG] typeof requireNativeModule:', typeof requireNativeModule);
+console.log('[DIAG] global keys:', globalKeys.join(', '));
 if (typeof requireNativeModule !== 'function') {
     throw new Error('requireNativeModule is not a function');
 } else {
