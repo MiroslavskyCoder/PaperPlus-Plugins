@@ -50,13 +50,27 @@ public class JavaScriptEngine {
          */
         private void injectRequireNativeModule(V8ValueObject globalObject) {
             try {
+                JavaScriptFunction fn = (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null);
                 // Inject as global property
-                globalObject.set("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
-                // Also inject as globalThis.requireNativeModule for extra safety
+                globalObject.set("requireNativeModule", fn);
+                // Inject as globalThis.requireNativeModule
                 globalObject.set("globalThis", globalObject);
                 V8ValueObject globalThis = (V8ValueObject) globalObject.get("globalThis");
                 if (globalThis != null) {
-                    globalThis.set("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
+                    globalThis.set("requireNativeModule", fn);
+                }
+                // Inject as this.requireNativeModule
+                globalObject.set("this", globalObject);
+                V8ValueObject thisObj = (V8ValueObject) globalObject.get("this");
+                if (thisObj != null) {
+                    thisObj.set("requireNativeModule", fn);
+                }
+                // Inject as global.requireNativeModule if global exists
+                if (globalObject.has("global")) {
+                    V8ValueObject global = (V8ValueObject) globalObject.get("global");
+                    if (global != null) {
+                        global.set("requireNativeModule", fn);
+                    }
                 }
             } catch (com.caoccao.javet.exceptions.JavetException e) {
                 throw new RuntimeException("Failed to inject requireNativeModule", e);
