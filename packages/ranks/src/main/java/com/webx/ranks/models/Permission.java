@@ -4,6 +4,12 @@ package com.webx.ranks.models;
  * Represents a permission node with metadata
  */
 public class Permission {
+        // For GUI compatibility: treat node as name, add enabled flag
+        private boolean enabled = true;
+
+        public String getName() { return node; }
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
     private String node;           // e.g., "rank.vip.fly", "rank.vip.teleport"
     private String description;    // Human-readable description
     private String category;       // e.g., "movement", "chat", "economy"

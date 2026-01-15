@@ -1,5 +1,9 @@
 package com.webx.ranks.gui;
 
+import org.bukkit.command.CommandSender;
+import java.util.List;
+import com.webx.ranks.models.AuditLogEntry;
+
 import org.bukkit.entity.Player;
 import java.util.List;
 

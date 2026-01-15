@@ -2,6 +2,10 @@ package com.webx.ranks.gui;
 
 import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
+import java.util.List;
+
+import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 import com.webx.ranks.api.RankAPI;
 import java.util.UUID;
 

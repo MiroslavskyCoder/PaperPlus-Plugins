@@ -1,5 +1,9 @@
 package com.webx.ranks.gui;
 
+import org.bukkit.command.CommandSender;
+import java.util.List;
+import com.webx.ranks.models.RankHistoryEntry;
+
 import org.bukkit.entity.Player;
 import com.webx.ranks.history.RankHistoryManager;
 import com.webx.ranks.history.RankHistory;

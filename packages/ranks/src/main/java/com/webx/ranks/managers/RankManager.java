@@ -1,9 +1,9 @@
 package com.webx.ranks.managers;
 
+
 import com.webx.ranks.models.Rank;
 import com.webx.ranks.models.Permission;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
@@ -15,8 +15,8 @@ import java.util.*;
  */
 public class RankManager {
     private final File dataFolder;
-    private File ranksFile;
-    private File permissionsFile;
+    private final File ranksFile;
+    private final File permissionsFile;
     private Map<String, Rank> ranks;
     private Set<Permission> permissions;
     private final Gson gson;
@@ -25,26 +25,47 @@ public class RankManager {
         this.dataFolder = dataFolder;
         this.ranksFile = new File(dataFolder, "ranks.json");
         this.permissionsFile = new File(dataFolder, "permissions.json");
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = new Gson();
         this.ranks = new HashMap<>();
         this.permissions = new HashSet<>();
-        
-        loadData();
     }
 
-    // ==================== Loading & Saving ====================
-    
-    public void loadData() {
-        loadRanks();
-        loadPermissions();
+    // ====== ADDED METHODS FOR API COMPATIBILITY ======
+    public Rank getRank(String id) {
+        return ranks.get(id);
     }
 
-    private void loadRanks() {
+    public Rank createRank(String id, String displayName, int priority) {
+        Rank rank = new Rank(id, displayName, priority);
+        ranks.put(id, rank);
+        saveRanks();
+        return rank;
+    }
+
+    public void updateRank(Rank rank) {
+        if (rank != null && rank.getId() != null) {
+            ranks.put(rank.getId(), rank);
+            saveRanks();
+        }
+    }
+
+    public List<Rank> getRanksSortedByPriority() {
+        List<Rank> list = new ArrayList<>(ranks.values());
+        list.sort(Comparator.comparingInt(Rank::getPriority).reversed());
+        return list;
+    }
+
+    private static boolean lastImportSuccess = true;
+    public static boolean isLastImportSuccess() {
+        return lastImportSuccess;
+    }
+
+    // Loads ranks from ranksFile (JSON)
+    public void loadRanks() {
         if (!ranksFile.exists()) {
             ranks = new HashMap<>();
             return;
         }
-
         try (Reader reader = new FileReader(ranksFile)) {
             // Новый формат: массив объектов, каждый объект: { "RANK": { "permissions": [ { "name": ..., "enable": ... }, ... ] } }
             Type listType = new TypeToken<List<Map<String, Map<String, Object>>>>() {}.getType();

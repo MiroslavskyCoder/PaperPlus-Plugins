@@ -1,5 +1,7 @@
 package com.webx.ranks.display;
 
+// import me.clip.placeholderapi.PlaceholderAPI; // Uncomment if PlaceholderAPI is present
+
 import com.webx.ranks.models.Rank;
 
 public class ChatFormatter {

@@ -1,6 +1,8 @@
 package com.webx.ranks.gui;
 
 import org.bukkit.entity.Player;
+
+import org.bukkit.entity.Player;
 import com.webx.ranks.models.Rank;
 
 /**

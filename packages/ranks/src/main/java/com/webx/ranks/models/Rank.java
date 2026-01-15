@@ -1,13 +1,59 @@
+
 package com.webx.ranks.models;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Comparator;
+import java.util.Collections;
 
 import java.util.*;
 
 public class Rank {
+    private String parent;
+    private List<String> children = new ArrayList<>();
+    private String color;
+    private String tabColor;
+    private String chatColor;
+    private boolean temporary;
+    private long expireAt;
+
     // Returns all ranks (stub, should be replaced with actual manager call)
     public static List<Rank> getAll() {
         // TODO: Replace with actual implementation (e.g., RankManager.getInstance().getAllRanks())
         return new ArrayList<>();
     }
+
+    // Static lookup by id (stub)
+    public static Rank getById(String id) {
+        for (Rank r : getAll()) {
+            if (r.getId().equalsIgnoreCase(id)) return r;
+        }
+        return null;
+    }
+    public String getParent() { return parent; }
+    public void setParent(String parent) { this.parent = parent; }
+
+    public List<String> getChildren() { return children; }
+    public void setChildren(List<String> children) { this.children = children; }
+
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
+
+    public String getTabColor() { return tabColor; }
+    public void setTabColor(String tabColor) { this.tabColor = tabColor; }
+
+    public String getChatColor() { return chatColor; }
+    public void setChatColor(String chatColor) { this.chatColor = chatColor; }
+
+    public boolean isTemporary() { return temporary; }
+    public void setTemporary(boolean temporary) { this.temporary = temporary; }
+
+    public long getExpireAt() { return expireAt; }
+    public void setExpireAt(long expireAt) { this.expireAt = expireAt; }
 
     // Alias for getId() for legacy compatibility
     public String getName() {
