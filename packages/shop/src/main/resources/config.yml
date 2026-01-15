@@ -9,6 +9,11 @@ gui:
 item-cost:
   min: 0.01
   max: 1000000.0
+
+sync:
+  enabled: true
+  interval-ticks: 200
+  notify-admins: true
   
 messages:
   prefix: '&8[&6Shop&8]&r '

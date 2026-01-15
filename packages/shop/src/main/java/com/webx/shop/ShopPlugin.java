@@ -2,7 +2,10 @@ package com.webx.shop;
 
 import com.webx.shop.commands.*;
 import com.webx.shop.listeners.InventoryClickListener;
-import com.webx.shop.managers.*;
+import com.webx.shop.managers.InventoryManager;
+import com.webx.shop.managers.ShopManager;
+import com.webx.shop.managers.TransactionManager;
+import com.webx.shop.services.ShopSyncService;
 import com.webx.shop.utils.ConfigManager;
 import com.webx.shop.utils.MessageManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,6 +18,7 @@ public class ShopPlugin extends JavaPlugin {
     private TransactionManager transactionManager;
     private ConfigManager configManager;
     private MessageManager messageManager;
+    private ShopSyncService shopSyncService;
 
     @Override
     public void onEnable() {
@@ -28,11 +32,13 @@ public class ShopPlugin extends JavaPlugin {
         shopManager = new ShopManager(this);
         inventoryManager = new InventoryManager(this);
         transactionManager = new TransactionManager(this);
+        shopSyncService = new ShopSyncService(this, shopManager);
         
         registerCommands();
         registerListeners();
         
         shopManager.loadShops();
+        shopSyncService.start();
         
         getLogger().info("Shop plugin enabled!");
     }
@@ -41,6 +47,9 @@ public class ShopPlugin extends JavaPlugin {
     public void onDisable() {
         if (shopManager != null) {
             shopManager.saveShops();
+        }
+        if (shopSyncService != null) {
+            shopSyncService.stop();
         }
         
         getLogger().info("Shop plugin disabled!");
