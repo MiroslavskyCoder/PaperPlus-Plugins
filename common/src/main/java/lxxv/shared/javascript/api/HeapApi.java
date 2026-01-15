@@ -18,6 +18,11 @@ public class HeapApi {
         return manager.allocate(size);
     }
 
+    public HeapBuffer allocUnsafe(int size) {
+        // mirrors Node.js Buffer.allocUnsafe semantics
+        return manager.allocate(size);
+    }
+
     public HeapBuffer fromString(String value) {
         return manager.wrap(value == null ? new byte[0] : value.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }

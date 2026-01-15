@@ -21,6 +21,10 @@ public class HeapBuffer {
         return data.length;
     }
 
+    public boolean isEmpty() {
+        return data.length == 0;
+    }
+
     public byte get(int index) {
         checkIndex(index);
         return data[index];
@@ -35,12 +39,34 @@ public class HeapBuffer {
         Arrays.fill(data, value);
     }
 
+    public void fill(byte value, int start, int end) {
+        if (start < 0 || end > data.length || start > end) {
+            throw new IndexOutOfBoundsException("Invalid fill range");
+        }
+        Arrays.fill(data, start, end, value);
+    }
+
     public void copyFrom(byte[] src, int offset) {
         if (src == null) return;
         if (offset < 0 || offset + src.length > data.length) {
             throw new IndexOutOfBoundsException("Copy exceeds buffer bounds");
         }
         System.arraycopy(src, 0, data, offset, src.length);
+    }
+
+    public HeapBuffer slice(int start, int end) {
+        if (start < 0) start = 0;
+        if (end > data.length) end = data.length;
+        if (start > end) start = end;
+        return new HeapBuffer(Arrays.copyOfRange(data, start, end));
+    }
+
+    public void copyTo(HeapBuffer target, int targetOffset) {
+        if (target == null) return;
+        if (targetOffset < 0 || targetOffset + data.length > target.length()) {
+            throw new IndexOutOfBoundsException("Copy exceeds target bounds");
+        }
+        System.arraycopy(this.data, 0, target.data, targetOffset, this.data.length);
     }
 
     public byte[] toByteArray() {
