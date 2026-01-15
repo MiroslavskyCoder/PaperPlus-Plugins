@@ -37,7 +37,6 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.bukkit.Server;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.util.Vector;
@@ -52,7 +51,7 @@ import java.util.stream.Collectors;
  * Provides 70+ server functions accessible from JavaScript
  */
 public class LXXVServer {
-    private static Server server;
+    private static org.bukkit.Server server;
     private static JavaScriptEngine jsEngine;
     private static JavaScriptEventSystem eventSystem;
     private static JavaScriptScheduler scheduler;
@@ -74,7 +73,7 @@ public class LXXVServer {
     /**
      * Initialize LXXVServer with Bukkit server instance
      */
-    public static void initialize(Server serverInstance, JavaScriptEngine engine) {
+    public static void initialize(org.bukkit.Server serverInstance, JavaScriptEngine engine) {
         server = serverInstance;
         jsEngine = engine;
         eventSystem = new JavaScriptEventSystem();
@@ -104,83 +103,78 @@ public class LXXVServer {
     // ===== SERVER FUNCTIONS =====
 
     private static void registerServerFunctions() {
-        // Broadcast message to all players
-        jsEngine.registerFunctionLambda("broadcast", args -> {
-            String message = args[0].toString();
-            server.broadcastMessage(message);
-            return null;
-        });
+        Server.register(jsEngine, server);
+    }
 
-        // Get online player count
-        jsEngine.registerFunctionLambda("getOnlinePlayers", args -> {
-            return server.getOnlinePlayers().size();
-        });
+    /**
+     * Server-scoped JavaScript functions container.
+     */
+    public static final class Server {
+        private Server() {
+        }
 
-        // Get max players
-        jsEngine.registerFunctionLambda("getMaxPlayers", args -> {
-            return server.getMaxPlayers();
-        });
+        public static void register(JavaScriptEngine engine, org.bukkit.Server bukkitServer) {
+            engine.registerFunctionLambda("broadcast", args -> {
+                String message = args[0].toString();
+                bukkitServer.broadcastMessage(message);
+                return null;
+            });
 
-        // Get MOTD
-        jsEngine.registerFunctionLambda("getMotd", args -> {
-            return server.getMotd();
-        });
+            engine.registerFunctionLambda("getOnlinePlayers", args -> bukkitServer.getOnlinePlayers().size());
 
-        // Set MOTD
-        jsEngine.registerFunctionLambda("setMotd", args -> {
-            String motd = args[0].toString();
-            server.setMotd(motd);
-            return null;
-        });
+            engine.registerFunctionLambda("getMaxPlayers", args -> bukkitServer.getMaxPlayers());
 
-        // Get server version
-        jsEngine.registerFunctionLambda("getVersion", args -> {
-            return server.getVersion();
-        });
+            engine.registerFunctionLambda("getMotd", args -> bukkitServer.getMotd());
 
-        // Get server uptime (game time)
-        jsEngine.registerFunctionLambda("getUptime", args -> {
-            return server.getWorlds().isEmpty() ? 0L : server.getWorlds().get(0).getFullTime() * 50L;
-        });
+            // Expose raw Bukkit server instance for scripts that still call getServer()
+            engine.registerFunctionLambda("getServer", args -> bukkitServer);
 
-        // Reload server
-        jsEngine.registerFunctionLambda("reload", args -> {
-            server.reload();
-            return null;
-        });
+            engine.registerFunctionLambda("setMotd", args -> {
+                String motd = args[0].toString();
+                bukkitServer.setMotd(motd);
+                return null;
+            });
 
-        // Shutdown server
-        jsEngine.registerFunctionLambda("shutdown", args -> {
-            server.shutdown();
-            return null;
-        });
+            engine.registerFunctionLambda("getVersion", args -> bukkitServer.getVersion());
 
-        // Execute console command
-        jsEngine.registerFunctionLambda("executeCommand", args -> {
-            String command = args[0].toString();
-            return server.dispatchCommand(server.getConsoleSender(), command);
-        });
+            engine.registerFunctionLambda("getUptime", args ->
+                bukkitServer.getWorlds().isEmpty() ? 0L : bukkitServer.getWorlds().get(0).getFullTime() * 50L
+            );
 
-        // Kick player by name with optional reason
-        jsEngine.registerFunctionLambda("kickPlayer", args -> {
-            String playerName = args[0].toString();
-            String reason = args.length > 1 ? args[1].toString() : "Kicked by server";
-            Player player = server.getPlayer(playerName);
-            if (player != null) {
-                player.kickPlayer(reason);
+            engine.registerFunctionLambda("reload", args -> {
+                bukkitServer.reload();
+                return null;
+            });
+
+            engine.registerFunctionLambda("shutdown", args -> {
+                bukkitServer.shutdown();
+                return null;
+            });
+
+            engine.registerFunctionLambda("executeCommand", args -> {
+                String command = args[0].toString();
+                return bukkitServer.dispatchCommand(bukkitServer.getConsoleSender(), command);
+            });
+
+            engine.registerFunctionLambda("kickPlayer", args -> {
+                String playerName = args[0].toString();
+                String reason = args.length > 1 ? args[1].toString() : "Kicked by server";
+                Player player = bukkitServer.getPlayer(playerName);
+                if (player != null) {
+                    player.kickPlayer(reason);
+                    return true;
+                }
+                return false;
+            });
+
+            engine.registerFunctionLambda("setWhitelisted", args -> {
+                String playerName = args[0].toString();
+                boolean value = Boolean.parseBoolean(args[1].toString());
+                org.bukkit.OfflinePlayer offline = bukkitServer.getOfflinePlayer(playerName);
+                offline.setWhitelisted(value);
                 return true;
-            }
-            return false;
-        });
-
-        // Whitelist toggle for a player
-        jsEngine.registerFunctionLambda("setWhitelisted", args -> {
-            String playerName = args[0].toString();
-            boolean value = Boolean.parseBoolean(args[1].toString());
-            org.bukkit.OfflinePlayer offline = server.getOfflinePlayer(playerName);
-            offline.setWhitelisted(value);
-            return true;
-        });
+            });
+        }
     }
 
     // ===== PLAYER FUNCTIONS =====
