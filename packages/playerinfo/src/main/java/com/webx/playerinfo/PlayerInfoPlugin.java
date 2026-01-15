@@ -8,6 +8,7 @@ public class PlayerInfoPlugin extends JavaPlugin {
     private PlayerInfoListener playerInfoListener;
     private EconomyDataManager economyDataManager;
     private SidebarManager sidebarManager;
+    private PluginIntegrationService integrationService;
     
     @Override
     public void onEnable() {
@@ -16,8 +17,9 @@ public class PlayerInfoPlugin extends JavaPlugin {
         // Initialize managers
         economyDataManager = new EconomyDataManager(this);
         sidebarManager = new SidebarManager(this);
+        integrationService = new PluginIntegrationService(this);
         
-        playerInfoListener = new PlayerInfoListener(economyDataManager, sidebarManager);
+        playerInfoListener = new PlayerInfoListener(economyDataManager, sidebarManager, integrationService);
         getServer().getPluginManager().registerEvents(playerInfoListener, this);
         
         // Update player info every 5 ticks (4 times per second)
@@ -29,6 +31,11 @@ public class PlayerInfoPlugin extends JavaPlugin {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
             economyDataManager.refreshAccounts();
         }, 0L, 60L);
+
+        // Refresh shared cache every 10 seconds
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
+            integrationService.refreshCaches();
+        }, 0L, 200L);
     }
     
     @Override

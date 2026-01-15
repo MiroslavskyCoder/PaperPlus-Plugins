@@ -37,17 +37,20 @@ public class SidebarManager {
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         // Static lines with team-based suffixes for dynamic values
-        int score = 10;
+        int score = 15;
         addLine(board, objective, score--, ChatColor.GOLD + "Игрок:", "name");
         addLine(board, objective, score--, ChatColor.YELLOW + "Уровень:", "level");
         addLine(board, objective, score--, ChatColor.GREEN + "Coins:", "coins");
         addLine(board, objective, score--, ChatColor.DARK_AQUA + "Bank:", "bank");
         addLine(board, objective, score--, ChatColor.BLUE + "Total:", "total");
-        addLine(board, objective, score--, ChatColor.AQUA + "Здоровье:", "health");
-        addLine(board, objective, score--, ChatColor.BLUE + "Голод:", "food");
-        addLine(board, objective, score--, ChatColor.LIGHT_PURPLE + "Пинг:", "ping");
-        addLine(board, objective, score--, ChatColor.GRAY + "Онлайн:", "online");
-        addLine(board, objective, score, ChatColor.DARK_GRAY + "Мир:", "world");
+        addLine(board, objective, score--, ChatColor.DARK_PURPLE + "Clan:", "clan");
+        addLine(board, objective, score--, ChatColor.AQUA + "Rank:", "rank");
+        addLine(board, objective, score--, ChatColor.GREEN + "Skill:", "skill");
+        addLine(board, objective, score--, ChatColor.LIGHT_PURPLE + "Quest:", "quest");
+        addLine(board, objective, score--, ChatColor.GOLD + "Job:", "job");
+        addLine(board, objective, score--, ChatColor.DARK_GREEN + "Market:", "market");
+        addLine(board, objective, score--, ChatColor.DARK_AQUA + "Marketpl.:", "marketplace");
+        addLine(board, objective, score, ChatColor.RED + "Feed:", "feed");
 
         player.setScoreboard(board);
         scoreboards.put(player.getUniqueId(), board);
@@ -71,11 +74,14 @@ public class SidebarManager {
         setSuffix(board, "coins", ChatColor.GOLD + values.coins);
         setSuffix(board, "bank", ChatColor.DARK_AQUA + values.bank);
         setSuffix(board, "total", ChatColor.BLUE + values.total);
-        setSuffix(board, "health", ChatColor.RED + values.health);
-        setSuffix(board, "food", ChatColor.GREEN + values.food);
-        setSuffix(board, "ping", ChatColor.YELLOW + String.valueOf(values.ping) + " ms");
-        setSuffix(board, "online", ChatColor.GREEN + String.valueOf(values.online));
-        setSuffix(board, "world", ChatColor.WHITE + values.world);
+        setSuffix(board, "clan", ChatColor.LIGHT_PURPLE + values.clan);
+        setSuffix(board, "rank", ChatColor.AQUA + values.rank);
+        setSuffix(board, "skill", ChatColor.GREEN + values.skill);
+        setSuffix(board, "quest", ChatColor.LIGHT_PURPLE + values.quest);
+        setSuffix(board, "job", ChatColor.GOLD + values.job);
+        setSuffix(board, "market", ChatColor.DARK_GREEN + values.market);
+        setSuffix(board, "marketplace", ChatColor.DARK_AQUA + values.marketplace);
+        setSuffix(board, "feed", ChatColor.RED + values.feed);
     }
 
     private void setSuffix(Scoreboard board, String teamName, String value) {
@@ -91,10 +97,13 @@ public class SidebarManager {
         public String coins;
         public String bank;
         public String total;
-        public String health;
-        public String food;
-        public int ping;
-        public int online;
-        public String world;
+        public String clan;
+        public String rank;
+        public String skill;
+        public String quest;
+        public String job;
+        public String market;
+        public String marketplace;
+        public String feed;
     }
 }
