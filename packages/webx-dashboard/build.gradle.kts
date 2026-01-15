@@ -52,6 +52,7 @@ dependencies {
 
 tasks.jar {
     archiveBaseName.set("webx-dashboard")
+    dependsOn(":redis-storage:jar")
     
     manifest {
         attributes["Main-Class"] = "com.webx.PolyglotPlugin"
