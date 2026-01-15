@@ -52,19 +52,22 @@ public class ShopManager {
     }
 
     private void initRedis(ConfigurationSection redisSection) {
-        if (redisSection == null) {
-            plugin.getLogger().warning("Redis storage selected but redis config section is missing");
-            return;
+        RedisConfig cfg = loadRedisConfigFromFile();
+        if (cfg == null) {
+            cfg = new RedisConfig();
+            if (redisSection == null) {
+                plugin.getLogger().warning("Redis storage selected but redis config section is missing");
+            }
+            if (redisSection != null) {
+                cfg.host = redisSection.getString("host", cfg.host);
+                cfg.port = redisSection.getInt("port", cfg.port);
+                cfg.password = redisSection.getString("password", cfg.password);
+                cfg.database = redisSection.getInt("database", cfg.database);
+                cfg.ssl = redisSection.getBoolean("ssl", cfg.ssl);
+                cfg.timeoutMillis = redisSection.getInt("timeout-millis", cfg.timeoutMillis);
+                cfg.socketTimeoutMillis = redisSection.getInt("socket-timeout-millis", cfg.socketTimeoutMillis);
+            }
         }
-
-        RedisConfig cfg = new RedisConfig();
-        cfg.host = redisSection.getString("host", "127.0.0.1");
-        cfg.port = redisSection.getInt("port", 6379);
-        cfg.password = redisSection.getString("password", "");
-        cfg.database = redisSection.getInt("database", 0);
-        cfg.ssl = redisSection.getBoolean("ssl", false);
-        cfg.timeoutMillis = redisSection.getInt("timeout-millis", 2000);
-        cfg.socketTimeoutMillis = redisSection.getInt("socket-timeout-millis", 2000);
 
         try {
             this.redisIO = new RedisIO(cfg, plugin.getLogger());
@@ -75,6 +78,21 @@ public class ShopManager {
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to initialize Redis: " + e.getMessage());
             this.redisIO = null;
+        }
+    }
+
+    private RedisConfig loadRedisConfigFromFile() {
+        File cfgFile = new File("redisconfig.json");
+        if (!cfgFile.exists()) {
+            return null;
+        }
+        try (Reader reader = new FileReader(cfgFile, StandardCharsets.UTF_8)) {
+            RedisConfig cfg = gson.fromJson(reader, RedisConfig.class);
+            if (cfg == null) return null;
+            return cfg;
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to load redisconfig.json: " + e.getMessage());
+            return null;
         }
     }
 
