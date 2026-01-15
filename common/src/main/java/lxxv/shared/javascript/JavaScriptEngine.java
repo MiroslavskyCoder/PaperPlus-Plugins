@@ -318,6 +318,22 @@ public class JavaScriptEngine {
         return JsValueConverter.toJava(value);
     }
 
+    public HeapManager getHeapManager() {
+        return heapManager;
+    }
+
+    public HeapApi getHeapApi() {
+        return heapApi;
+    }
+
+    public ProcessApi getProcessApi() {
+        return processApi;
+    }
+
+    public MetricsApi getMetricsApi() {
+        return metricsApi;
+    }
+
     /**
      * Shutdown the engine
      */
