@@ -14,7 +14,7 @@ public class PlayerInfoPlugin extends JavaPlugin {
         getLogger().info("PlayerInfo plugin enabled!");
         
         // Initialize managers
-        economyDataManager = new EconomyDataManager(getDataFolder());
+        economyDataManager = new EconomyDataManager(this);
         sidebarManager = new SidebarManager(this);
         
         playerInfoListener = new PlayerInfoListener(economyDataManager, sidebarManager);

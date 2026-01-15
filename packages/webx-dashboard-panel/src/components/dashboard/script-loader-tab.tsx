@@ -53,6 +53,16 @@ interface ScriptInfo {
   error?: string;
 }
 
+const getApiBase = () => {
+  if (process.env.NEXT_PUBLIC_API_BASE) {
+    return `${process.env.NEXT_PUBLIC_API_BASE.replace(/\/$/, "")}/api/loaderscript`
+  }
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api/loaderscript`
+  }
+  return "http://localhost:9092/api/loaderscript"
+}
+
 export function ScriptLoaderTab() {
   const [scripts, setScripts] = useState<ScriptInfo[]>([]);
   const [selectedScript, setSelectedScript] = useState<ScriptInfo | null>(null);
@@ -71,7 +81,7 @@ export function ScriptLoaderTab() {
 
   const loadScripts = async () => {
     try {
-      const response = await fetch('http://localhost:7072/api/loaderscript/scripts');
+      const response = await fetch(`${getApiBase()}/scripts`);
       const data = await response.json();
       setScripts(data.scripts || []);
     } catch (error) {
@@ -81,7 +91,7 @@ export function ScriptLoaderTab() {
 
   const loadScriptContent = async (scriptName: string) => {
     try {
-      const response = await fetch(`http://localhost:7072/api/loaderscript/scripts/${scriptName}`);
+      const response = await fetch(`${getApiBase()}/scripts/${scriptName}`);
       const data = await response.json();
       setScriptContent(data.content || '');
       setSelectedScript(scripts.find(s => s.name === scriptName) || null);
@@ -93,7 +103,7 @@ export function ScriptLoaderTab() {
   const handleLoadScript = async (scriptName: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:7072/api/loaderscript/scripts/${scriptName}/load`, {
+      const response = await fetch(`${getApiBase()}/scripts/${scriptName}/load`, {
         method: 'POST'
       });
       const result = await response.json();
@@ -110,7 +120,7 @@ export function ScriptLoaderTab() {
   const handleReloadScript = async (scriptName: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:7072/api/loaderscript/scripts/${scriptName}/reload`, {
+      const response = await fetch(`${getApiBase()}/scripts/${scriptName}/reload`, {
         method: 'POST'
       });
       const result = await response.json();
@@ -127,7 +137,7 @@ export function ScriptLoaderTab() {
   const handleUnloadScript = async (scriptName: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:7072/api/loaderscript/scripts/${scriptName}/unload`, {
+      const response = await fetch(`${getApiBase()}/scripts/${scriptName}/unload`, {
         method: 'POST'
       });
       const result = await response.json();
@@ -146,7 +156,7 @@ export function ScriptLoaderTab() {
     
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:7072/api/loaderscript/scripts/${scriptName}`, {
+      const response = await fetch(`${getApiBase()}/scripts/${scriptName}`, {
         method: 'DELETE'
       });
       const result = await response.json();
@@ -193,7 +203,7 @@ export function ScriptLoaderTab() {
     
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:7072/api/loaderscript/scripts', {
+      const response = await fetch(`${getApiBase()}/scripts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -218,7 +228,7 @@ export function ScriptLoaderTab() {
   const handleReloadAll = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:7072/api/loaderscript/reload-all', {
+      const response = await fetch(`${getApiBase()}/reload-all`, {
         method: 'POST'
       });
       const result = await response.json();

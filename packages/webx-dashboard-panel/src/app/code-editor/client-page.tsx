@@ -25,7 +25,17 @@ type ScriptInfo = {
   error?: string
 }
 
-const API_BASE = "http://localhost:7072/api/loaderscript"
+const getApiBase = () => {
+  if (process.env.NEXT_PUBLIC_API_BASE) {
+    return `${process.env.NEXT_PUBLIC_API_BASE.replace(/\/$/, "")}/api/loaderscript`
+  }
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/api/loaderscript`
+  }
+  return "http://localhost:9092/api/loaderscript"
+}
+
+const API_BASE = getApiBase()
 
 export default function CodeEditorClientPage() {
   const [scripts, setScripts] = useState<ScriptInfo[]>([])

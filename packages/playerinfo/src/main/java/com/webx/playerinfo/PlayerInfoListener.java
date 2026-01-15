@@ -9,6 +9,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import java.util.Locale;
+
 public class PlayerInfoListener implements Listener {
     
     private final EconomyDataManager economyDataManager;
@@ -48,13 +50,19 @@ public class PlayerInfoListener implements Listener {
         int online = Bukkit.getOnlinePlayers().size();
         String world = player.getWorld().getName();
         
-        // Get money from Economy plugin
-        double money = economyDataManager.getBalance(player);
+        EconomyDataManager.CoinSnapshot coins = economyDataManager.getCoinInfo(player);
+        boolean hasCoins = coins.available();
+        String walletDisplay = hasCoins ? formatCurrency(coins.wallet()) : "N/A";
+        String bankDisplay = hasCoins ? formatCurrency(coins.bank()) : "N/A";
+        String totalDisplay = hasCoins ? formatCurrency(coins.total()) : "N/A";
         
         // Action Bar - Updated every tick with colorful formatting
         Component actionBar = Component.text()
             .append(Component.text("💰 ", NamedTextColor.YELLOW))
-            .append(Component.text(String.format("$%.2f", money), NamedTextColor.GOLD, TextDecoration.BOLD))
+            .append(Component.text(walletDisplay, NamedTextColor.GOLD, TextDecoration.BOLD))
+            .append(Component.text(" | ", NamedTextColor.DARK_GRAY))
+            .append(Component.text("🏦 ", NamedTextColor.YELLOW))
+            .append(Component.text(bankDisplay, NamedTextColor.GOLD))
             .append(Component.text(" | ", NamedTextColor.DARK_GRAY))
             .append(Component.text("⭐ ", NamedTextColor.YELLOW))
             .append(Component.text("Lv" + level, NamedTextColor.AQUA, TextDecoration.BOLD))
@@ -73,12 +81,18 @@ public class PlayerInfoListener implements Listener {
         SidebarManager.SidebarValues values = new SidebarManager.SidebarValues();
         values.playerName = playerName;
         values.level = level;
-        values.money = String.format("$%.2f", money);
+        values.coins = walletDisplay;
+        values.bank = bankDisplay;
+        values.total = totalDisplay;
         values.health = health + "/" + maxHealth;
         values.food = food + "/20";
         values.ping = ping;
         values.online = online;
         values.world = world;
         sidebarManager.updateSidebar(player, values);
+    }
+
+    private String formatCurrency(double amount) {
+        return String.format(Locale.US, "$%,.2f", amount);
     }
 }
