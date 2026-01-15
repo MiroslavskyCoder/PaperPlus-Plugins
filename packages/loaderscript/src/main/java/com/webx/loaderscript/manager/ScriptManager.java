@@ -1,3 +1,4 @@
+
 package com.webx.loaderscript.manager;
 
 import com.webx.loaderscript.LoaderScriptPlugin;
@@ -148,9 +149,9 @@ public class ScriptManager {
                     Map<String, Object> context = new HashMap<>();
                     context.put("LXXVServer", LXXVServer.class);
                     context.put("Bukkit", Bukkit.class);
-                    
+
                     Object result = jsEngine.execute(executableCode, context);
-                    
+
                     // Create script info on main thread
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         ScriptInfo info = new ScriptInfo(
@@ -162,14 +163,14 @@ public class ScriptManager {
                             true,
                             null
                         );
-                        
+
                         loadedScripts.put(scriptName, info);
                         plugin.getLogger().info("§a✓ Loaded script (async): " + scriptName);
                     });
-                    
+
                 } catch (Exception e) {
                     plugin.getLogger().severe("Failed to execute script " + scriptName + ": " + e.getMessage());
-                    
+
                     // Store error info on main thread
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         ScriptInfo info = new ScriptInfo(
@@ -267,9 +268,9 @@ public class ScriptManager {
                     Map<String, Object> context = new HashMap<>();
                     context.put("LXXVServer", LXXVServer.class);
                     context.put("Bukkit", Bukkit.class);
-                    
+
                     Object result = jsEngine.execute(executableCode, context);
-                    
+
                     // Create script info
                     ScriptInfo info = new ScriptInfo(
                         scriptName,
@@ -280,13 +281,13 @@ public class ScriptManager {
                         true,
                         null
                     );
-                    
+
                     loadedScripts.put(scriptName, info);
                     plugin.getLogger().info("§a✓ Loaded script: " + scriptName);
-                    
+
                 } catch (Exception e) {
                     plugin.getLogger().severe("Failed to execute script " + scriptName + ": " + e.getMessage());
-                    
+
                     // Store error info
                     ScriptInfo info = new ScriptInfo(
                         scriptName,

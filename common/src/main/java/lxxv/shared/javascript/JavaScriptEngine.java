@@ -55,6 +55,17 @@ public class JavaScriptEngine {
                 throw new RuntimeException("Failed to inject requireNativeModule", e);
             }
         }
+
+    /**
+     * Public method to ensure requireNativeModule is injected into the given V8Runtime's global object.
+     */
+    public void ensureRequireNativeModuleInjected(V8Runtime runtime) {
+        try {
+            injectRequireNativeModule(runtime.getGlobalObject());
+        } catch (com.caoccao.javet.exceptions.JavetException e) {
+            throw new RuntimeException("Failed to inject requireNativeModule", e);
+        }
+    }
     private static JavaScriptEngine instance;
     private final JavetEnginePool<V8Runtime> enginePool;
     private final Swc4j swc4j;
