@@ -1,4 +1,3 @@
-
 package com.webx.ranks.models;
 
 import java.util.List;
@@ -7,10 +6,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Comparator;
-import java.util.Collections;
-
-import java.util.*;
 
 public class Rank {
     private String parent;
@@ -194,4 +189,15 @@ public class Rank {
 
     public long getCreatedAt() { return createdAt; }
     public long getUpdatedAt() { return updatedAt; }
+
+    public List<java.util.Map<String, Object>> getPermissionsForExport() {
+        List<java.util.Map<String, Object>> perms = new ArrayList<>();
+        for (String perm : permissions) {
+            java.util.Map<String, Object> obj = new java.util.HashMap<>();
+            obj.put("name", perm);
+            obj.put("enable", true);
+            perms.add(obj);
+        }
+        return perms;
+    }
 }

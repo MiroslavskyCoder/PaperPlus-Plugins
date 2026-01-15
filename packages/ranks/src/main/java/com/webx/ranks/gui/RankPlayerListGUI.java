@@ -15,10 +15,13 @@ import java.util.UUID;
 public class RankPlayerListGUI {
     public void open(Player player, String rankId) {
         player.sendMessage("§eИгроки с рангом §b" + rankId + ":");
-        List<Player> filtered = Bukkit.getOnlinePlayers().stream()
-            .filter(p -> RankAPI.getPlayerRank(p.getUniqueId()) != null && RankAPI.getPlayerRank(p.getUniqueId()).getId().equals(rankId))
-            .sorted((a, b) -> a.getName().compareToIgnoreCase(b.getName()))
-            .toList();
+        List<Player> filtered = new java.util.ArrayList<>();
+        for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
+            if (RankAPI.getPlayerRank(p.getUniqueId()) != null && RankAPI.getPlayerRank(p.getUniqueId()).getId().equals(rankId)) {
+                filtered.add(p);
+            }
+        }
+        filtered.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
         if (filtered.isEmpty()) {
             player.sendMessage("§7Нет игроков с этим рангом онлайн.");
             return;

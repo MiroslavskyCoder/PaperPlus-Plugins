@@ -29,9 +29,9 @@ public class ChatFormatter {
         // Заменить & на § для Minecraft цветов
         format = format.replace("&", "§");
         // PlaceholderAPI hook (если установлен)
-        if (isPlaceholderApiPresent()) {
-            format = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(null, format);
-        }
+            // if (isPlaceholderApiPresent()) {
+            //     format = me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(null, format);
+            // }
         return format;
     }
 

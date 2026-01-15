@@ -25,7 +25,14 @@ public class RankPermissionToggleGUI {
     // Статический метод для CommandSender
     public static void show(Rank rank, CommandSender sender) {
         sender.sendMessage("§6=== Разрешения ранга: " + rank.getName() + " ===");
-        List<Permission> perms = new ArrayList<>(rank.getPermissions());
+            // Convert permissions (Set<String>) to Permission objects for GUI
+            List<Permission> perms = new ArrayList<>();
+            for (String permName : rank.getPermissions()) {
+                Permission perm = new Permission();
+                perm.setNode(permName);
+                perm.setEnabled(true); // Assume enabled for display
+                perms.add(perm);
+            }
         perms.sort(Comparator.comparing(Permission::getName));
         for (Permission perm : perms) {
             String status = perm.isEnabled() ? "§aВключено" : "§cВыключено";

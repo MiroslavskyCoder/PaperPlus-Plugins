@@ -18,6 +18,7 @@ public class RankManager {
     private final File ranksFile;
     private final File permissionsFile;
     private Map<String, Rank> ranks;
+    private List<Map<String, Object>> rawRankList; // for saving in original format
     private Set<Permission> permissions;
     private final Gson gson;
 
@@ -64,40 +65,30 @@ public class RankManager {
     public void loadRanks() {
         if (!ranksFile.exists()) {
             ranks = new HashMap<>();
+            rawRankList = new ArrayList<>();
             return;
         }
         try (Reader reader = new FileReader(ranksFile)) {
-            // Новый формат: массив объектов, каждый объект: { "RANK": { "permissions": [ { "name": ..., "enable": ... }, ... ] } }
-            Type listType = new TypeToken<List<Map<String, Map<String, Object>>>>() {}.getType();
-            List<Map<String, Map<String, Object>>> rankList = gson.fromJson(reader, listType);
+            Type listType = new TypeToken<List<Map<String, Object>>>() {}.getType();
+            rawRankList = gson.fromJson(reader, listType);
             ranks = new HashMap<>();
-            if (rankList != null) {
-                for (Map<String, Map<String, Object>> rankObj : rankList) {
-                    for (Map.Entry<String, Map<String, Object>> entry : rankObj.entrySet()) {
+            if (rawRankList != null) {
+                for (Map<String, Object> rankObj : rawRankList) {
+                    for (Map.Entry<String, Object> entry : rankObj.entrySet()) {
                         String rankId = entry.getKey();
-                        Map<String, Object> rankData = entry.getValue();
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> rankData = (Map<String, Object>) entry.getValue();
                         Rank rank = new Rank();
                         rank.setId(rankId);
-                        // Можно добавить другие поля, если есть (например, displayName, priority и т.д.)
-                        if (rankData.containsKey("displayName")) {
-                            rank.setDisplayName((String) rankData.get("displayName"));
-                        }
+                        if (rankData.containsKey("displayName")) rank.setDisplayName((String) rankData.get("displayName"));
                         if (rankData.containsKey("priority")) {
                             Number prio = (Number) rankData.get("priority");
                             rank.setPriority(prio != null ? prio.intValue() : 0);
                         }
-                        if (rankData.containsKey("parent")) {
-                            rank.setParent((String) rankData.get("parent"));
-                        }
-                        if (rankData.containsKey("color")) {
-                            rank.setColor((String) rankData.get("color"));
-                        }
-                        if (rankData.containsKey("tabColor")) {
-                            rank.setTabColor((String) rankData.get("tabColor"));
-                        }
-                        if (rankData.containsKey("chatColor")) {
-                            rank.setChatColor((String) rankData.get("chatColor"));
-                        }
+                        if (rankData.containsKey("parent")) rank.setParent((String) rankData.get("parent"));
+                        if (rankData.containsKey("color")) rank.setColor((String) rankData.get("color"));
+                        if (rankData.containsKey("tabColor")) rank.setTabColor((String) rankData.get("tabColor"));
+                        if (rankData.containsKey("chatColor")) rank.setChatColor((String) rankData.get("chatColor"));
                         if (rankData.containsKey("temporary")) {
                             Object tempObj = rankData.get("temporary");
                             boolean temp = tempObj instanceof Boolean ? (Boolean) tempObj : Boolean.parseBoolean(String.valueOf(tempObj));
@@ -108,7 +99,6 @@ public class RankManager {
                             long exp = expObj instanceof Number ? ((Number) expObj).longValue() : Long.parseLong(String.valueOf(expObj));
                             rank.setExpireAt(exp);
                         }
-                        // Парсим permissions
                         Set<String> perms = new HashSet<>();
                         if (rankData.containsKey("permissions")) {
                             List<?> permsRaw = (List<?>) rankData.get("permissions");
@@ -132,23 +122,10 @@ public class RankManager {
         } catch (Exception e) {
             System.err.println("Failed to load ranks: " + e.getMessage());
             ranks = new HashMap<>();
+            rawRankList = new ArrayList<>();
         }
     }
 
-    private void loadPermissions() {
-        if (!permissionsFile.exists()) {
-            permissions = new HashSet<>();
-            return;
-        }
-        try (Reader reader = new FileReader(permissionsFile)) {
-            Type type = new TypeToken<HashSet<Permission>>() {}.getType();
-            permissions = gson.fromJson(reader, type);
-            if (permissions == null) permissions = new HashSet<>();
-        } catch (Exception e) {
-            System.err.println("Failed to load permissions: " + e.getMessage());
-            permissions = new HashSet<>();
-        }
-    }
 
     public void saveData() {
         saveRanks();
@@ -158,12 +135,46 @@ public class RankManager {
     public void saveRanks() {
         try {
             dataFolder.mkdirs();
+            // Rebuild rawRankList from ranks map for saving
+            List<Map<String, Object>> saveList = new ArrayList<>();
+            for (Rank rank : ranks.values()) {
+                Map<String, Object> rankData = new LinkedHashMap<>();
+                rankData.put("displayName", rank.getDisplayName());
+                rankData.put("priority", rank.getPriority());
+                rankData.put("color", rank.getColor());
+                rankData.put("tabColor", rank.getTabColor());
+                rankData.put("chatColor", rank.getChatColor());
+                rankData.put("parent", rank.getParent());
+                rankData.put("temporary", rank.isTemporary());
+                rankData.put("expireAt", rank.getExpireAt());
+                // Permissions as [{name, enable}]
+                List<Map<String, Object>> perms = new ArrayList<>();
+                for (String perm : rank.getPermissions()) {
+                    Map<String, Object> permObj = new HashMap<>();
+                    permObj.put("name", perm);
+                    permObj.put("enable", true);
+                    perms.add(permObj);
+                }
+                rankData.put("permissions", perms);
+                Map<String, Object> wrapper = new LinkedHashMap<>();
+                wrapper.put(rank.getId(), rankData);
+                saveList.add(wrapper);
+            }
             try (Writer writer = new FileWriter(ranksFile)) {
-                gson.toJson(ranks, writer);
+                gson.toJson(saveList, writer);
             }
         } catch (Exception e) {
             System.err.println("Failed to save ranks: " + e.getMessage());
         }
+    }
+    // Utility: get all loaded ranks
+    public Collection<Rank> getAllRanks() {
+        return ranks.values();
+    }
+    // Utility: reload ranks.json and update static Rank.getAll()
+    public void reloadRanks() {
+        loadRanks();
+        // If needed, update static list in Rank here
     }
 
     public void savePermissions() {
@@ -199,9 +210,9 @@ public class RankManager {
 
     public Permission getPermission(String node) {
         return permissions.stream()
-                .filter(p -> p.getNode().equals(node))
-                .findFirst()
-                .orElse(null);
+            .filter(p -> p.getNode().equals(node))
+            .findFirst()
+            .orElse(null);
     }
 
     public Set<Permission> getAllPermissions() {

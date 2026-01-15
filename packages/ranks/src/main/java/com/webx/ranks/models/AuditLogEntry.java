@@ -4,9 +4,6 @@ import java.util.Date;
 
 public class AuditLogEntry {
         // For GUI compatibility
-        public long getTimestamp() {
-            return timestamp != null ? timestamp.getTime() : 0L;
-        }
     private String action;
     private String actor;
     private String target;

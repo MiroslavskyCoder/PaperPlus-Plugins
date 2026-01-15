@@ -25,9 +25,12 @@ public class RankAuditLogGUI {
     public static void show(CommandSender sender, List<AuditLogEntry> entries) {
         sender.sendMessage("§6=== Журнал действий с рангами ===");
         entries.stream()
-            .sorted((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()))
+            .sorted((a, b) -> Long.compare(
+                b.getTimestamp() != null ? b.getTimestamp().getTime() : 0L,
+                a.getTimestamp() != null ? a.getTimestamp().getTime() : 0L))
             .limit(20)
-            .forEach(entry -> sender.sendMessage("§7[" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date(entry.getTimestamp())) + "] §e" + entry.getAction() + " §7- §f" + entry.getActor() + " §8(" + entry.getTarget() + ")"));
+            .forEach(entry -> sender.sendMessage("§7[" + new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
+                entry.getTimestamp() != null ? entry.getTimestamp() : new java.util.Date(0)) + "] §e" + entry.getAction() + " §7- §f" + entry.getActor() + " §8(" + entry.getTarget() + ")"));
         sender.sendMessage("§7Показаны последние 20 событий. Фильтр: /rankaudit <игрок|ранг>");
     }
 
