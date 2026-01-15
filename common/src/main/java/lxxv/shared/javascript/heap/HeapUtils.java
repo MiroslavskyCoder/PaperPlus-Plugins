@@ -25,6 +25,24 @@ public final class HeapUtils {
         return out;
     }
 
+    public static HeapBuffer concatManaged(HeapManager manager, List<HeapBuffer> buffers) {
+        if (manager == null) {
+            return concat(buffers);
+        }
+        if (buffers == null || buffers.isEmpty()) {
+            return manager.allocate(0);
+        }
+        int total = buffers.stream().mapToInt(HeapBuffer::length).sum();
+        HeapBuffer out = manager.allocate(total);
+        int offset = 0;
+        for (HeapBuffer buf : buffers) {
+            if (buf == null) continue;
+            buf.copyTo(out, offset);
+            offset += buf.length();
+        }
+        return out;
+    }
+
     public static HeapBuffer concat(HeapBuffer... buffers) {
         List<HeapBuffer> list = new ArrayList<>();
         if (buffers != null) {
@@ -33,6 +51,16 @@ public final class HeapUtils {
             }
         }
         return concat(list);
+    }
+
+    public static HeapBuffer concatManaged(HeapManager manager, HeapBuffer... buffers) {
+        List<HeapBuffer> list = new ArrayList<>();
+        if (buffers != null) {
+            for (HeapBuffer b : buffers) {
+                if (b != null) list.add(b);
+            }
+        }
+        return concatManaged(manager, list);
     }
 
     public static HeapBuffer fromString(String value, String encoding) {
@@ -50,5 +78,25 @@ public final class HeapUtils {
             throw new IllegalArgumentException("Unsupported encoding: " + encoding);
         }
         return new HeapBuffer(bytes);
+    }
+
+    public static HeapBuffer fromStringManaged(HeapManager manager, String value, String encoding) {
+        if (manager == null) {
+            return fromString(value, encoding);
+        }
+        if (value == null) {
+            return manager.allocate(0);
+        }
+        byte[] bytes;
+        if (encoding == null || encoding.equalsIgnoreCase("utf8") || encoding.equalsIgnoreCase("utf-8")) {
+            bytes = value.getBytes(StandardCharsets.UTF_8);
+        } else if (encoding.equalsIgnoreCase("ascii")) {
+            bytes = value.getBytes(StandardCharsets.US_ASCII);
+        } else if (encoding.equalsIgnoreCase("latin1") || encoding.equalsIgnoreCase("binary")) {
+            bytes = value.getBytes(StandardCharsets.ISO_8859_1);
+        } else {
+            throw new IllegalArgumentException("Unsupported encoding: " + encoding);
+        }
+        return manager.wrap(bytes);
     }
 }

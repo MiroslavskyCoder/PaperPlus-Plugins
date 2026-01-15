@@ -29,11 +29,11 @@ public class HeapApi {
     }
 
     public HeapBuffer fromString(String value, String encoding) {
-        return HeapUtils.fromString(value, encoding);
+        return HeapUtils.fromStringManaged(manager, value, encoding);
     }
 
     public HeapBuffer concat(HeapBuffer... buffers) {
-        return HeapUtils.concat(buffers);
+        return HeapUtils.concatManaged(manager, buffers);
     }
 
     public void free(HeapBuffer buffer) {
