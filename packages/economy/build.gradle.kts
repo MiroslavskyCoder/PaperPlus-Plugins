@@ -2,6 +2,9 @@ plugins {
     java
 }
 
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.jvm.tasks.Jar
+
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
@@ -24,5 +27,14 @@ tasks {
     jar {
         archiveBaseName.set("economy")
         archiveVersion.set("0.1.0")
+
+        dependsOn(":universal-gui:jar")
+
+        // Shade only universal-gui classes into the plugin JAR so runtime has GuiService/ThemedView
+        from(configurations.runtimeClasspath.get()
+            .filter { it.name.contains("universal-gui") }
+            .map { zipTree(it) }) {
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
     }
 }
