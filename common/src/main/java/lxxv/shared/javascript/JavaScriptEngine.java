@@ -211,6 +211,8 @@ public class JavaScriptEngine {
             for (Map.Entry<String, Object> entry : globalContext.entrySet()) {
                 globalObject.set(entry.getKey(), entry.getValue());
             }
+            // Always inject requireNativeModule directly to globalObject
+            globalObject.set("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
 
             // Inject variables
             for (Map.Entry<String, Object> entry : variables.entrySet()) {
