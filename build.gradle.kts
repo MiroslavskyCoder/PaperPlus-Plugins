@@ -293,3 +293,10 @@ tasks.named("clean") {
     )
 }
 
+// Force a unified version across all subprojects
+subprojects {
+    afterEvaluate {
+        it.version = "0.1.4Beta"
+    }
+}
+
