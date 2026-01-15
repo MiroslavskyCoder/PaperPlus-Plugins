@@ -295,8 +295,8 @@ tasks.named("clean") {
 
 // Force a unified version across all subprojects
 subprojects {
-    afterEvaluate {
-        it.version = "0.1.4Beta"
+    afterEvaluate { proj ->
+        proj.version = "0.1.4Beta"
     }
 }
 
