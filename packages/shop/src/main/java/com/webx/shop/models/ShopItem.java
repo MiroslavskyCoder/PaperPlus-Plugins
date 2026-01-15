@@ -18,7 +18,8 @@ public class ShopItem {
         this.id = id;
         this.name = name;
         this.material = material;
-        this.amount = amount;
+        // Guard against zero/negative amounts coming from config to avoid IllegalArgumentException in ItemStack
+        this.amount = Math.max(1, amount);
         this.buyPrice = buyPrice;
         this.sellPrice = sellPrice;
         this.stock = stock;
@@ -108,6 +109,7 @@ public class ShopItem {
         } catch (IllegalArgumentException e) {
             mat = Material.STONE;
         }
-        return new ItemStack(mat, amount);
+        int safeAmount = Math.max(1, amount);
+        return new ItemStack(mat, safeAmount);
     }
 }

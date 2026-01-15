@@ -239,3 +239,6 @@ project(":create2").projectDir = File("packages/create2")
 
 include(":universal-gui")
 project(":universal-gui").projectDir = file("universal-gui")
+
+include(":redis-storage")
+project(":redis-storage").projectDir = file("redis-storage")
