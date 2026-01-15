@@ -50,6 +50,7 @@ public class JavaScriptEngine {
     private final Swc4j swc4j;
     private final Map<String, Object> globalContext;
     private final Map<String, JavaScriptFunction> registeredFunctions;
+    private final Map<String, Map<String, JavaScriptFunction>> nativeModules;
     private final FunctionRegistry functionRegistry;
     private final RuntimeMetrics runtimeMetrics;
     private final SandboxGuard sandboxGuard;
@@ -66,11 +67,13 @@ public class JavaScriptEngine {
     private final LoggerApi loggerApi;
     private final HeapApi heapApi;
     private final ProcessApi processApi;
+    private final ThreadLocal<String> activeModule;
     private boolean enabled;
 
     private JavaScriptEngine() {
         this.globalContext = new ConcurrentHashMap<>();
         this.registeredFunctions = new ConcurrentHashMap<>();
+        this.nativeModules = new ConcurrentHashMap<>();
         this.functionRegistry = new FunctionRegistry();
         this.runtimeMetrics = new RuntimeMetrics();
         this.sandboxGuard = new SandboxGuard();
@@ -87,6 +90,7 @@ public class JavaScriptEngine {
         this.loggerApi = new LoggerApi(java.util.logging.Logger.getLogger("JS"));
         this.heapApi = new HeapApi(heapManager);
         this.processApi = new ProcessApi(heapApi);
+        this.activeModule = new ThreadLocal<>();
         this.swc4j = new Swc4j();
         this.enginePool = initializeEngine();
         this.enabled = (enginePool != null);
@@ -100,6 +104,7 @@ public class JavaScriptEngine {
         this.globalContext.put("logger", loggerApi);
         this.globalContext.put("heap", heapApi);
         this.globalContext.put("process", processApi);
+        this.globalContext.put("requireNativeModule", (JavaScriptFunction) args -> requireNativeModule(args != null && args.length > 0 ? args[0] : null));
     }
 
     public static synchronized JavaScriptEngine getInstance() {
@@ -249,6 +254,12 @@ public class JavaScriptEngine {
      * Register a custom Java function accessible from JavaScript
      */
     public void registerFunction(String name, JavaScriptFunction function) {
+        String moduleName = activeModule.get();
+        if (moduleName != null) {
+            nativeModules.computeIfAbsent(moduleName, k -> new ConcurrentHashMap<>()).put(name, function);
+            return;
+        }
+
         registeredFunctions.put(name, function);
         functionRegistry.register(name, function);
         globalContext.put("server", functionRegistry.getServerBindings());
@@ -261,10 +272,7 @@ public class JavaScriptEngine {
      */
     public void registerFunctionLambda(String name, Function<Object[], Object> function) {
         JavaScriptFunction wrapped = args -> function.apply(args);
-        registeredFunctions.put(name, wrapped);
-        functionRegistry.register(name, wrapped);
-        globalContext.put("server", functionRegistry.getServerBindings());
-        globalContext.put(name, wrapped);
+        registerFunction(name, wrapped);
     }
 
     /**
@@ -332,6 +340,30 @@ public class JavaScriptEngine {
 
     public MetricsApi getMetricsApi() {
         return metricsApi;
+    }
+
+    public void beginModuleRegistration(String moduleName) {
+        if (moduleName == null) return;
+        nativeModules.computeIfAbsent(moduleName, k -> new ConcurrentHashMap<>());
+        activeModule.set(moduleName);
+    }
+
+    public void endModuleRegistration() {
+        activeModule.remove();
+    }
+
+    public Map<String, JavaScriptFunction> getNativeModule(String name) {
+        if (name == null) return Map.of();
+        Map<String, JavaScriptFunction> module = nativeModules.get(name.toString());
+        return module != null ? Map.copyOf(module) : Map.of();
+    }
+
+    private Object requireNativeModule(Object name) {
+        Map<String, JavaScriptFunction> module = getNativeModule(name != null ? name.toString() : null);
+        if (module.isEmpty()) {
+            return Map.of("__error", "Native module not found: " + name);
+        }
+        return module;
     }
 
     /**
