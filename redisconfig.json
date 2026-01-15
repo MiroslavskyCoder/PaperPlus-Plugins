@@ -1,0 +1,9 @@
+{
+  "host": "127.0.0.1",
+  "port": 6379,
+  "password": "",
+  "database": 0,
+  "ssl": false,
+  "timeoutMillis": 2000,
+  "socketTimeoutMillis": 2000
+}
