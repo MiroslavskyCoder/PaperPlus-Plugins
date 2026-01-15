@@ -32,113 +32,116 @@ public class EventModule {
     private static final String ARGS_CTX = "__eventBridgeArgs";
 
     private static final String BOOTSTRAP_SCRIPT = """
-        (function bootstrapEventModule(){
+        (function setupEventBridge(){
             const g = typeof globalThis !== 'undefined' ? globalThis : this;
-            if (g.EventModule) {
-                return;
+
+            const bindFromServer = () => {
+                if (g.server && typeof g.server.__EventBridge_register === 'function') {
+                    g.__EventBridge_register = g.server.__EventBridge_register;
+                    g.__EventBridge_remove = g.server.__EventBridge_remove;
+                    g.__EventBridge_emit = g.server.__EventBridge_emit;
+                    g.__EventBridge_length = g.server.__EventBridge_length;
+                    g.__EventBridge_clear = g.server.__EventBridge_clear;
+                }
+            };
+
+            if (typeof g.__EventBridge_register !== 'function') {
+                bindFromServer();
             }
             if (typeof g.__EventBridge_register !== 'function') {
                 throw new Error('EventModule bridge is not ready');
             }
+            if (g.EventModule) {
+                return;
+            }
+
             const callbacks = new Map();
             let counter = 0;
-            const ensureEventName = (eventName) => {
-                if (typeof eventName !== 'string' || eventName.trim().length === 0) {
-                    throw new TypeError('Event name must be a non-empty string');
+
+            const ensureName = (name) => {
+                if (typeof name !== 'string' || !name.trim()) {
+                    throw new TypeError('event name is required');
                 }
-                return eventName;
+                return name;
             };
-            const ensureHandler = (handler) => {
-                if (typeof handler !== 'function') {
-                    throw new TypeError('Event handler must be a function');
+
+            const ensureHandler = (fn) => {
+                if (typeof fn !== 'function') {
+                    throw new TypeError('handler must be a function');
                 }
-                return handler;
+                return fn;
             };
-            const createId = () => 'evt_' + Date.now().toString(36) + '_' + (++counter);
-            const register = (eventName, handler, options) => {
-                const name = ensureEventName(eventName);
+
+            const nextId = () => `evt_${Date.now().toString(36)}_${++counter}`;
+
+            const register = (eventName, handler, once) => {
+                const name = ensureName(eventName);
                 const fn = ensureHandler(handler);
-                const opts = options || {};
-                const id = createId();
-                callbacks.set(id, { handler: fn, event: name, once: !!opts.once });
-                g.__EventBridge_register(name, id, !!opts.once);
+                const id = nextId();
+                callbacks.set(id, { handler: fn, event: name, once: !!once });
+                g.__EventBridge_register(name, id, !!once);
                 return id;
             };
-            const on = (eventName, handler, options) => register(eventName, handler, options);
-            const once = (eventName, handler) => register(eventName, handler, { once: true });
-            const off = (eventName, handlerOrId) => {
-                ensureEventName(eventName);
-                if (!handlerOrId) {
-                    return false;
-                }
+
+            const on = (eventName, handler, options) => register(eventName, handler, options && options.once);
+            const once = (eventName, handler) => register(eventName, handler, true);
+
+            const off = (eventName, target) => {
+                const name = ensureName(eventName);
+                if (!target) return false;
                 const ids = [];
-                if (typeof handlerOrId === 'string') {
-                    ids.push(handlerOrId);
-                } else if (typeof handlerOrId === 'function') {
+                if (typeof target === 'string') {
+                    ids.push(target);
+                } else if (typeof target === 'function') {
                     for (const [id, meta] of callbacks.entries()) {
-                        if (meta.event === eventName && meta.handler === handlerOrId) {
-                            ids.push(id);
-                        }
+                        if (meta.event === name && meta.handler === target) ids.push(id);
                     }
-                }
-                if (!ids.length) {
-                    return false;
                 }
                 ids.forEach((id) => {
                     callbacks.delete(id);
-                    g.__EventBridge_remove(eventName, id);
+                    g.__EventBridge_remove(name, id);
                 });
-                return true;
+                return ids.length > 0;
             };
+
             const emit = (eventName, ...args) => {
-                ensureEventName(eventName);
-                return g.__EventBridge_emit(eventName, ...args) || 0;
+                const name = ensureName(eventName);
+                return g.__EventBridge_emit(name, ...args) || 0;
             };
+
             const emitAsync = (eventName, ...args) => Promise.resolve(emit(eventName, ...args));
-            const length = (eventName) => g.__EventBridge_length(ensureEventName(eventName));
+
+            const length = (eventName) => g.__EventBridge_length(ensureName(eventName));
+
             const listeners = (eventName) => {
-                ensureEventName(eventName);
+                const name = ensureName(eventName);
                 return Array.from(callbacks.entries())
-                    .filter(([, meta]) => meta.event === eventName)
+                    .filter(([, meta]) => meta.event === name)
                     .map(([id, meta]) => ({ id, once: !!meta.once }));
             };
-            const events = () => {
-                const names = new Set();
-                for (const meta of callbacks.values()) {
-                    names.add(meta.event);
-                }
-                return Array.from(names);
-            };
+
+            const events = () => Array.from(new Set(Array.from(callbacks.values()).map((meta) => meta.event)));
+
             const clear = (eventName) => {
                 if (!eventName) {
                     callbacks.clear();
                     g.__EventBridge_clear();
                     return true;
                 }
-                ensureEventName(eventName);
+                const name = ensureName(eventName);
                 for (const [id, meta] of callbacks.entries()) {
-                    if (meta.event === eventName) {
+                    if (meta.event === name) {
                         callbacks.delete(id);
                         g.__EventBridge_remove(meta.event, id);
                     }
                 }
                 return true;
             };
+
             g.__eventModule = { callbacks };
-            g.EventModule = Object.freeze({
-                on,
-                once,
-                off,
-                emit,
-                emitAsync,
-                length,
-                listeners,
-                events,
-                clear
-            });
+            g.EventModule = Object.freeze({ on, once, off, emit, emitAsync, length, listeners, events, clear });
             g.addEventListener = on;
             g.removeEventListener = off;
-            g.onceEventListener = once;
         })();
         """;
 

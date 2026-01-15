@@ -37,7 +37,7 @@ public class LXXVServer {
         server = Objects.requireNonNull(serverInstance, "server");
         jsEngine = Objects.requireNonNull(engine, "engine");
         eventSystem = new JavaScriptEventSystem();
-        scheduler = new JavaScriptScheduler(server);
+        scheduler = new JavaScriptScheduler();
         eventModule = new EventModule(jsEngine, eventSystem);
         eventModule.register();
         registerJavaScriptModules();
