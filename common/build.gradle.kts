@@ -30,7 +30,8 @@ dependencies {
     // GraalVM JavaScript (fallback)
     implementation("org.graalvm.js:js:22.3.0")
     implementation("org.graalvm.js:js-scriptengine:22.3.0")
-    
+     
+
     // Javalin for REST API
     implementation("io.javalin:javalin:6.7.0")
     

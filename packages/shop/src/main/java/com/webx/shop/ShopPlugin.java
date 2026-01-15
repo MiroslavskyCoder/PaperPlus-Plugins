@@ -51,6 +51,7 @@ public class ShopPlugin extends JavaPlugin {
     public void onDisable() {
         if (shopManager != null) {
             shopManager.saveShops();
+            shopManager.close();
         }
         if (shopSyncService != null) {
             shopSyncService.stop();

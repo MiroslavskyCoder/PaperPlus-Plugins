@@ -1,6 +1,20 @@
 shop:
   max-shops: 100
   max-items-per-shop: 54
+
+storage:
+  type: redis # redis | file
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: ""
+    database: 0
+    ssl: false
+    timeout-millis: 2000
+    socket-timeout-millis: 2000
+  # used when type=file
+  file:
+    path: shop.json
   
 gui:
   title: '&6Shop Menu'
