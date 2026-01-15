@@ -19,45 +19,30 @@ public class ConsoleModule {
         this.engine = Objects.requireNonNull(engine, "engine");
     }
 
-    public void register() {
-        engine.registerFunction("consoleLog", args -> {
-            LOGGER.info(join(args));
-            return null;
-        });
-
-        engine.registerFunction("consoleWarn", args -> {
-            LOGGER.warning(join(args));
-            return null;
-        });
-
-        engine.registerFunction("consoleError", args -> {
-            LOGGER.log(Level.SEVERE, join(args));
-            return null;
-        });
-
+    public void register() { 
         // Aliases with dot notation for compatibility
-        engine.registerFunction("console.log", args -> {
+        engine.registerFunction("log", args -> {
             LOGGER.info("[LXXV Engine]: " + join(args));
             return null;
         });
 
-        engine.registerFunction("console.warn", args -> {
+        engine.registerFunction("warn", args -> {
             LOGGER.warning("[LXXV Engine]: " + join(args));
             return null;
         });
 
-        engine.registerFunction("console.error", args -> {
+        engine.registerFunction("error", args -> {
             LOGGER.log(Level.SEVERE, "[LXXV Engine]: " + join(args));
             return null;
         });
 
-        engine.registerFunction("consoleBroadcast", args -> {
+        engine.registerFunction("broadcast", args -> {
             String msg = args.length > 0 && args[0] != null ? args[0].toString() : "";
             Bukkit.broadcastMessage(msg);
             return null;
         });
 
-        engine.registerFunction("consoleExec", args -> {
+        engine.registerFunction("exec", args -> {
             if (args.length == 0 || args[0] == null) return false;
             return Bukkit.dispatchCommand(Bukkit.getConsoleSender(), args[0].toString());
         });
