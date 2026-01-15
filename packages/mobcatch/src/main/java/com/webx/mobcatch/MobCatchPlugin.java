@@ -7,6 +7,7 @@ import com.webx.redis.RedisConfig;
 import com.webx.redis.RedisIO;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
