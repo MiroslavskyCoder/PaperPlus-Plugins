@@ -624,7 +624,16 @@ public class RouterProvider {
         app.get(API.getFullPath("clans/{name}"), clanService::getClan);
         app.get(API.getFullPath("clans/player/{uuid}"), clanService::getClanByPlayer);
         app.get(API.getFullPath("leaderboards/clans"), clanService::getTopClans);
-        plugin.getLogger().info("✅ Clan API routes registered");
+
+        // --- New: Clan Bank, Roles, Level, History API for dashboard integration ---
+        com.webx.clans.web.ClanDashboardApi clanDashboardApi = new com.webx.clans.web.ClanDashboardApi();
+        app.get(API.getFullPath("clans/{clanId}/bank"), clanDashboardApi::getClanOverview); // Example: GET bank info
+        app.post(API.getFullPath("clans/{clanId}/bank"), clanDashboardApi::postClanBank);   // Example: POST deposit/withdraw
+        app.post(API.getFullPath("clans/{clanId}/role"), clanDashboardApi::postClanRole);   // Example: POST role change
+        app.post(API.getFullPath("clans/{clanId}/level"), clanDashboardApi::postClanLevel); // Example: POST level up/xp
+        app.get(API.getFullPath("clans/{clanId}/history"), clanDashboardApi::getClanOverview); // Example: GET history
+
+        plugin.getLogger().info("✅ Clan API routes registered (with bank, roles, level, history)");
     }
     
     private void registerLeaderboardRoutes() {

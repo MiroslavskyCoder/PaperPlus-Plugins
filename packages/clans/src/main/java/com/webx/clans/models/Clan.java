@@ -3,6 +3,37 @@ package com.webx.clans.models;
 import java.util.*;
 
 public class Clan {
+        public ClanBank getBank() {
+            return bank;
+        }
+
+        public void setBank(ClanBank bank) {
+            this.bank = bank;
+        }
+
+        public Map<UUID, ClanRole> getRoleMap() {
+            return roleMap;
+        }
+
+        public void setRoleMap(Map<UUID, ClanRole> roleMap) {
+            this.roleMap = roleMap;
+        }
+
+        public ClanLevel getClanLevel() {
+            return clanLevel;
+        }
+
+        public void setClanLevel(ClanLevel clanLevel) {
+            this.clanLevel = clanLevel;
+        }
+
+        public List<ClanHistoryEvent> getHistory() {
+            return history;
+        }
+
+        public void setHistory(List<ClanHistoryEvent> history) {
+            this.history = history;
+        }
     private final String id;
     private String name;
     private String tag;
@@ -14,6 +45,12 @@ public class Clan {
     private double power; // Clan power based on total member coins
     private String description;
     private long createdAt;
+
+    // --- New fields for bank, roles, level, history ---
+    private ClanBank bank;
+    private Map<UUID, ClanRole> roleMap; // uuid -> role
+    private ClanLevel clanLevel;
+    private List<ClanHistoryEvent> history;
 
     public Clan(String name, UUID leader) {
         this.id = UUID.randomUUID().toString();
@@ -28,6 +65,10 @@ public class Clan {
         this.description = "A clan";
         this.createdAt = System.currentTimeMillis();
         this.members.put(leader, "LEADER");
+        this.bank = new ClanBank();
+        this.roleMap = new HashMap<>();
+        this.clanLevel = new ClanLevel();
+        this.history = new ArrayList<>();
     }
 
     public String getId() {
