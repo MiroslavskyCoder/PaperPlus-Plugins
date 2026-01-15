@@ -28,10 +28,15 @@ commands:
     description: Show top players by coins
     usage: /<command> [limit]
     aliases: [coinleaders, richtop]
+  econgui:
+    description: Open economy dashboard GUI
+    usage: /<command>
+    aliases: [econ, econdash]
+    permission: economy.use
 
 permissions:
   economy.use:
-    description: Use economy commands
+    description: Use economy commands and GUI
     default: true
   economy.admin:
     description: Admin economy commands

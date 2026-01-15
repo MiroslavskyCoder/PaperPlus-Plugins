@@ -14,6 +14,11 @@ commands:
     description: Admin shop commands
     usage: /<command> <create|delete|edit|list> [name]
     aliases: [ashop]
+  shopdash:
+    description: Open shop admin dashboard GUI
+    usage: /<command>
+    aliases: [shopadmin, shopdashboard]
+    permission: shop.admin
 
 permissions:
   shop.use:

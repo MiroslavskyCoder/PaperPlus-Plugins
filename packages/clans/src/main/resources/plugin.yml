@@ -14,6 +14,11 @@ commands:
     description: View top clans by power
     usage: /<command> [limit]
     aliases: [clantop, topclan]
+  clangui:
+    description: Open clan dashboard GUI
+    usage: /<command>
+    aliases: [clandash]
+    permission: clans.use
 
 permissions:
   clans.use:

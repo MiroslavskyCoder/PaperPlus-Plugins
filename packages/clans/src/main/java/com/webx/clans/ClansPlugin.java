@@ -5,6 +5,7 @@ import com.webx.clans.listeners.*;
 import com.webx.clans.managers.*;
 import com.webx.clans.utils.ConfigManager;
 import com.webx.clans.utils.MessageManager;
+import com.webx.unigui.GuiService;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ClansPlugin extends JavaPlugin {
@@ -19,6 +20,7 @@ public class ClansPlugin extends JavaPlugin {
     private ConfigManager configManager;
     private MessageManager messageManager;
     private ClanDisplayListener clanDisplayListener;
+    private GuiService guiService;
 
     @Override
     public void onEnable() {
@@ -36,6 +38,8 @@ public class ClansPlugin extends JavaPlugin {
         inviteManager = new InviteManager(this);
         clanPowerManager = new ClanPowerManager(this, clanManager);
         clanDisplayListener = new ClanDisplayListener(this, clanManager);
+        guiService = new GuiService(this);
+        guiService.registerEvents();
         
         registerCommands();
         registerListeners();
@@ -60,6 +64,7 @@ public class ClansPlugin extends JavaPlugin {
     private void registerCommands() {
         getCommand("clan").setExecutor(new ClanCommand(this));
         getCommand("topclans").setExecutor(new TopClansCommand(this, clanManager));
+        getCommand("clangui").setExecutor(new com.webx.clans.commands.ClanDashboardCommand(this));
     }
 
     private void registerListeners() {
@@ -104,5 +109,9 @@ public class ClansPlugin extends JavaPlugin {
 
     public MessageManager getMessageManager() {
         return messageManager;
+    }
+
+    public GuiService getGuiService() {
+        return guiService;
     }
 }

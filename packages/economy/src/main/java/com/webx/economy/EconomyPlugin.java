@@ -10,6 +10,7 @@ import com.webx.economy.storage.StorageProvider;
 import com.webx.economy.storage.YamlStorage;
 import com.webx.economy.utils.ConfigManager;
 import com.webx.economy.utils.MessageManager;
+import com.webx.unigui.GuiService;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class EconomyPlugin extends JavaPlugin {
@@ -22,6 +23,7 @@ public class EconomyPlugin extends JavaPlugin {
     private ConfigManager configManager;
     private MessageManager messageManager;
     private StorageProvider storage;
+    private GuiService guiService;
 
     @Override
     public void onEnable() {
@@ -38,6 +40,8 @@ public class EconomyPlugin extends JavaPlugin {
         transactionManager = new TransactionManager(this);
         bankManager = new BankManager(this);
         balTopManager = new BalTopManager(this);
+        guiService = new GuiService(this);
+        guiService.registerEvents();
         
         registerCommands();
         registerListeners();
@@ -91,6 +95,7 @@ public class EconomyPlugin extends JavaPlugin {
         getCommand("bank").setExecutor(new BankCommand(this));
         getCommand("eco").setExecutor(new EcoCommand(this));
         getCommand("topcoins").setExecutor(new TopCoinsCommand(this, accountManager));
+        getCommand("econgui").setExecutor(new com.webx.economy.commands.EconomyDashboardCommand(this));
     }
 
     private void registerListeners() {
@@ -124,5 +129,9 @@ public class EconomyPlugin extends JavaPlugin {
 
     public MessageManager getMessageManager() {
         return messageManager;
+    }
+
+    public GuiService getGuiService() {
+        return guiService;
     }
 }

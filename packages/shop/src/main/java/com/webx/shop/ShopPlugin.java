@@ -8,6 +8,7 @@ import com.webx.shop.managers.TransactionManager;
 import com.webx.shop.services.ShopSyncService;
 import com.webx.shop.utils.ConfigManager;
 import com.webx.shop.utils.MessageManager;
+import com.webx.unigui.GuiService;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ShopPlugin extends JavaPlugin {
@@ -19,6 +20,7 @@ public class ShopPlugin extends JavaPlugin {
     private ConfigManager configManager;
     private MessageManager messageManager;
     private ShopSyncService shopSyncService;
+    private GuiService guiService;
 
     @Override
     public void onEnable() {
@@ -33,6 +35,8 @@ public class ShopPlugin extends JavaPlugin {
         inventoryManager = new InventoryManager(this);
         transactionManager = new TransactionManager(this);
         shopSyncService = new ShopSyncService(this, shopManager);
+        guiService = new GuiService(this);
+        guiService.registerEvents();
         
         registerCommands();
         registerListeners();
@@ -58,6 +62,7 @@ public class ShopPlugin extends JavaPlugin {
     private void registerCommands() {
         getCommand("shop").setExecutor(new ShopCommand(this));
         getCommand("adminshop").setExecutor(new AdminShopCommand(this));
+        getCommand("shopdash").setExecutor(new ShopDashboardCommand(this));
     }
 
     private void registerListeners() {
@@ -86,5 +91,13 @@ public class ShopPlugin extends JavaPlugin {
 
     public MessageManager getMessageManager() {
         return messageManager;
+    }
+
+    public ShopSyncService getShopSyncService() {
+        return shopSyncService;
+    }
+
+    public GuiService getGuiService() {
+        return guiService;
     }
 }

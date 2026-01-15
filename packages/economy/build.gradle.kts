@@ -13,6 +13,7 @@ dependencies {
     
     // Shared database library
     implementation(project(":common"))
+    implementation(project(":universal-gui"))
 }
 
 tasks {
